@@ -32,6 +32,7 @@
     "persona/*.md",
     "locale/*.json",
     "icon.svg",
+    "assets/hero.svg",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"

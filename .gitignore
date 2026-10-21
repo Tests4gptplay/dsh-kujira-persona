@@ -1,0 +1,9 @@
+node_modules/
+pnpm-lock.yaml
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.env
+.vscode/
+.idea/

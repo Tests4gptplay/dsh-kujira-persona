@@ -1,0 +1,44 @@
+{
+  "name": "dsh-kujira-persona",
+  "version": "1.3.1",
+  "description": "DeepSeek Harness 全局人设插件：鲸鱼娘人设写成文件，可改可删，AI 可自行查证补充",
+  "type": "module",
+  "license": "CC-BY-NC-SA-4.0",
+  "author": "Tests4gptplay",
+  "homepage": "https://github.com/Tests4gptplay/dsh-kujira-persona#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tests4gptplay/dsh-kujira-persona.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tests4gptplay/dsh-kujira-persona/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "persona",
+    "whale",
+    "鲸鱼娘"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "persona/*.md",
+    "locale/*.json",
+    "icon.svg",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

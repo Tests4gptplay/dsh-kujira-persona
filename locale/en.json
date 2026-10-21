@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Kujira Persona",
+    "description": "Injects the whale-maid persona dossier into every session's system prompt; the dossier is editable Markdown on disk."
+  }
+}

@@ -25,109 +25,49 @@
 
 ## 安装
 
-本插件目前提供 **GitHub Release 预打包安装包（推荐）** 和 **GitHub 源码安装**，可用于已经安装 DeepSeek Harness 的环境。当前安装包版本为 **v1.3.1**。
+> **发布状态（2026-10-22）：** 本插件正在准备正式发布到 npm 官方源。目标包名为 `@tests4gptplay/dsh-kujira-persona`，**但目前尚未发布、还不能通过该包名安装**。下面的 GitHub 安装方式仅用于当前 v1.3.1 版本过渡，不是未来的首选方式。
 
-> **注意：尚未发布到 npm Registry（npmjs.com）。** `.tgz` 是 npm 包格式，但不代表可以从 npm 官方仓库按包名下载。因此目前不要只在安装框输入 `dsh-kujira-persona` 作为 npm 包名；请使用下面的 GitHub 下载地址、仓库地址或本地 `.tgz` 文件。
+### 官方桌面应用（目前：GitHub 过渡安装）
 
-### 方式一：在 DSH 图形界面安装（推荐）
-
-1. 打开 DeepSeek Harness，在侧栏进入 **插件**，点击 **添加插件**。
-2. 在输入框粘贴下方的 **GitHub Release `.tgz` 安装包地址**：
+1. 打开 DeepSeek Harness 桌面应用，在侧栏选择 **插件 → 添加插件**。
+2. 将下面这一行填入安装框，点击 **安装**：
 
    ```text
-   https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz
+   github:Tests4gptplay/dsh-kujira-persona#v1.3.1
    ```
 
-3. 点击 **安装**。完成后，如果界面出现 **启用** 操作，请点击启用该插件；如仍未生效，重启对应的 DSH 应用 / profile。
-4. 进入聊天，输入 `/persona` 检查插件是否成功加载。
+3. 安装完成后启用插件，并重启 DSH。
+4. 在聊天中输入 `/persona` 查看人设加载状态。
 
-也可以在添加插件输入框填写仓库地址，让 DSH 从 GitHub 获取源码：
+这是 GitHub 包标识，**不是 npm 包名**。目前不要在“npm 官方源”中只输入尚未发布的 `@tests4gptplay/dsh-kujira-persona`。
 
-```text
-https://github.com/Tests4gptplay/dsh-kujira-persona
-```
+### 正式 npm 安装（发布后启用）
 
-**关于界面右侧的「安装源：npm 官方源」：** 这里选择的是解析 npm 包名时使用的注册表（例如 npm 官方源或镜像源），**不是**“只允许安装 npm 包”的限制。输入 GitHub 地址或 `.tgz` URL 时，文件仍需要从 GitHub 下载；如果 GitHub 网络无法访问，切换 npm 镜像不能替代 GitHub 下载。源码方式和预打包方式相比，推荐优先使用上面的 `.tgz`。
+正式发布后，DSH 官方桌面应用的操作会与其他 npm 插件相同：**插件 → 添加插件 → 输入包名 → 安装 → 启用 → 重启**。
 
-### 方式二：命令行安装 GitHub Release 包（推荐）
+| 插件 | npm package name |
+| --- | --- |
+| Kujira Persona | `@tests4gptplay/dsh-kujira-persona`（待发布） |
 
-不想经过图形界面，可以把 GitHub Release 压缩包交给 DSH 插件管理命令：
+正式 npm 包尚未上线，所以**此处是目标安装方式，不是当前可执行的安装步骤**。
 
-```bash
-# Desktop 版（Windows 桌面端通常使用 desktop profile）
-dsh plugin --profile desktop add https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz
-
-# Web 版使用 web profile；不要把两个 profile 混用
-dsh plugin --profile web add https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz
-```
-
-如果所在环境不方便让 CLI 直接下载，可先从 [v1.3.1 Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v1.3.1) 下载 `dsh-kujira-persona.tgz`，在下载目录执行：
+### Web 版 CLI（目前：GitHub 过渡安装）
 
 ```bash
-dsh plugin --profile desktop add ./dsh-kujira-persona.tgz
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.3.1'
 ```
 
-`dsh plugin` 会把插件安装到指定 profile，并自动维护 `dsh.profile.bundles`。单独执行 `npm install` 并不等于已经让 DSH 激活这个 bundle。Release 包已经包含 `index.js`、`cordis.patch.yml` 和人设 Markdown 文件，无需自己编译。
+`web` 与桌面版使用的 `desktop` profile 是两个不同的安装位置，不要混用。正式 npm 包发布后，可改为 `dsh plugin --profile web add '@tests4gptplay/dsh-kujira-persona'`。
 
-### 方式三：从 GitHub 源码安装
+### 备用下载：GitHub Release
 
-```bash
-# Desktop 版；Web 版把 desktop 替换成 web
-dsh plugin --profile desktop add github:Tests4gptplay/dsh-kujira-persona
+当前 v1.3.1 也提供 [预打包 `.tgz` 文件](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz)，供需要离线或手动安装的用户使用。该文件已通过 npm 打包和本地安装验证；它不是发布在 npm 官方源上的包，也**不是默认推荐的桌面版安装输入**。
 
-# 若希望锁定此版本，可使用 Git tag
-dsh plugin --profile desktop add github:Tests4gptplay/dsh-kujira-persona#v1.3.1
-```
+### 安装验证与旧版迁移
 
-这是源码依赖安装方式。当前插件代码为原生 JavaScript，不需要额外的 TypeScript 构建。安装后可能需要重启 DSH 才会加载。
+安装、启用并重启 DSH 后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和注入文件清单。
 
-### 安装后如何确认
-
-- **图形界面：** 在「插件」列表找到 `dsh-kujira-persona`，确认它处于启用状态；然后在聊天里输入 `/persona`。
-- **命令行：** 根据实际使用的 profile 执行 `dsh plugin --profile desktop why dsh-kujira-persona`（Web 版改成 `web`），检查依赖是否已安装。
-- **效果检查：** `/persona` 会显示人设目录、注入文件数和字符数；`/persona files` 可列出实际注入的文件。
-
-如果 CLI 提示 `dsh` 不存在，请先确认 DeepSeek Harness 的 CLI 已正确安装并可从当前终端调用。**安装到 `web` 不会自动安装到 `desktop`，反之亦然。** 如需卸载，可执行：
-
-```bash
-dsh plugin --profile desktop remove dsh-kujira-persona
-```
-
-### 方式四：手动编辑 profile（高级使用）
-
-如果不用 `dsh plugin add`，也可编辑 `~/.dsh/profiles/<profile>/package.json`（Windows 上位于对应用户的 `.dsh/profiles` 目录）：
-
-```jsonc
-{
-  "dependencies": {
-    "dsh-kujira-persona": "github:Tests4gptplay/dsh-kujira-persona#main"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": [
-        // 此处保留原来的所有 bundle 条目，并在末尾追加以下包名
-        "dsh-kujira-persona"
-      ]
-    }
-  }
-}
-```
-
-保留原有依赖和 bundle 列表，不要用上面的示例覆盖整个文件。之后在该 profile 目录运行 `pnpm install`，再重启对应 DSH。
-
-### 本地开发用 link
-
-开发本插件时，可在 profile 的 `package.json` 中声明本地链接：
-
-```jsonc
-{
-  "dependencies": {
-    "dsh-kujira-persona": "link:D:/path/to/dsh-kujira-persona"
-  }
-}
-```
-
-在对应 profile 目录安装依赖并启用这个 bundle。正式使用建议采用 GitHub Release 安装包。
+以后切换到 npm scoped 包时，请先从同一个 profile 中移除旧的 `dsh-kujira-persona`，再安装 `@tests4gptplay/dsh-kujira-persona`；两者使用同一个 `whale-persona` 插件 ID，不应同时启用。自定义人设默认存储在 `~/.dsh/persona`，迁移时请保留这个目录。
 
 ## 结构
 

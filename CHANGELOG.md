@@ -1,5 +1,13 @@
 # 更新记录
 
+## 1.3.2（npm scoped 包发布准备）
+
+- 计划将 npm 包名调整为 `@tests4gptplay/dsh-kujira-persona`，支持在 DSH 的「添加插件」窗口直接输入包名安装
+- `cordis.patch.yml` 对应使用 scoped 包名，同时保留原有 `whale-persona` 插件 ID
+- 声明公开发布配置 `publishConfig.access: public`，保留 GitHub Release 旧包供迁移
+- 此版本仅完成发布准备；正式对外可用以 npm Registry 首次发布及安装验证为准
+
+
 ## 1.3.1
 
 - **修复**：同步状态此前把「用户自己的哈希」和「插件写入的哈希」记在同一个字段，

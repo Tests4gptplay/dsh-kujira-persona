@@ -25,49 +25,59 @@
 
 ## 安装
 
-> **发布状态（2026-10-22）：** 本插件正在准备正式发布到 npm 官方源。目标包名为 `@tests4gptplay/dsh-kujira-persona`，**但目前尚未发布、还不能通过该包名安装**。下面的 GitHub 安装方式仅用于当前 v1.3.1 版本过渡，不是未来的首选方式。
+> **发布准备分支说明：** 本分支为 `@tests4gptplay/dsh-kujira-persona@1.3.2` 的 npm 首发准备稿。**npm 官方源尚未上架本包**，下面的 npm 安装步骤仅在首次发布成功并核验后可用。当前可用的 v1.3.1 GitHub 安装方式见下方“发布前备用方式”。
 
-### 官方桌面应用（目前：GitHub 过渡安装）
+### 官方桌面应用（npm 正式发布后推荐）
 
-1. 打开 DeepSeek Harness 桌面应用，在侧栏选择 **插件 → 添加插件**。
-2. 将下面这一行填入安装框，点击 **安装**：
+1. 在 DeepSeek Harness 桌面应用侧栏打开 **插件 → 添加插件**。
+2. 安装源保持 **npm 官方源**，在输入框粘贴以下包名：
 
-   ```text
-   github:Tests4gptplay/dsh-kujira-persona#v1.3.1
-   ```
+   | 插件 | npm package name |
+   | --- | --- |
+   | Kujira Persona | `@tests4gptplay/dsh-kujira-persona` |
 
-3. 安装完成后启用插件，并重启 DSH。
-4. 在聊天中输入 `/persona` 查看人设加载状态。
+3. 点击 **安装**，按提示 **启用**，然后 **重启 DSH 一次**。
+4. 在聊天中输入 `/persona` 检查人设是否已注入。
 
-这是 GitHub 包标识，**不是 npm 包名**。目前不要在“npm 官方源”中只输入尚未发布的 `@tests4gptplay/dsh-kujira-persona`。
+只输入 `@tests4gptplay/dsh-kujira-persona` 即可，**无需下载 `.tgz`、克隆 GitHub、配置 CLI 或手动修改 profile**。这是与 `dsh-deep-whale` 相同的桌面安装体验。
 
-### 正式 npm 安装（发布后启用）
+> 新版本刚发布时，部分 DSH / pnpm 默认配置可能因 npm 包 24 小时版本年龄限制而暂不选择最新版本。此时可在同一个安装框显式输入 `@tests4gptplay/dsh-kujira-persona@^1.3.2`；实际以当前 DSH 版本的安装行为为准。
 
-正式发布后，DSH 官方桌面应用的操作会与其他 npm 插件相同：**插件 → 添加插件 → 输入包名 → 安装 → 启用 → 重启**。
+### Web 版 CLI（npm 正式发布后推荐）
 
-| 插件 | npm package name |
-| --- | --- |
-| Kujira Persona | `@tests4gptplay/dsh-kujira-persona`（待发布） |
+```bash
+dsh plugin --profile web add '@tests4gptplay/dsh-kujira-persona'
+```
 
-正式 npm 包尚未上线，所以**此处是目标安装方式，不是当前可执行的安装步骤**。
+如需升级：
 
-### Web 版 CLI（目前：GitHub 过渡安装）
+```bash
+dsh plugin --profile web update '@tests4gptplay/dsh-kujira-persona'
+```
+
+桌面应用直接管理自己的 `desktop` profile；Web 版的 `web` 安装不会自动安装到桌面应用。
+
+### 从 v1.3.1 GitHub 旧包迁移
+
+如果已经安装旧包 `dsh-kujira-persona`，先在插件列表卸载旧包（Web CLI 可运行 `dsh plugin --profile web remove dsh-kujira-persona`），再安装新的 `@tests4gptplay/dsh-kujira-persona`。不要同时启用两者，因为插件 ID 都是 `whale-persona`。
+
+自定义人设默认放在 `~/.dsh/persona`（或 `$DSH_HOME/persona`），升级迁移时**保留该目录**，不要删除你的自定义人设文件。
+
+### npm 发布前备用方式：GitHub v1.3.1
+
+在 npm 包尚未正式上线期间，可以在桌面应用的「插件 → 添加插件」输入：
+
+```text
+github:Tests4gptplay/dsh-kujira-persona#v1.3.1
+```
+
+Web CLI 可以运行：
 
 ```bash
 dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.3.1'
 ```
 
-`web` 与桌面版使用的 `desktop` profile 是两个不同的安装位置，不要混用。正式 npm 包发布后，可改为 `dsh plugin --profile web add '@tests4gptplay/dsh-kujira-persona'`。
-
-### 备用下载：GitHub Release
-
-当前 v1.3.1 也提供 [预打包 `.tgz` 文件](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz)，供需要离线或手动安装的用户使用。该文件已通过 npm 打包和本地安装验证；它不是发布在 npm 官方源上的包，也**不是默认推荐的桌面版安装输入**。
-
-### 安装验证与旧版迁移
-
-安装、启用并重启 DSH 后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和注入文件清单。
-
-以后切换到 npm scoped 包时，请先从同一个 profile 中移除旧的 `dsh-kujira-persona`，再安装 `@tests4gptplay/dsh-kujira-persona`；两者使用同一个 `whale-persona` 插件 ID，不应同时启用。自定义人设默认存储在 `~/.dsh/persona`，迁移时请保留这个目录。
+也可以从 [v1.3.1 GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v1.3.1) 获取备用的 `dsh-kujira-persona.tgz`。这些是现有版本的过渡分发方式，**不是未来的默认推荐方式**。
 
 ## 结构
 
@@ -118,7 +128,7 @@ persona/
 
 ```yaml
 - id: whale-persona
-  name: dsh-kujira-persona
+  name: '@tests4gptplay/dsh-kujira-persona'
   config:
     personaDir: 'D:\my-persona'
 ```
@@ -219,7 +229,7 @@ config:
 
 ```yaml
 - id: whale-persona
-  name: dsh-kujira-persona
+  name: '@tests4gptplay/dsh-kujira-persona'
   config:
     personaDir: 'D:\my-persona'
 ```

@@ -1,0 +1,29 @@
+name: Stage scoped npm package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  stage-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up npm on GitHub-hosted runner
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org/'
+          package-manager-cache: false
+      - name: Validate scoped manifest and Node entrypoint
+        shell: bash
+        run: |
+          node --input-type=module -e "import {readFileSync} from 'node:fs'; const p=JSON.parse(readFileSync('package.json','utf8')); if(p.name!=='@tests4gptplay/dsh-kujira-persona'||p.dsh?.bundle?.patch!=='./cordis.patch.yml'||p.publishConfig?.access!=='public')process.exit(1); const patch=readFileSync('cordis.patch.yml','utf8');if(!patch.includes('name: '+String.fromCharCode(39)+p.name+String.fromCharCode(39)))process.exit(2);"
+          node --check index.js
+          npm pack --ignore-scripts --dry-run --json > /dev/null
+      - name: Stage npm release for human approval
+        run: npm stage publish --access public --ignore-scripts

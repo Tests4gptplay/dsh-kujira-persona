@@ -25,9 +25,36 @@
 
 ## 安装
 
-本插件目前提供 **GitHub Release 预打包安装包（推荐）** 和 **GitHub 源码安装**，可用于已经安装 DeepSeek Harness 的环境。当前安装包版本为 **v1.3.1**。
+### npm 官方源安装（目标方式：v1.3.2）
 
-> **注意：尚未发布到 npm Registry（npmjs.com）。** `.tgz` 是 npm 包格式，但不代表可以从 npm 官方仓库按包名下载。因此目前不要只在安装框输入 `dsh-kujira-persona` 作为 npm 包名；请使用下面的 GitHub 下载地址、仓库地址或本地 `.tgz` 文件。
+> **发布状态：准备中，尚未上线 npm Registry。** 以下短包名命令须在首个 npm 版本成功发布并核验后才能使用。当前可用安装方式请见下面的 GitHub Release / GitHub 源码安装。
+
+**DSH Desktop 官方应用：** 打开「插件」→「添加插件」，选择 **npm 官方源**，在输入框粘贴以下包名，点击安装、启用，然后重新启动 DSH。
+
+```text
+@tests4gptplay/dsh-kujira-persona
+```
+
+**DSH Web（CLI profile：`web`）：**
+
+```bash
+dsh plugin --profile web add '@tests4gptplay/dsh-kujira-persona'
+```
+
+**DSH Desktop（已配置 CLI 的场景）：**
+
+```bash
+dsh plugin --profile desktop add '@tests4gptplay/dsh-kujira-persona'
+```
+
+安装成功后，在聊天中输入 `/persona`，检查注入状态。要查询或升级 npm 包，按实际 profile 使用 `dsh plugin --profile web list` 或 `dsh plugin --profile web update '@tests4gptplay/dsh-kujira-persona'`。
+
+**从旧版 GitHub 安装迁移：** 如果当前 profile 仍安装着旧包 `dsh-kujira-persona`，先在「插件」界面卸载旧包，或者在相同 profile 执行 `dsh plugin --profile desktop remove dsh-kujira-persona`，再安装新的 scoped npm 包。新旧包的插件 ID 都是 `whale-persona`，不要同时启用。自定义人设文件默认存于用户目录 `~/.dsh/persona`，卸载旧插件不需要清理这个目录。
+
+
+在 npm 首发完成前，本插件仍提供 **GitHub Release 预打包安装包** 和 **GitHub 源码安装**，可用于已经安装 DeepSeek Harness 的环境。当前安装包版本为 **v1.3.1**。
+
+> **npm 尚未发布提示：** `.tgz` 是 npm 包格式，但不代表可以从 npm 官方仓库按包名下载。因此目前不要只在安装框输入 `dsh-kujira-persona` 作为 npm 包名；请使用下面的 GitHub 下载地址、仓库地址或本地 `.tgz` 文件。
 
 ### 方式一：在 DSH 图形界面安装（推荐）
 
@@ -83,7 +110,7 @@ dsh plugin --profile desktop add github:Tests4gptplay/dsh-kujira-persona#v1.3.1
 
 ### 安装后如何确认
 
-- **图形界面：** 在「插件」列表找到 `dsh-kujira-persona`，确认它处于启用状态；然后在聊天里输入 `/persona`。
+- **图形界面：** 在「插件」列表找到 `dsh-kujira-persona`，确认它处于启用状态；然后在聊天里输入 `/persona`。正式 npm 安装后对应包名为 `@tests4gptplay/dsh-kujira-persona`。
 - **命令行：** 根据实际使用的 profile 执行 `dsh plugin --profile desktop why dsh-kujira-persona`（Web 版改成 `web`），检查依赖是否已安装。
 - **效果检查：** `/persona` 会显示人设目录、注入文件数和字符数；`/persona files` 可列出实际注入的文件。
 
@@ -100,13 +127,13 @@ dsh plugin --profile desktop remove dsh-kujira-persona
 ```jsonc
 {
   "dependencies": {
-    "dsh-kujira-persona": "github:Tests4gptplay/dsh-kujira-persona#main"
+    "@tests4gptplay/dsh-kujira-persona": "github:Tests4gptplay/dsh-kujira-persona#main"
   },
   "dsh": {
     "profile": {
       "bundles": [
         // 此处保留原来的所有 bundle 条目，并在末尾追加以下包名
-        "dsh-kujira-persona"
+        "@tests4gptplay/dsh-kujira-persona"
       ]
     }
   }
@@ -122,7 +149,7 @@ dsh plugin --profile desktop remove dsh-kujira-persona
 ```jsonc
 {
   "dependencies": {
-    "dsh-kujira-persona": "link:D:/path/to/dsh-kujira-persona"
+    "@tests4gptplay/dsh-kujira-persona": "link:D:/path/to/dsh-kujira-persona"
   }
 }
 ```
@@ -178,7 +205,7 @@ persona/
 
 ```yaml
 - id: whale-persona
-  name: dsh-kujira-persona
+  name: '@tests4gptplay/dsh-kujira-persona'
   config:
     personaDir: 'D:\my-persona'
 ```
@@ -279,7 +306,7 @@ config:
 
 ```yaml
 - id: whale-persona
-  name: dsh-kujira-persona
+  name: '@tests4gptplay/dsh-kujira-persona'
   config:
     personaDir: 'D:\my-persona'
 ```

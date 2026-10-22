@@ -55,6 +55,35 @@ dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.3.1'
 
 安装并启用后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和实际注入的 Markdown 文件。自定义人设默认保存在 `~/.dsh/persona`（设置 `DSH_HOME` 时则使用其下的 `persona` 目录）。
 
+### 安装失败：Windows `ERR_PNPM_EPERM`（残留目录无法重命名）
+
+如果插件下载/依赖解析已经开始，但安装界面出现：
+
+```text
+[ERR_PNPM_EPERM] EPERM: operation not permitted, rename
+...dsh-kujira-persona_tmp_XXXXX_X -> ...dsh-kujira-persona
+```
+
+表示 pnpm **在把临时插件目录重命名为正式目录时被 Windows 拒绝**。这与 GitHub 下载链接是否正确不同；可能涉及安装目录残留、应用进程占用或系统权限/安全软件。`[WARN] Issues with peer dependencies` 是另一条警告，不能单凭它认定安装失败的原因。
+
+按以下步骤处理（**仅在本次安装确实失败、或旧插件目录已经损坏时**）：
+
+1. 在 DSH 安装窗口取消失败的安装，再**完全退出 DSH Desktop**；如果仍有安装任务或 DSH 进程运行，先等待其退出。不要在 DSH 正在运行/正在安装时清理文件。
+2. 按 **Win + R**，粘贴下面的路径打开当前 Windows 账号的插件安装目录：
+
+   ```text
+   %USERPROFILE%\.dsh\profiles\desktop\node_modules
+   ```
+
+3. **只检查并清理属于本插件的残留项**：
+   - `dsh-kujira-persona_tmp_*`：失败安装留下的临时目录，例如 `dsh-kujira-persona_tmp_45068_6`；
+   - `dsh-kujira-persona`：**仅在安装失败且需要清理损坏/半安装版本时删除**。若插件已能正常使用，不要删除该目录。
+4. 重新打开 DSH，在 **插件 → 添加插件** 输入 `github:Tests4gptplay/dsh-kujira-persona#v1.3.1`，再点击安装、启用，必要时重启。进入聊天执行 `/persona` 确认加载。
+
+**不要删除**整个 `node_modules`、`.dsh`、`profiles/desktop`，也不要清除 `package.json`、`pnpm-lock.yaml`、pnpm 全局缓存或其他插件目录。尤其不要删除 **`%USERPROFILE%\.dsh\persona`（自定义人设与记忆）**，本故障只涉及安装包目录，与人设数据是两回事。
+
+如果完全退出 DSH 后仍无法删除目标残留，或重装继续报告 `EPERM`，检查是否还有进程占用、目标目录写入权限以及安全软件拦截。不要强行结束不认识的进程或关闭系统防护；可附上**去除用户名/个人路径信息**的安装日志，在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 反馈。
+
 ## 结构
 
 | 文件 | 说明 |

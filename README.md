@@ -25,49 +25,35 @@
 
 ## 安装
 
-> **发布状态（2026-10-22）：** 本插件正在准备正式发布到 npm 官方源。目标包名为 `@tests4gptplay/dsh-kujira-persona`，**但目前尚未发布、还不能通过该包名安装**。下面的 GitHub 安装方式仅用于当前 v1.3.1 版本过渡，不是未来的首选方式。
-
-### 官方桌面应用（目前：GitHub 过渡安装）
+### 官方桌面应用（GitHub 安装，推荐）
 
 1. 打开 DeepSeek Harness 桌面应用，在侧栏选择 **插件 → 添加插件**。
-2. 将下面这一行填入安装框，点击 **安装**：
+2. 在安装框输入下面的 GitHub 插件标识，然后点击 **安装**：
 
    ```text
    github:Tests4gptplay/dsh-kujira-persona#v1.3.1
    ```
 
 3. 安装完成后启用插件，并重启 DSH。
-4. 在聊天中输入 `/persona` 查看人设加载状态。
+4. 在聊天中输入 `/persona` 检查人设加载状态。
 
-这是 GitHub 包标识，**不是 npm 包名**。目前不要在“npm 官方源”中只输入尚未发布的 `@tests4gptplay/dsh-kujira-persona`。
+此方式直接从 GitHub 安装，**不需要 npm 账号**。上面的版本标识固定为 `v1.3.1`；如果想安装仓库 `main` 分支的最新代码，可以输入 `github:Tests4gptplay/dsh-kujira-persona#main`。
 
-### 正式 npm 安装（发布后启用）
-
-正式发布后，DSH 官方桌面应用的操作会与其他 npm 插件相同：**插件 → 添加插件 → 输入包名 → 安装 → 启用 → 重启**。
-
-| 插件 | npm package name |
-| --- | --- |
-| Kujira Persona | `@tests4gptplay/dsh-kujira-persona`（待发布） |
-
-正式 npm 包尚未上线，所以**此处是目标安装方式，不是当前可执行的安装步骤**。
-
-### Web 版 CLI（目前：GitHub 过渡安装）
+### Web 版 CLI
 
 ```bash
 dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.3.1'
 ```
 
-`web` 与桌面版使用的 `desktop` profile 是两个不同的安装位置，不要混用。正式 npm 包发布后，可改为 `dsh plugin --profile web add '@tests4gptplay/dsh-kujira-persona'`。
+`web` 与桌面应用的 `desktop` 是不同的 profile；在 Web profile 中安装不会自动安装到桌面应用。
 
 ### 备用下载：GitHub Release
 
-当前 v1.3.1 也提供 [预打包 `.tgz` 文件](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz)，供需要离线或手动安装的用户使用。该文件已通过 npm 打包和本地安装验证；它不是发布在 npm 官方源上的包，也**不是默认推荐的桌面版安装输入**。
+也可以从 [v1.3.1 Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v1.3.1) 下载预打包的 [`dsh-kujira-persona.tgz`](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz)，用于手动安装。它是 GitHub 托管的 npm 格式安装包，不需要 npm 账号。
 
-### 安装验证与旧版迁移
+### 安装验证
 
-安装、启用并重启 DSH 后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和注入文件清单。
-
-以后切换到 npm scoped 包时，请先从同一个 profile 中移除旧的 `dsh-kujira-persona`，再安装 `@tests4gptplay/dsh-kujira-persona`；两者使用同一个 `whale-persona` 插件 ID，不应同时启用。自定义人设默认存储在 `~/.dsh/persona`，迁移时请保留这个目录。
+安装并启用后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和实际注入的 Markdown 文件。自定义人设默认保存在 `~/.dsh/persona`（设置 `DSH_HOME` 时则使用其下的 `persona` 目录）。
 
 ## 结构
 

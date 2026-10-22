@@ -104,7 +104,10 @@ dsh plugin --profile desktop remove dsh-kujira-persona
   },
   "dsh": {
     "profile": {
-      "bundles": [ /* 保留已有项 */, "dsh-kujira-persona" ]
+      "bundles": [
+        // 此处保留原来的所有 bundle 条目，并在末尾追加以下包名
+        "dsh-kujira-persona"
+      ]
     }
   }
 }

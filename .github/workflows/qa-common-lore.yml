@@ -1,0 +1,75 @@
+name: Isolated Kujira 1.6.1 content QA
+'on':
+  push:
+    branches: [qa/kujira-common-lore-1.6.1]
+    paths: [qa/**, .github/workflows/qa-common-lore.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      SOURCE_SHA: c8a86847e2b0335f1dedde34e7749efaac06815f
+      SOURCE_DIR: ${{ github.workspace }}/consumer/node_modules/dsh-kujira-persona
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Preserve LF in disposable runner
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: plugin
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Audit production-only source and pack
+        run: |
+          set -euo pipefail
+          git -C plugin diff --exit-code v1.6.0 HEAD -- index.js dossier.js cordis.patch.yml LICENSE
+          test "$(git -C plugin diff --numstat v1.6.0 HEAD -- catalog.js)" = $'6\t0\tcatalog.js'
+          if git -C plugin ls-tree -r --name-only HEAD | grep -E '^(.github|qa|tests|scripts)/'; then exit 1; fi
+          mkdir -p dist
+          (cd plugin && npm pack --ignore-scripts --json --pack-destination "$GITHUB_WORKSPACE/dist") > dist/pack.json
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const p=JSON.parse(readFileSync('plugin/package.json')),pack=JSON.parse(readFileSync('dist/pack.json'))[0];
+          assert.equal(p.version,'1.6.1');
+          for(const key of ['scripts','dependencies','devDependencies','peerDependencies','optionalDependencies'])assert.ok(!p[key],key);
+          const allowed=/^(?:index\.js|dossier\.js|catalog\.js|package\.json|cordis\.patch\.yml|LICENSE|NOTICE\.md|README\.md|CHANGELOG\.md|icon\.svg|assets\/hero\.svg|locale\/(?:en|zh)\.json|instructions\/README\.md|persona\/[^/]+\.md|personas\/[a-z]+\/[^/]+\.md|world\/[^/]+\.md)$/;
+          for(const f of pack.files)assert.match(f.path,allowed);
+          assert.equal(pack.entryCount,59);assert.equal(pack.files.filter(f=>f.path.endsWith('.js')).length,3);
+          const bytes=readFileSync('dist/'+pack.filename),sha256=createHash('sha256').update(bytes).digest('hex');
+          writeFileSync('dist/SHA256SUMS',`${sha256}  ${pack.filename}\n`);
+          const audit={source:process.env.SOURCE_SHA,version:p.version,files:pack.entryCount,bytes:bytes.length,sha256,runtimeJs:3,dependencies:0,lifecycleScripts:0,hostAndStorageUnchanged:true,catalogAddedDataLines:6};
+          writeFileSync('dist/audit.json',JSON.stringify(audit,null,2));console.log(audit);
+          JS
+      - name: Test the actual installed tarball
+        run: |
+          npm install --prefix consumer "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.6.1.tgz" --ignore-scripts --no-audit --no-fund --no-package-lock
+          node --test qa/content.test.mjs
+      - name: Reuse isolated real DSH fixtures with updated content heading
+        run: |
+          git -C plugin show 68659759cb8d084c8d144a76845a4a138b444dbc:qa/host.test.mjs > qa/host.test.mjs
+          node --input-type=module -e "import{readFileSync,writeFileSync}from'node:fs';let s=readFileSync('qa/host.test.mjs','utf8');writeFileSync('qa/host.test.mjs',s.replaceAll('档案更新与静默刷新','人设更新与静默刷新'))"
+          printf '{"name":"kujira-isolated-qa","private":true,"type":"module"}\n' > qa/package.json
+          npm install --prefix qa --no-save --ignore-scripts --no-audit --no-fund --no-package-lock @deepseek-ai/cordis@4.0.5 @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2
+          node --test qa/host.test.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-1.6.1-${{ matrix.os }}
+          path: |
+            dist/dsh-kujira-persona-1.6.1.tgz
+            dist/SHA256SUMS
+            dist/audit.json
+          if-no-files-found: error

@@ -26,6 +26,7 @@ jobs:
         run: |
           python3 -m pip install --quiet cairosvg pillow
           python3 qa/fix-v2.py
+          python3 qa/fix-v3.py
           python3 qa/compose.py
           python3 qa/draw-pets.py
           node --check candidate/pet/client.js

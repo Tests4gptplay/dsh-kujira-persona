@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('textbox',{name:'Describe what you want to build, / commands, @ files or sessions',exact:true}).fill('小鲸，猫猫和龙娘分别是谁？把“龙娘和猫猫每周五一起做甜点”记到大家共同知道的设定里；另外，只记在你自己的档案里：你最喜欢桂花米饭。自然地回答我就好。'); await page.getByRole('button',{name:'Send message',exact:true}).click();"}

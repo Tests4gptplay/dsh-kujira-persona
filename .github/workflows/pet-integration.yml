@@ -31,13 +31,20 @@ jobs:
           python3 qa/draw-pets.py
           node --check candidate/pet/client.js
           node --check candidate/pet/index.js
-          node --check candidate/pet/controller.js
+          mkdir -p evidence
+          node --test qa/pet.test.mjs | tee evidence/unit-tests.txt
           tar -czf candidate-source.tgz --exclude=.git candidate qa
       - uses: actions/upload-artifact@v4
         with:
           name: pet-candidate-source
           path: candidate-source.tgz
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pet-unit-evidence
+          path: evidence
+          retention-days: 14
   web:
     needs: prepare
     runs-on: ubuntu-22.04
@@ -60,7 +67,9 @@ jobs:
           tar -xzf candidate-source.tgz
           (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
           tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
-          mkdir -p evidence/package trial/home trial/workspace
+          mkdir -p evidence/package trial/home trial/workspace "$HOME/.local/share/fonts"
+          curl -fL --max-time 60 https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf -o "$HOME/.local/share/fonts/NotoSansCJKsc-Regular.otf"
+          fc-cache -f
           git -C trial/workspace init -q
           npm pack ./candidate --ignore-scripts --json --pack-destination evidence/package > evidence/pack.json
           export PATH="$PWD/payload/node-bin:$PWD/payload/runtime/node_modules/.bin:$PATH"
@@ -90,7 +99,7 @@ jobs:
           New-Item -ItemType Directory -Force candidate/pet/native/win-x64 | Out-Null
           $file=Join-Path $PWD 'qa\KujiraPet.cs'
           $s=[IO.File]::ReadAllText($file)
-          $s=$s.Replace('public static void Main(){','public static void Main(){ Console.InputEncoding=new UTF8Encoding(false); Console.OutputEncoding=new UTF8Encoding(false);')
+          $s=$s.Replace('public static void Main(){','public static void Main(){ Console.SetIn(new StreamReader(Console.OpenStandardInput(),new UTF8Encoding(false))); Console.SetOut(new StreamWriter(Console.OpenStandardOutput(),new UTF8Encoding(false)){AutoFlush=true});')
           $s=$s.Replace('Topmost=true;ShowInTaskbar=false;','Topmost=true;ShowActivated=false;ShowInTaskbar=false;')
           [IO.File]::WriteAllText($file,$s,[Text.UTF8Encoding]::new($false))
           $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'

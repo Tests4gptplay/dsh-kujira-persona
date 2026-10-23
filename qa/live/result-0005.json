@@ -1,0 +1,129 @@
+{
+  "ok": true,
+  "result": {
+    "menus": [
+      {
+        "role": "menu",
+        "text": "Modeldeepseek-chat [TEST RELAY]",
+        "html": "<div id=\":r13:-menu\" role=\"menu\" aria-label=\"Model and reasoning effort\" aria-busy=\"false\" data-menu-material=\"translucent\" class=\"_surface_ri079_1 _7KE1Ra_menu\" style=\"left: 919.688px; top: 520px; --dsh-menu-anchor: --dsh-menu-r19;\"><div aria-hidden=\"true\" class=\"_material_ri079_21\"></div><button type=\"button\" role=\"menuitem\" class=\"_7KE1Ra_cell\"><span class=\"_7KE1Ra_cellLabel\">Model</span><span class=\"_7KE1Ra_cellValue\"><span data-provider-id=\"trial-relay\" data-model-id=\"deepseek-chat\"><span data-slot=\"conversation.input.model.label\" style=\"display: contents;\">deepseek-chat [TEST RELAY]</span></span></span><svg width=\"14\" height=\"14\" class=\"_7KE1Ra_cellChevron\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" stroke-width=\"1\"><path d=\"M6 12L9.29289 8.70711C9.68342 8.31658 9.68342 7.68342 9.29289 7.29289L6 4\" stroke=\"currentColor\"></path></svg></button></div>"
+      },
+      {
+        "role": "menuitem",
+        "text": "Modeldeepseek-chat [TEST RELAY]",
+        "html": "<button type=\"button\" role=\"menuitem\" class=\"_7KE1Ra_cell\"><span class=\"_7KE1Ra_cellLabel\">Model</span><span class=\"_7KE1Ra_cellValue\"><span data-provider-id=\"trial-relay\" data-model-id=\"deepseek-chat\"><span data-slot=\"conversation.input.model.label\" style=\"display: contents;\">deepseek-chat [TEST RELAY]</span></span></span><svg width=\"14\" height=\"14\" class=\"_7KE1Ra_cellChevron\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\" stroke-width=\"1\"><path d=\"M6 12L9.29289 8.70711C9.68342 8.31658 9.68342 7.68342 9.29289 7.29289L6 4\" stroke=\"currentColor\"></path></svg></button>"
+      }
+    ],
+    "rootIsolated": true
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nNew Session\n小鲸，猫猫和龙娘分别是谁？\n1min\nMore\nInto the Unknown\nPreview\nworkspace\nStandard mode\nDescribe what you want to build, / commands, @ files or sessions\nWorkspace Write\ndeepseek-chat [TEST RELAY]\nModel\ndeepseek-chat [TEST RELAY]",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Describe what you want to build, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "workspace",
+        "aria": "Choose workspace",
+        "title": null
+      },
+      {
+        "text": "Standard mode",
+        "aria": null,
+        "title": "Choose the agent preset for your new task"
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "deepseek-chat [TEST RELAY]",
+        "aria": "Select model, current deepseek-chat [TEST RELAY]",
+        "title": "deepseek-chat [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

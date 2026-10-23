@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "AI Gijinka · Shared World, Individual Personas",
-    "description": "Characters follow your selected DSH model. Unrecognized models use Stella by default; your own character choices take precedence.\n\nWORLD: Shared names, impressions, jokes and relationships.\nCHARACTERS: Individual personalities, preferences and memories. Versions in one family share a character.\n\nAdd lore, edit personas, create characters or assign a model by talking to the AI in DSH chat.\n\nOPTIONAL PET: Enable one model-linked companion in the settings below to display work status, statistics and available balance or plan information. Turning it off does not disable personas.\n\nPresets are only a starting point. Your choices come first."
+    "description": "Characters follow your selected DSH model, and you can choose your own character.\n\nWORLD: Shared names, impressions, jokes and relationships.\nCHARACTERS: Individual personalities, preferences and memories. Versions in one family share a character.\n\nAdd lore, edit personas, create characters or assign a model by talking to the AI in DSH chat.\n\nOPTIONAL PET: Enable one model-linked companion in the settings below to display work status, statistics and available balance or plan information. Turning it off does not disable personas.\n\nPresets are only a starting point. Your choices come first."
   }
 }

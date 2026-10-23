@@ -1,0 +1,24 @@
+{
+  "tool_calls": [
+    {
+      "name": "persona_edit",
+      "arguments": {
+        "action": "append",
+        "scope": "world",
+        "category": "world",
+        "text": "龙娘（GPT）和猫猫（Gemini）每周五一起做甜点。",
+        "source": "本次试用会话中的用户设定"
+      }
+    },
+    {
+      "name": "persona_edit",
+      "arguments": {
+        "action": "append",
+        "scope": "persona",
+        "category": "memory",
+        "text": "我最喜欢桂花米饭，这是只记在小鲸自己档案里的偏好。",
+        "source": "本次试用会话中的用户设定"
+      }
+    }
+  ]
+}

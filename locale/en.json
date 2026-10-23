@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Kujira Persona",
-    "description": "Injects the whale-maid persona dossier into every session's system prompt; the dossier is editable Markdown on disk."
+    "title": "AI Gijinka · Model-aware Personas",
+    "description": "Includes basic text personas for DeepSeek, GPT, Gemini, Claude, Grok, GLM, Kimi, Qwen, MiniMax, Llama and Doubao/Seed. Versions, sizes and reasoning levels within one family share a persona and memory. Routing uses actual provider/model IDs, not display labels; GPT/Codex models reached through openai-codex or codex-local use the GPT dragon persona.\n\nEDIT THROUGH CONVERSATION: After enabling and restarting DSH, say ‘Make my current persona more concise and save the change’ or ‘Add this setting to your memory.’ The AI should call persona_edit and report the saved result, not merely promise to remember. No manual file editing is required.\n\nEXTEND THROUGH CONVERSATION: Say ‘List the available DSH models and their personas’, ‘Create Stella with this description and bind the current model’, or ‘Bind every my-model-* version on my-gateway to Stella, sharing one memory.’ persona_manage creates roles and model bindings; later changes use the same conversational flow. Custom data stays local and survives upgrades.\n\nBindings do not configure a new inference provider or collect credentials. Configure an unconnected model in DSH Settings first. /persona shows the active role; /persona help gives examples. Disabling allowAgentWrite removes both conversational write tools."
   }
 }

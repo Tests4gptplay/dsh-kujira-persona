@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "鲸鱼娘人设",
-    "description": "把鲸鱼娘人设档案注入每个会话的系统提示词，正文是磁盘上可编辑的 Markdown 文件。"
+    "title": "AI 娘人设 · 随模型切换",
+    "description": "内置 DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包/Seed 的基础文字人设。同一模型家族的不同版本、大小和推理档位共用一个角色与记忆；按实际 provider/model ID 匹配，不按显示名称猜测。Codex 是接入入口：DSH 内置 openai-codex 和本地 codex-local 的 GPT/Codex 模型均归白龙娘。\n\n【通过对话修改】安装、启用并重启后，直接说：‘请把说话风格改得更简洁，并保存到当前角色人设。’或‘把刚才的设定补充进你的记忆。’AI 应调用 persona_edit 实际写入并反馈结果，而不只是口头答应。不需要用户手改文件。\n\n【通过对话扩展】可说：‘列出 DSH 可用模型及对应角色。’‘创建名为星璃的角色，设定是……，绑定当前模型。’‘将 my-gateway 的 my-model-* 全部版本绑定星璃，共用同一份记忆。’AI 使用 persona_manage 创建、绑定；后续仍用对话补充。用户自定义保存在本机，升级不会重置。\n\n这里添加的是模型与角色的绑定，不会替你新增 API 接入或要求密码、密钥；尚未接入的模型先在 DSH 模型设置配置。/persona 查看当前角色，/persona help 查看例句。关闭 allowAgentWrite 后，对话写入工具不开放。"
   }
 }

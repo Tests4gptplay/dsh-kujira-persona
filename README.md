@@ -1,178 +1,152 @@
 # dsh-kujira-persona
 
-> 选 DeepSeek，是鲸鱼娘；选 GPT，是白龙娘。各自的设定与记忆都留在文件里。
+**AI 娘人设 · 随模型家族切换 · 在对话中持续补充。**
 
-![hero](assets/hero.svg)
+v1.5.0 内置资料库已有的 **11 个模型家族**的基础文字人设，也允许用户通过聊天创建自己的角色、添加模型别名和绑定关系。包名仍为 `dsh-kujira-persona`，插件 ID 仍为 `whale-persona`。无需 npm 账号。
 
-**v1.4.0** 是一个轻量的 DeepSeek Harness 人设插件：按当前会话的模型选择加载人设 Markdown；用户与 AI 后续编辑的内容按角色保存。保留原包名 `dsh-kujira-persona` 和插件 ID `whale-persona`，不需要 npm 账号。
+## 安装后如何使用：直接和 AI 对话
 
-## 模型与人设
+启用插件并重启 DSH 后，选择模型发送一条消息。需要修改或补充人设，**直接在聊天中让 AI 保存**，不需要自己寻找或修改 Markdown 文件。例如：
 
-| 实际模型/路由 | 默认人设 |
-| --- | --- |
-| `deepseek-*`，或官方 `deepseek-official` / `deepseek-account` / `deepseek-messages` 路由 | DeepSeek 鲸鱼娘 |
-| `gpt-*`、`chatgpt-*`、`o1` / `o3` 等 o 系列模型 ID | GPT 白龙娘 |
-| `codex-local` 路由 | GPT 白龙娘，与 GPT 共用角色档案 |
-| 未识别的模型 | 不添加本插件的人设；可用 `modelRules` 自行绑定 |
+> 请把说话风格改得更简洁，但保持目前的人设，保存到你的角色档案里。
 
-也识别 `openai/gpt-...` 这样的带命名空间模型 ID。**OpenAI-compatible 协议不等于 GPT 模型**，因此不会仅因提供方叫 `openai` 或 `openai-compatible` 就把未知模型套成龙娘。自定义中转模型名使用显式规则。
+> 刚才那个背景设定是我的私设，请补充到当前角色，并注明是用户设定。
 
-切换发生在**下一次提示词组装/模型请求**，不修改已经发出的请求，不清除聊天历史，也不改模型、工具、技能、权限、上下文阈值或超时。并发会话分别读取自己的模型选择；同一角色在多个会话中共享该角色的长期档案。
+> 把之前那条已经不适用的设定删掉，其他记忆不要动。
 
-目前内置这两个角色。GPT 文字预设依据本项目的 [AI 娘资料库](https://github.com/Tests4gptplay/ai-gijinka-art-world)，性格与表达标明为插件原创默认值，不冒充原作者统一正史。见 [NOTICE.md](NOTICE.md)。
+AI 应实际调用 `persona_edit` 完成读取、追加、替换或删除，并反馈写入的角色和位置。**只说“记住了”不等于已经保存。** 内容下次请求生效；不会训练模型权重，也不会清空既有聊天历史。
+
+同样的说明与例句已经放进包内 **`locale/zh.json` / `locale/en.json` 的 `meta.description`**，供安装后 DSH 的插件详情和设置说明使用，不是只写在 GitHub README。
+
+## 内置角色：同家族各版本是同一个角色
+
+| 模型家族 | 稳定角色 ID | 基础角色 |
+| --- | --- | --- |
+| DeepSeek：V / R、chat / reasoner、flash / pro 等 | `deepseek` | 鲸鱼娘 |
+| GPT / ChatGPT、o 系列、GPT-Codex / Codex 变体 | `gpt` | 白龙娘 |
+| Gemini：不同版本、Pro / Flash 等 | `gemini` | 彩发猫娘 |
+| Claude：不同版本、Opus / Sonnet / Haiku | `claude` | 橙发书卷娘 |
+| Grok：各版本与 fast / reasoning 等 | `grok` | 金发蝠翼娘 |
+| GLM / ChatGLM：各版本与 Air / Flash 等 | `glm` | 黑白狐娘 |
+| Kimi / Moonshot：各版本、coding / thinking 等 | `kimi` | 星月娘 |
+| Qwen / 千问、QwQ / QVQ：各版本与 Coder / VL 等 | `qwen` | 中式折扇千问娘 |
+| MiniMax：各版本与 M 系列 | `minimax` | 橙发创作娘 |
+| Llama：各版本、大小与 Instruct 变体 | `llama` | 羊驼娘 |
+| Doubao / Seed：各版本 | `doubao` | 科技风豆包娘 |
+
+模型家族统一落到上面固定的角色 ID，**不按版本号、参数量、推理档位、接入供应商分别建立角色和记忆目录**。用户明确绑定自定义角色时才改变默认归属。
+
+11 份家族预设全部随安装包提供，不联网下载。对应角色首次使用时自动铺到用户目录；其他角色的全文不会跟着一起注入本次聊天。既有鲸鱼娘与 GPT 档案原位保留。
+
+视觉身份依据 [AI-gijinka 图鉴](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/9ca080de39b79e94e940880b48e2eb057706d501/CHARACTER_ATLAS.md)。资料库没有完整的统一性格手册，因此新增角色的性格与表达均明确标注为**本插件原创的基础默认值**，供用户通过对话继续补充；不冒充原作者钦定性格。没有打包任何第三方原图或视频。
+
+## DSH 中是 GPT，还是 Codex？
+
+这三层不是一回事：
+
+| 层级 | 示例 | 用途 |
+| --- | --- | --- |
+| 供应商显示名 | `Codex (local login)` | 模型菜单的分组标题，可以自定义 |
+| 实际 provider ID | `codex-local` 或 DSH 内置 `openai-codex` | 识别请求的接入通道 |
+| 实际 model ID | `gpt-6-astra`、`gpt-5.6-sol`、`gpt-5.3-codex-spark` 等 | 识别本次模型家族 |
+
+上表中的模型名称是代码/目录中的示例，不承诺每个账号都能使用。你的 `dsh-codex-native` 用 `codex-local` 注册；DSH 自带目录另有 `openai-codex`，两个入口的 GPT/Codex 模型都默认使用同一份 `gpt` 白龙娘档案。正常 OpenAI API、Azure 部署或中转站中能够识别的 GPT 模型也共用它。
+
+**供应商不是模型家族。** OpenRouter、GitHub Copilot、Amazon Bedrock、Groq、各种自定义中转站可能承载多个家族；不能整组判为 GPT。`OpenAI-compatible` 只是 API 协议，不能当作 GPT 身份；`Groq` 与 `Grok` 也不相同。Gemma 不因来自 Google 就误归 Gemini，未收录的其他家族不硬套预设。
+
+插件按本次请求实际的 `provider + model` 匹配，不读按钮文字，也不去查询模型“你是谁”。支持常见命名空间、Bedrock 区域/厂商前缀与 GPT fine-tune 前缀；无法辨认的私有别名默认不套角色，由用户通过对话绑定。
+
+模型目录随 DSH 版本、插件、账号和用户配置变化，不维护一张声称永远完整的静态版本清单。用户可以说：
+
+> 列出我现在 DSH 可用的模型，分别显示供应商 ID、模型 ID 和对应角色。
+
+AI 调用 `persona_manage` 的 `models`，**按需使用与 DSH 客户端相同的 `ctx.llm.listProviders()` / `listModels(provider)` 目录接口**。它不会后台轮询、测试密钥或发起聊天推理；目录获取本身可能由供应商访问其模型列表服务。
+
+## 通过对话添加自己的模型与角色
+
+> 创建一个名叫“星璃”的角色，ID 用 stella，基本设定是……，把当前模型绑定给她。
+
+> 不要新建另一个角色，把 my-gateway 供应商中的 my-model-* 全部版本绑定到星璃，继续共用她已有的记忆。
+
+> 把我的私有模型别名绑定到已有的 GPT 白龙娘，不要复制一份白龙娘。
+
+> 解除刚才那条自定义绑定，角色档案和记忆保留。
+
+AI 使用 `persona_manage` 完成创建、绑定和解绑。角色内容仍通过 `persona_edit` 补充、修改；可以在对话中明确指定另一个角色作为修改目标。用户未指定时只修改发起本次请求的角色。
+
+**这里“添加模型”是添加该模型与角色的对应关系，不是创建新的推理服务或自动配置账户。** 模型尚未接入 DSH 时，先在“设置 → 模型”配置 API/接入插件；本插件不接收密码、Token 或 API Key，也不修改模型服务配置。
+
+内置家族始终共用一个角色；自定义家族的多个版本也应绑定到同一个自定义角色 ID。使用 `model: my-model-*` 可覆盖用户明确指定的一组别名；不要让 AI 在没有用户要求时自动把精确绑定扩成全局通配符。
 
 ## 安装与升级
 
-### 官方桌面应用（推荐）
+### 官方桌面应用
 
-打开 **插件 → 添加插件**，只输入下面这一行：
+打开 **插件 → 添加插件**，输入：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v1.4.0
+github:Tests4gptplay/dsh-kujira-persona#v1.5.0
 ```
 
-安装完成后按提示启用，**重启 DSH 一次**。选择模型并发一条消息，再输入 `/persona` 查看本会话的人设、目录与模型。
+安装、启用，重启 DSH 一次。选择模型发送一条消息，再执行 `/persona` 检查角色。升级时先在插件列表卸载旧包，再装此版本；**保留所有用户人设与记忆目录**，不要同时启用多个副本。版本升级不要求新增 npm 账号。
 
-不需要注册 npm，不需要配置桌面版 CLI。上面是 GitHub 包标识，不是尚待上架的 npm 包名。
-
-从 v1.3.1 升级：在插件列表卸载旧安装，再添加 v1.4.0、启用并重启；保留 `.dsh/persona` 中全部人设与记忆。包名和插件 ID 不变，不要同时安装同一插件的多个副本。旧目录不会被移动、删除或复制给 GPT。
-
-### Web 版 CLI
+### Web CLI
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.4.0'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.5.0'
 ```
 
-`web` 与桌面应用的 `desktop` 是不同的 profile。不要拿 Web 安装命令来判断桌面应用是否已安装。
+Web 的 `web` 与桌面应用的 `desktop` 是不同 profile。备用 `.tgz` 见 [GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases)。安装包不需要编译，没有 prepare / postinstall / build 安装钩子。
 
-### GitHub Release 备用包
+### Windows `ERR_PNPM_EPERM` 残留
 
-[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 提供 npm 格式 `.tgz` 安装包；这是 GitHub 托管的附件，不是 npm Registry 发布。包内已包含运行入口和人设文字，不需要编译，也没有安装时执行的 build/prepare/postinstall 脚本。
+若错误是 `dsh-kujira-persona_tmp_* -> dsh-kujira-persona` 重命名失败：取消安装并**完全退出 DSH（含托盘退出，不只是关窗口）**；打开 `%USERPROFILE%\.dsh\profiles\desktop\node_modules`，只清理本插件失败安装的临时目录，以及确认损坏的半安装目录，再安装、启用并重启。正常安装不要删；目录链接只处理链接项，不进入目标删除。
 
-### Windows 安装失败：`ERR_PNPM_EPERM`
+不要删除整个 `node_modules`、`.dsh`、profile、`package.json`、`pnpm-lock.yaml` 或其他插件。尤其保留 `.dsh/persona` 与 `.dsh/personas` 的人设、记忆和绑定。仍失败时检查文件占用或权限，不要关闭系统防护；在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 提供脱敏错误日志。
 
-若出现：
-
-```text
-EPERM: operation not permitted, rename
-...dsh-kujira-persona_tmp_XXXXX_X -> ...dsh-kujira-persona
-```
-
-这是临时安装目录重命名被 Windows 拒绝，可能涉及旧目录残留或进程占用；`peer dependencies` 警告不能单独证明是此次失败原因。
-
-1. 取消失败的安装，**完全退出 DSH Desktop**，确保安装任务也已结束。
-2. 按 **Win + R** 打开 `%USERPROFILE%\.dsh\profiles\desktop\node_modules`。
-3. 只清理失败安装留下的 `dsh-kujira-persona_tmp_*`，以及确认损坏/半安装的 `dsh-kujira-persona`。若已正常运行，不要删除正常目录。遇到目录链接，仅处理该链接项，不进入链接目标清理文件。
-4. 重新打开 DSH，按上述 GitHub 标识安装、启用并重启，用 `/persona` 检查。
-
-**不要删除**整个 `node_modules`、`.dsh`、`profiles/desktop`、`package.json`、`pnpm-lock.yaml` 或其他插件。尤其要保留 `%USERPROFILE%\.dsh\persona` 和 `%USERPROFILE%\.dsh\personas`，其中有人设与记忆。仍报错时检查目标文件占用或目录权限，不要关闭系统防护或批量结束陌生进程；可在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 提交脱敏日志。
-
-## 人设与学习文件放在哪里
+## 数据与请求归属
 
 ```text
 ~/.dsh/
-├── persona/                  # 原版鲸鱼娘，原位保留
-│   ├── 00-身份.md
-│   ├── ...
+├── persona/                       # 旧鲸鱼娘，原位保留
 │   └── 90-记忆.md
 └── personas/
-    └── gpt/                  # GPT 白龙娘的独立档案
-        ├── 00-身份.md
-        ├── 10-外观.md
-        ├── 20-性格与表达.md
-        ├── 70-学习规则.md
-        └── 90-记忆.md
+    ├── .kujira-catalog.json        # 对话保存的自定义角色和模型绑定
+    ├── gpt/                       # GPT / o / Codex 各版本共用
+    ├── gemini/                    # 每个其他家族各一份
+    ├── claude/
+    ├── ...
+    └── stella/                    # 用户自定义角色示例
 ```
 
-设置了 `DSH_HOME` 时使用该目录替代 `~/.dsh`。旧配置的 `personaDir`、`memoryFile`、`extraText` 继续只作用于鲸鱼娘；`personasDir` 指定新增角色的根目录。
+使用 `DSH_HOME` 时替换默认根目录。`personaDir`、`memoryFile`、`extraText` 仍仅作用于旧鲸鱼娘；`personasDir` 管理其他家族与用户角色。升级不会移动、重置旧文件，也不会自动把旧鲸鱼娘记忆复制给所有角色。
 
-每个角色首次使用时，将对应内置 Markdown 铺到自己的目录。只读取直接位于该目录的 `.md`，按文件名排序；以 `_` 或 `.` 开头的文件不注入，子目录不递归读取。改动下一次请求生效，无需重装。
+AI 写入默认跟随**发起工具调用的那次请求**。若鲸鱼娘本轮还在执行、用户已把下一次模型切成 GPT，当前工具仍写鲸鱼娘；用户明确指定目标角色则按指定处理。人工 `/remember` 按当前选择、下一步将使用的角色写入。新模型绑定在下一次组装生效，不追改当前请求的人设。
 
-**学习不是训练模型权重。** 它是把设定与记忆写入本机 Markdown，并在后续请求中加载。鲸鱼娘学到的内容不会自动进入龙娘；切回对应模型继续读取对应档案。聊天历史仍然保留，角色目录隔离不是历史清除。
+文件是学习的持久来源。各角色保留原有同步规则：只更新未被用户修改的内置文件，用户改动不覆盖；显式工具删除的文件不会同步复生。每个文件有尽力而为的滚动备份，不是完整历史。角色目录隔离不等于删除同一会话里的历史聊天。
 
-## 命令与 AI 编辑
+## 命令与配置
 
-| 命令 | 作用 |
-| --- | --- |
-| `/persona` | 查看本会话选中的模型、人设与目录 |
-| `/persona files` | 查看将注入的文件 |
-| `/persona show` | 查看人设全文 |
-| `/persona sync` | 仅同步当前角色的包内更新 |
-| `/persona list` | 查看内置角色 ID |
-| `/remember 一句话` | 给当前选中模型对应的角色追加一条记忆 |
+`/persona` 看当前角色；`/persona help` 看对话例句；`/persona list` 看内置/自定义角色与用户绑定；`/persona files`、`show`、`sync` 保留；`/remember 一句话` 是人工记忆入口。普通使用优先对话，不要求学习这些命令。
 
-刚创建会话、尚未发出请求且没有明确选中模型时，状态可能显示尚未请求；发送一条消息后即可准确显示。
-
-AI 的 `persona_edit` 支持 `append` / `replace` / `delete` / `list`。`append` 的 `category` 可用 `character`、`world`、`meme`、`memory`，也可给当前角色目录内的 `.md` 文件名。`replace` 使用唯一匹配的 `oldText` 和 `newText`；`delete` 带 `oldText` 删除片段，不带则删除文件。
-
-**写入归属跟随发起工具调用的模型请求**，不是点击切换后的待用模型。比如鲸鱼娘正在输出、你已把下一步切为 GPT，鲸鱼娘本轮的工具写入仍归鲸鱼娘。人工 `/remember` 则作用于当前选择、准备下一步使用的角色。
-
-不希望 AI 编辑时设置 `allowAgentWrite: false`；人工 `/remember` 仍可用。插件不会主动联网搜索或自动学习，只有用户编辑、人工命令或模型实际调用工具时才写入。
-
-文件写入由 DSH Host 的 Node 进程执行，受操作系统账户权限约束，不是提权能力。保留原有文件名限制与单文件滚动备份；备份是尽力而为，不是完整版本历史。
-
-## 升级同步
-
-每个角色有自己的 `.kujira-state.json`。缺失的默认文件会补齐；仍与上次内置版本一致的文件可更新；用户修改过的文件保留。`persona_edit` 明确删除的内置文件记录为已删除，不会在下次同步重新生成。直接在文件管理器删除默认文件时，后续同步仍可能按缺失文件补齐。
-
-原版鲸鱼娘默认资料保持不变；升级不会挪动或重置你原来的目录。`sync: false` 关闭覆盖式同步；`seed: false` 关闭缺失默认文件的铺设。
-
-## 配置
-
-在 DSH 的本插件配置中设置下列字段；使用 profile patch 时按现有 `id: whale-persona` 条目修改 `config`，不要覆盖整个 profile。
-
-| 字段 | 默认值 | 说明 |
+| 配置 | 默认 | 说明 |
 | --- | --- | --- |
-| `enabled` | `true` | 插件总开关 |
-| `mode` | `auto` | `auto` 随模型切换；`fixed` 固定角色 |
-| `persona` | `deepseek` | 固定模式选择 `deepseek` / `gpt` / `none` |
-| `unknownPersona` | `none` | 无匹配模型时是否指定一个默认角色 |
-| `modelRules` | `[]` | 显式路由映射，按顺序首先匹配 |
-| `personaDir` | `~/.dsh/persona` | 旧版鲸鱼娘目录 |
-| `memoryFile` | `<personaDir>/90-记忆.md` | 旧版鲸鱼娘记忆文件 |
-| `personasDir` | `~/.dsh/personas` | 新角色目录根路径，GPT 位于其下 `gpt/` |
-| `sharedDir` | 空 | 可选的共享用户偏好目录，只读取，不自动写入 |
-| `allowAgentWrite` | `true` | 注册本插件的 AI 编辑工具 |
-| `seed` / `sync` | `true` | 默认文件铺设 / 升级同步 |
-| `extraText` | 空 | 旧版鲸鱼娘的额外文字，不自动共享给 GPT |
+| `enabled` | `true` | 插件开关 |
+| `mode` | `auto` | 按模型家族匹配；`fixed` 固定角色 |
+| `persona` | `deepseek` | 固定模式的已有角色 ID |
+| `unknownPersona` | `none` | 未匹配模型不强加角色 |
+| `allowAgentWrite` | `true` | 对话编辑与角色管理工具；关闭后人工 `/remember` 仍可用 |
+| `personaDir` / `memoryFile` | 原鲸鱼娘路径 | 旧配置继续有效 |
+| `personasDir` | `~/.dsh/personas` | 其余家族、用户角色及绑定索引 |
+| `sharedDir` | 空 | 用户显式选择的共享偏好目录，只读取 |
+| `modelRules` | `[]` | 高级手工规则；普通用户通过对话管理绑定即可 |
+| `seed` / `sync` | `true` | 默认文件铺设 / 更新未修改文件 |
+| `extraText` | 空 | 仅旧鲸鱼娘额外文字 |
 
-中转站自定义模型名示例：
+匹配顺序：固定模式 → 对话保存的绑定（最新的优先）→ 配置 `modelRules` → 内置模型家族 → `unknownPersona`。绑定项支持 `*`，其余字符按字面、忽略大小写匹配。解绑只移除用户规则，恢复配置/内置匹配，不删除角色文件。`none` 可显式关闭某个模型的人设。
 
-```yaml
-config:
-  mode: auto
-  modelRules:
-    - provider: my-gateway
-      model: private-gpt-*
-      persona: gpt
-    - model: my-deepseek-alias
-      persona: deepseek
-```
+## 运行范围与署名
 
-`provider` 与 `model` 支持 `*` 通配符，其他字符按字面匹配，匹配时不区分大小写；省略的一项不限制。显式规则先于内置规则。需要某个模型不加载人设时映射为 `none`。
+本次只处理面向用户的对话人设，不添加子代理人格继承或调度。运行代码只有人设选择、按需目录查询、文件/绑定读写；没有后台轮询、watchdog、重试守卫、技能/工具拦截、安装自检或宿主参数改写。测试、审计和发布辅助脚本只保留在独立 QA 分支，不进入 main 或安装包。兼容目标为 DSH 0.2.1-rc.2；真实桌面与账号推理验收范围以 Release 说明为准。
 
-固定沿用鲸鱼娘：
-
-```yaml
-config:
-  mode: fixed
-  persona: deepseek
-```
-
-共享偏好须显式设置 `sharedDir`。不要把旧鲸鱼娘目录当共享目录，否则会主动把鲸鱼娘设定带入其他角色。
-
-## 运行边界
-
-运行包只有人设路由、文件读取/编辑/同步，以及原有插件元数据与文字资源。没有后台巡检、轮询、watchdog、自动重试循环、额外技能/工具拦截、账号探测或子进程。没有新增运行依赖，也没有安装构建脚本。
-
-实现使用 DSH 的 `system-prompt/assemble` 扩展点，在宿主确定本次模型选择后替换本插件自己的 `whale:persona` 段。其余提示词段、工具表、上下文与历史原样交还宿主。测试与验证脚本只保存在独立 QA 分支和临时环境，不进入主线或安装包。
-
-兼容目标：DSH `0.2.1-rc.2`。内核集成、干净安装与桌面应用真实交互是不同的验证层级；发布说明分别列出已验证范围。
-
-## 许可与署名
-
-本仓库原有许可 **CC BY-NC-SA 4.0** 不变，非官方同人项目。DeepSeek 角色署名链保留 **上善无形 → ZipZipPipe**；GPT 视觉母题署名 **ZipZipPipe**，本插件新增的文字性格为原创默认设定。第三方角色设计权利不因本仓库许可而被重新授权，详见 [NOTICE.md](NOTICE.md)。
-
-## 更新记录
-
-见 [CHANGELOG.md](CHANGELOG.md)。
+原有 CC BY-NC-SA 4.0 不变。DeepSeek 署名链为上善无形 → ZipZipPipe；其余视觉母题为 ZipZipPipe。新增性格/表达属于插件原创默认值，不代表厂商或作者钦定正史；第三方权利不因本仓库许可而重新授权。详见 [NOTICE.md](NOTICE.md)。

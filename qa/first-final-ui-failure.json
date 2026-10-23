@@ -1,0 +1,57 @@
+{
+  "run": 39975103325,
+  "result": {
+    "ok": false,
+    "error": "locator.click: Error: strict mode violation: getByText('private-model-v1 API [模拟]', { exact: true }) resolved to 2 elements:\n    1) <span data-slot=\"conversation.input.model.label\">private-model-v1 API [模拟]</span> aka getByRole('button', { name: 'Select model, current private' })\n    2) <span data-slot=\"conversation.input.model.label\">private-model-v1 API [模拟]</span> aka getByRole('menuitemradio', { name: 'private-model-v1 API [模拟]' })\n\nCall log:\n  - waiting for getByText('private-model-v1 API [模拟]', { exact: true })\n\n    at pick (/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/qa/ui-test.mjs:51:197)\n    at async file:///home/runner/work/dsh-kujira-persona/dsh-kujira-persona/qa/ui-test.mjs:59:112",
+    "cases": [
+      {
+        "name": "默认关闭",
+        "detail": "真实插件详情页显示桌宠设置；没有宠物节点",
+        "status": "pass"
+      },
+      {
+        "name": "DeepSeek 余额",
+        "detail": "真实设置/凭据路径接入 QA 假服务 ¥57.25，不是真实账户",
+        "status": "pass"
+      },
+      {
+        "name": "DSH原生统计一致",
+        "detail": "与真实底栏的步骤/速度/Token/缓存一致；上下文不是完成进度",
+        "status": "pass"
+      },
+      {
+        "name": "真实任务状态",
+        "detail": "模拟推理请求实际执行 DSH read 工具；完成后宠物显示 completed",
+        "status": "pass"
+      },
+      {
+        "name": "单只宠物和套餐联动",
+        "detail": "通过真实模型选择器切换；同一DOM节点换白龙图，套餐显示模拟65%/33%",
+        "status": "pass"
+      },
+      {
+        "name": "同家族版本",
+        "detail": "gpt-4o→gpt-4.1不另建形象或宠物",
+        "status": "pass"
+      },
+      {
+        "name": "GLM与未知用量",
+        "detail": "切狐形象；不继承Codex套餐或DeepSeek金额",
+        "status": "pass"
+      },
+      {
+        "name": "Gemini形象",
+        "detail": "通过真实选择器切换为猫耳形象",
+        "status": "pass"
+      },
+      {
+        "name": "未知模型默认星璃",
+        "detail": "同一只桌宠转为星璃；图片仍为未验收占位",
+        "status": "pass"
+      }
+    ],
+    "pageErrors": [],
+    "consoleErrors": []
+  },
+  "visible_text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nNew Session\n读取 sample.txt 并用一句话告诉\nnow\nMore\nInto the Unknown\nPreview\nworkspace\nStandard mode\nDescribe what you want to build, / commands, @ files or sessions\nWorkspace Write\nprivate-model-v1 API [模拟]\n星璃\n×\n等你开始\n用量\n当前接入未提供余额或套餐接口\nAPI 测试接入\ndeepseek-chat API [模拟]\ngpt-4o API [模拟]\ngpt-4.1 API [模拟]\nglm-4.6 API [模拟]\ngemini-2.5-pro API [模拟]\nprivate-model-v1 API [模拟]\nCodex Native 接口模拟\ngpt-4o Codex [模拟]\ngpt-4.1 Codex [模拟]"
+}

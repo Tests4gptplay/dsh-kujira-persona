@@ -1,0 +1,32 @@
+name: Inspect Kujira final UI evidence
+'on':
+  push:
+    branches: [qa/v2-code-completion-20261023]
+    paths: [.github/workflows/qa-inspect-final.yml]
+permissions: {contents: write, actions: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-complete-web
+          run-id: 39975103325
+          github-token: ${{ github.token }}
+          path: evidence
+      - name: Preserve the exact failure on QA only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,base64
+          from pathlib import Path
+          ui=json.loads(Path('evidence/ui-result.json').read_text())
+          body=Path('evidence/failure-body.txt').read_text() if Path('evidence/failure-body.txt').exists() else ''
+          value={'run':39975103325,'result':ui,'visible_text':body[-18000:]}
+          data=json.dumps(value,ensure_ascii=False,indent=2)
+          print(data)
+          payload={'message':'qa(v2): preserve failing UI step and completed cases','branch':'qa/v2-code-completion-20261023','content':base64.b64encode(data.encode()).decode()}
+          subprocess.run(['gh','api','repos/Tests4gptplay/dsh-kujira-persona/contents/qa/first-final-ui-failure.json','--method','PUT','--input','-'],input=json.dumps(payload),text=True,check=True,stdout=subprocess.DEVNULL)
+          PY

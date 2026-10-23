@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Install',exact:true}).click(); await page.getByRole('button',{name:'Enable now',exact:true}).waitFor({timeout:120000}); return {guiInstallationCompleted:true,installedPackage:JSON.parse(await readFile(join(home,'profiles/web/node_modules/dsh-kujira-persona/package.json'),'utf8')).version};"}

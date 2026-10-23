@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.locator('[contenteditable=true]').fill('改一下刚才的设定：烤饼干改到每周日；你现在更喜欢乌龙茶，不再是柚子茶。把这两处原有内容改掉，仍然分别放在共同设定和你自己的档案里。'); await page.getByRole('button',{name:'Send message',exact:true}).click(); await page.waitForTimeout(5000); return {scenario:'用户新要求覆盖旧设定，实际replace共同世界和个人记忆'};"}

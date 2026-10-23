@@ -34,14 +34,18 @@ const safeId = value => /^[a-z][a-z0-9-]{0,63}$/.test(value) && value !== 'none'
 
 /** Match model identity, never display names or API protocol. Versions share a family. */
 export function modelFamily(route) {
-  let model = text(route.model).toLowerCase().replace(/^ft:/, '').split('/').at(-1)
+  let model = text(route.model).toLowerCase().split('/').at(-1).replace(/^ft:/, '')
   // Bedrock region/vendor prefixes, e.g. us.anthropic.claude-sonnet-4-5-20250929-v1:0.
   model = model.replace(/^(?:us|eu|apac|global)\./, '')
     .replace(/^(?:anthropic|meta|openai|google|amazon|mistralai)\./, '')
   for (const [id, pattern] of FAMILIES) if (pattern.test(model)) return id
+  // Only resolve the adapter's explicit default alias by route. A different or
+  // opaque model name must not be assigned a fictional identity by its provider.
   const provider = text(route.provider).toLowerCase()
-  if (provider === 'codex-local' || provider === 'openai-codex') return 'gpt'
-  if (/^deepseek-(?:official|account|messages)$/.test(provider)) return 'deepseek'
+  if (model === 'default') {
+    if (provider === 'codex-local' || provider === 'openai-codex') return 'gpt'
+    if (/^deepseek-(?:official|account|messages)$/.test(provider)) return 'deepseek'
+  }
   return 'none'
 }
 
@@ -105,7 +109,8 @@ export function openCatalog(config) {
       if (config.mode === 'fixed') return selected(state, config.persona)
       const rules = [...state.bindings, ...config.modelRules]
       const match = rules.find(rule => matchesRule(route, rule))
-      return selected(state, match?.persona ?? (modelFamily(route) === 'none' ? config.unknownPersona : modelFamily(route)))
+      const family = modelFamily(route)
+      return selected(state, match?.persona ?? (family === 'none' ? config.unknownPersona : family))
     },
     change(args, current) {
       const state = load(), id = text(args.persona), action = args.action

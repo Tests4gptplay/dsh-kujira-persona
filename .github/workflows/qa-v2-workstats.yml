@@ -1,0 +1,112 @@
+name: Kujira v2 work statistics isolated checks
+'on':
+  push:
+    branches: [qa/v2-workstats-20261023]
+    paths: [.github/workflows/qa-v2-workstats.yml]
+permissions: {contents: read, actions: read}
+jobs:
+  web:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/checkout@v4
+        with:
+          ref: 2f3940cd7f4463ae3fb0e25521f765835c83c80a
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: pet-candidate-source
+          run-id: 39959578014
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - name: Prepare QA-only fixtures and actual DSH
+        run: |
+          set -euo pipefail
+          tar -xzf candidate-source.tgz qa
+          python3 qa/workstats-v2.py
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          mkdir -p evidence/package trial/home trial/workspace "$HOME/.local/share/fonts"
+          git -C trial/workspace init -q
+          curl -fL --max-time 60 https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf -o "$HOME/.local/share/fonts/NotoSansCJKsc-Regular.otf"
+          fc-cache -f
+          node --test qa/pet.test.mjs qa/stats.test.mjs | tee evidence/unit-stats.txt
+          npm pack ./candidate --ignore-scripts --json --pack-destination evidence/package > evidence/pack.json
+          export PATH="$PWD/payload/node-bin:$PWD/payload/runtime/node_modules/.bin:$PATH"
+          DSH_HOME="$PWD/trial/home" dsh plugin --profile web add "$PWD/evidence/package/dsh-kujira-persona-2.0.0.tgz" > evidence/install.log 2>&1
+          npm install --prefix qa --no-audit --no-fund playwright
+      - name: Real UI, real tool task, and DSH footer parity
+        run: node qa/ui-test.mjs
+      - name: Remove raw requests and redact temporary localhost access tokens
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('evidence')
+          for file in p.glob('request-*.json'): file.unlink()
+          for file in p.rglob('*'):
+            if file.is_file() and file.suffix in {'.json','.log','.txt'}:
+              text=file.read_text(errors='replace')
+              file.write_text(re.sub(r'([?&]token=)[^\s"&]+',r'\1[redacted]',text))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-workstats-web
+          path: evidence
+          retention-days: 14
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/checkout@v4
+        with:
+          ref: 2f3940cd7f4463ae3fb0e25521f765835c83c80a
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: pet-candidate-source
+          run-id: 39959578014
+          github-token: ${{ github.token }}
+      - name: Compile source-matched display helper
+        shell: pwsh
+        run: |
+          tar -xzf candidate-source.tgz qa
+          python qa/workstats-v2.py
+          New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
+          $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
+          $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'
+          $out=Join-Path $PWD 'candidate\pet\native\win-x64\KujiraPet.exe'
+          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu "/out:$out" "/reference:$fw\WPF\PresentationFramework.dll" "/reference:$fw\WPF\PresentationCore.dll" "/reference:$fw\WPF\WindowsBase.dll" "/reference:$fw\System.Xaml.dll" "/reference:$fw\System.Web.Extensions.dll" $src
+          if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
+      - name: Visible work statistics, single window and lifecycle
+        shell: pwsh
+        run: ./qa/native-test-v2.ps1
+      - name: Actual native bridge rapid close and reopen
+        shell: pwsh
+        run: node --test qa/native-bridge.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-workstats-windows
+          path: |
+            evidence
+            candidate/pet/native/KujiraPet.cs
+            candidate/pet/native/win-x64/KujiraPet.exe
+          retention-days: 14

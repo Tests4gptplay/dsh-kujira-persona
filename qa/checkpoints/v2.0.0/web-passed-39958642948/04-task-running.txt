@@ -1,0 +1,25 @@
+New Session
+Plugins
+Automation tasks
+Workspaces
+workspace
+Running
+读取 sample.txt 并用一句话告诉
+now
+More
+读取 sample.txt 并用一句话告诉
+Standard mode
+Chat
+Trajectory
+读取 sample.txt 并用一句话告诉我里面的内容。
+13:08
+Deep diving
+Deep diving for 1s ···
+Message or run a task, / commands, @ files or sessions
+Workspace Write
+deepseek-chat API [模拟]
+DeepSeek
+×
+正在思考
+DeepSeek API 余额
+¥57.25

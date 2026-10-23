@@ -1,0 +1,28 @@
+✔ off: no quota work or timer (6.74346ms)
+✔ family switch and same-family versions (0.728228ms)
+✔ 14 known families (1.242504ms)
+✔ user persona binding (0.313529ms)
+✔ late mapping cannot override selected model (1.588604ms)
+✔ late balance cannot leak into Codex (536.315376ms)
+✔ disable cancels refresh and ignores pending reply (1.53549ms)
+✔ usage toggle refreshes immediately (0.875685ms)
+✔ rapid settings changes serialize (0.522091ms)
+✔ background/subagent tasks do not steal selected pet (0.592814ms)
+✔ real task event names drive states (0.189146ms)
+✔ task failure visible (0.1066ms)
+✔ tokens come from actual event usage (0.101992ms)
+✔ Codex remaining percent and reset units (0.183344ms)
+✔ unknown quota is not zero (0.21871ms)
+✔ balance currencies and zero (0.378912ms)
+✔ API GPT is not Codex quota (0.555483ms)
+✔ existing Codex endpoint without model inference (69.575433ms)
+✔ upstream error contents not sent to UI (0.576764ms)
+✔ no endpoint yields unknown (0.11747ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 727.891229

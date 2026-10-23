@@ -1,0 +1,53 @@
+New Session
+Plugins
+Automation tasks
+Workspaces
+workspace
+New Session
+More
+Plugins
+Uninstall
+AI Gijinka · Shared World, Individual Personas
+v1.7.0-alpha.1
+
+dsh-kujira-persona
+
+Switch AI characters with your selected DSH model, and keep developing them through conversation. WORLD: Shared names, community impressions, jokes and relationships help characters recognize one another. CHARACTERS: Each has their own personality, preferences and memories. Versions within the same model family share one character by default. EXPAND IT IN DSH CHAT: Ask the AI to add shared lore, change a persona, create your own character or assign a character to a custom model. No manual file editing is needed. For example: ‘Make the dragon girl more lively’, ‘Add our new agreement to the shared world’, or ‘Create Stella with this description and use her for the current model’. Presets are only a starting point. When your wishes differ, your choices come first.
+
+一只桌宠，随模型换形象
+桌宠可随时关闭；世界观和人设功能不受影响。
+启用桌宠
+显示位置
+自动（Windows 桌面／其他系统页面内）
+桌面窗口（Windows）
+DSH 页面内
+角色大小
+气泡大小
+活动程度
+安静
+标准
+活泼
+气泡显示
+常驻
+仅工作与完成状态
+隐藏
+减少动态
+完成与出错提示音
+显示余额或套餐余量
+当前模型
+Kujira
+形象跟随当前对话的模型；后台任务不会把它换成另一个角色。同一家族各版本保持同一形象。
+DeepSeek 显示当前接入的余额；Codex Native 显示套餐窗口余量。凭据仍在 DSH 原有账户设置中管理。
+Components
+1 total · 1 running
+AI Gijinka · Shared World, Individual Personas
+Switch AI characters with your selected DSH model, and keep developing them through conversation. WORLD: Shared names, community impressions, jokes and relationships help characters recognize one another. CHARACTERS: Each has their own personality, preferences and memories. Versions within the same model family share one character by default. EXPAND IT IN DSH CHAT: Ask the AI to add shared lore, change a persona, create your own character or assign a character to a custom model. No manual file editing is needed. For example: ‘Make the dragon girl more lively’, ‘Add our new agreement to the shared world’, or ‘Create Stella with this description and use her for the current model’. Presets are only a starting point. When your wishes differ, your choices come first.
+whale-persona
+dsh-kujira-persona
+Running
+Source
+Code source
+file:/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/evidence/package/dsh-kujira-persona-1.7.0-alpha.1.tgz
+Current version
+1.7.0-alpha.1
+Unable to create default workspace. Use Choose workspace to select a folder.

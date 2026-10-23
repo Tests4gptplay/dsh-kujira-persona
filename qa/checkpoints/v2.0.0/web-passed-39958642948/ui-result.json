@@ -1,0 +1,127 @@
+{
+  "ok": true,
+  "cases": [
+    {
+      "name": "默认关闭",
+      "detail": "真实插件详情页显示桌宠设置；没有宠物节点",
+      "status": "pass"
+    },
+    {
+      "name": "DeepSeek 余额",
+      "detail": "真实设置/凭据路径接入 QA 假服务 ¥57.25，不是真实账户",
+      "status": "pass"
+    },
+    {
+      "name": "真实任务状态",
+      "detail": "模拟推理请求实际执行 DSH read 工具；完成后宠物显示 completed",
+      "status": "pass"
+    },
+    {
+      "name": "单只宠物和套餐联动",
+      "detail": "通过真实模型选择器切换；同一DOM节点换白龙图，套餐显示模拟65%/33%",
+      "status": "pass"
+    },
+    {
+      "name": "同家族版本",
+      "detail": "gpt-4o→gpt-4.1不另建形象或宠物",
+      "status": "pass"
+    },
+    {
+      "name": "GLM与未知用量",
+      "detail": "切狐形象；不继承Codex套餐或DeepSeek金额",
+      "status": "pass"
+    },
+    {
+      "name": "Gemini形象",
+      "detail": "通过真实选择器切换为猫耳形象",
+      "status": "pass"
+    },
+    {
+      "name": "减少动态",
+      "detail": "实际UI修改立即停止CSS动画",
+      "status": "pass"
+    },
+    {
+      "name": "关闭与持久化",
+      "detail": "实际UI关闭；宠物节点移除，配置文件可读回",
+      "status": "pass"
+    },
+    {
+      "name": "重载后保持关闭",
+      "detail": "重新载入真实DSH仍不生成宠物",
+      "status": "pass"
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "config": {
+    "enabled": false,
+    "display": "page",
+    "scale": 1,
+    "bubbleScale": 1,
+    "activity": "normal",
+    "reducedMotion": true,
+    "sound": false,
+    "bubble": "always",
+    "showUsage": true,
+    "refreshSeconds": 60,
+    "x": null,
+    "y": null
+  },
+  "finalState": {
+    "config": {
+      "enabled": false,
+      "display": "page",
+      "scale": 1,
+      "bubbleScale": 1,
+      "activity": "normal",
+      "reducedMotion": true,
+      "sound": false,
+      "bubble": "always",
+      "showUsage": true,
+      "refreshSeconds": 60,
+      "x": null,
+      "y": null
+    },
+    "route": {
+      "provider": "trial-metered",
+      "model": "deepseek-chat",
+      "sessionId": "session-229f4282-e078-4be8-a9b2-12ff3108675d",
+      "family": "deepseek",
+      "persona": "deepseek",
+      "art": "deepseek",
+      "name": "DeepSeek"
+    },
+    "task": {
+      "phase": "idle",
+      "text": "等你开始",
+      "tool": "",
+      "progress": null,
+      "inputTokens": 0,
+      "outputTokens": 0
+    },
+    "usage": {
+      "kind": "balance",
+      "status": "ready",
+      "title": "DeepSeek API 余额",
+      "source": "api-key",
+      "balances": [
+        {
+          "currency": "CNY",
+          "total": "57.25",
+          "granted": "7.25",
+          "toppedUp": "50"
+        }
+      ],
+      "windows": [],
+      "lines": [
+        "¥57.25"
+      ],
+      "checkedAt": 1792760934447
+    },
+    "renderer": "none",
+    "nativeError": "",
+    "revision": 33
+  },
+  "simulation": "Inference and balance/quota data mocked outside package; DSH UI, model selection, tool execution and files are real."
+}

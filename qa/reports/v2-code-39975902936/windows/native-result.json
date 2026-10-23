@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "exitOnEOF": true,
+  "first": {
+    "top": 172,
+    "title": "Kujira · DeepSeek · thinking",
+    "left": 710,
+    "height": 540,
+    "printWindow": true,
+    "width": 290,
+    "handle": 131614
+  },
+  "positionStable": true,
+  "next": {
+    "top": 261,
+    "title": "Kujira · GPT · completed",
+    "left": 710,
+    "height": 451,
+    "printWindow": true,
+    "width": 290,
+    "handle": 131614
+  },
+  "sameWindow": true,
+  "secondWindowPrevented": true,
+  "sameProcess": true,
+  "scope": "Actual Windows hosted WPF window and PNG images; English simulated status/quota; not user Windows Desktop"
+}

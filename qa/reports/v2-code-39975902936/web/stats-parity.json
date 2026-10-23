@@ -1,0 +1,21 @@
+{
+  "stats": {
+    "turns": 1,
+    "steps": 2,
+    "tokensPerSecond": 2948.4029484029484,
+    "totalTokens": 25200,
+    "cacheHitPercent": "93",
+    "contextPercent": 9,
+    "contextUsedTokens": 12015,
+    "contextWindow": 128000,
+    "lines": [
+      "1 轮 2 步 · 2948 tok/s",
+      "25.2K tok · 缓存命中 93%",
+      "上下文已用 9%"
+    ]
+  },
+  "petText": "1 轮 2 步 · 2948 tok/s\n25.2K tok · 缓存命中 93%\n上下文已用 9%",
+  "dockActivity": "1 turns 2 steps·2948 tok/s",
+  "dockUsage": "25.2K tok·Cache hit 93%",
+  "usageSource": "simulated provider SSE usage; real DSH projections and real tools"
+}

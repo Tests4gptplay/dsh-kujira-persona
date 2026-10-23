@@ -1,0 +1,169 @@
+{
+  "ok": true,
+  "cases": [
+    {
+      "name": "默认关闭",
+      "detail": "真实插件详情页显示桌宠设置；没有宠物节点",
+      "status": "pass"
+    },
+    {
+      "name": "DeepSeek 余额",
+      "detail": "真实设置/凭据路径接入 QA 假服务 ¥57.25，不是真实账户",
+      "status": "pass"
+    },
+    {
+      "name": "DSH原生统计一致",
+      "detail": "与真实底栏的步骤/速度/Token/缓存一致；上下文不是完成进度",
+      "status": "pass"
+    },
+    {
+      "name": "真实任务状态",
+      "detail": "模拟推理请求实际执行 DSH read 工具；完成后宠物显示 completed",
+      "status": "pass"
+    },
+    {
+      "name": "单只宠物和套餐联动",
+      "detail": "通过真实模型选择器切换；同一DOM节点换白龙图，套餐显示模拟65%/33%",
+      "status": "pass"
+    },
+    {
+      "name": "同家族版本",
+      "detail": "gpt-4o→gpt-4.1不另建形象或宠物",
+      "status": "pass"
+    },
+    {
+      "name": "GLM与未知用量",
+      "detail": "切狐形象；不继承Codex套餐或DeepSeek金额",
+      "status": "pass"
+    },
+    {
+      "name": "Gemini形象",
+      "detail": "通过真实选择器切换为猫耳形象",
+      "status": "pass"
+    },
+    {
+      "name": "未知模型默认星璃",
+      "detail": "同一只桌宠转为星璃；图片仍为未验收占位",
+      "status": "pass"
+    },
+    {
+      "name": "星璃人设实际加载",
+      "detail": "真实请求中出现星璃基础档案；不是只改桌宠标题",
+      "status": "pass"
+    },
+    {
+      "name": "对话改绑定立即联动",
+      "detail": "真实 persona_manage 执行后直接换成 GPT，不手动切模型",
+      "status": "pass"
+    },
+    {
+      "name": "解除绑定恢复星璃",
+      "detail": "未知模型恢复默认角色，仍只有一个宠物节点",
+      "status": "pass"
+    },
+    {
+      "name": "刷新与位置设置",
+      "detail": "可关闭余额定时刷新；页面与桌面位置可一起重置",
+      "status": "pass"
+    },
+    {
+      "name": "工作统计可独立关闭",
+      "detail": "关闭显示不影响角色、任务和余额",
+      "status": "pass"
+    },
+    {
+      "name": "减少动态",
+      "detail": "实际UI修改立即停止CSS动画",
+      "status": "pass"
+    },
+    {
+      "name": "关闭与持久化",
+      "detail": "实际UI关闭；宠物节点移除，配置文件可读回",
+      "status": "pass"
+    },
+    {
+      "name": "重载后保持关闭",
+      "detail": "重新载入真实DSH仍不生成宠物",
+      "status": "pass"
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "config": {
+    "enabled": false,
+    "display": "page",
+    "scale": 1,
+    "bubbleScale": 1,
+    "activity": "normal",
+    "reducedMotion": true,
+    "sound": false,
+    "bubble": "always",
+    "showUsage": true,
+    "showStats": true,
+    "refreshSeconds": 0,
+    "x": null,
+    "y": null,
+    "desktopX": null,
+    "desktopY": null
+  },
+  "finalState": {
+    "config": {
+      "enabled": false,
+      "display": "page",
+      "scale": 1,
+      "bubbleScale": 1,
+      "activity": "normal",
+      "reducedMotion": true,
+      "sound": false,
+      "bubble": "always",
+      "showUsage": true,
+      "showStats": true,
+      "refreshSeconds": 0,
+      "x": null,
+      "y": null,
+      "desktopX": null,
+      "desktopY": null
+    },
+    "route": {
+      "provider": "trial-metered",
+      "model": "deepseek-chat",
+      "sessionId": "session-6c9f05d9-7d0c-4e15-bc79-41c0fc85e629",
+      "family": "deepseek",
+      "persona": "deepseek",
+      "art": "deepseek",
+      "name": "DeepSeek"
+    },
+    "task": {
+      "phase": "completed",
+      "text": "做完啦",
+      "tool": "",
+      "progress": null,
+      "inputTokens": 1680,
+      "outputTokens": 1200
+    },
+    "stats": null,
+    "usage": {
+      "kind": "balance",
+      "status": "ready",
+      "title": "DeepSeek API 余额",
+      "source": "api-key",
+      "balances": [
+        {
+          "currency": "CNY",
+          "total": "57.25",
+          "granted": "7.25",
+          "toppedUp": "50"
+        }
+      ],
+      "windows": [],
+      "lines": [
+        "¥57.25"
+      ],
+      "checkedAt": 1792768305566
+    },
+    "renderer": "none",
+    "nativeError": "",
+    "revision": 77
+  },
+  "simulation": "Inference and balance/quota data mocked outside package; DSH UI, model selection, tool execution and files are real."
+}

@@ -1,0 +1,10 @@
+DeepSeek
+Working on your task
+
+2 轮 59 步 · 1452 tok/s
+4.1M tok · 缓存命中 93%
+上下文已用 100%
+
+DeepSeek API balance (SIMULATED)
+CNY 57.25
+

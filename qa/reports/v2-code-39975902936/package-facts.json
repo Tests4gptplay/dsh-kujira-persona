@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "status": "development-candidate-not-release",
+  "test_run": 39975902936,
+  "unit_tests": 41,
+  "web_cases": 17,
+  "package_files": 104,
+  "package_size": 867417,
+  "sha256": "ea576c38ffadbd7cbb218cd973fdb47f73902546ba48bd204fdb38addc57bb6e",
+  "native_sha256": "098a61eb49fa4a1428bb281027773e9f280e28fd43b45ff06f53a44a778960aa",
+  "qa_files": 0,
+  "runtime_dependencies": 0,
+  "install_scripts": 0,
+  "artwork": "unapproved-placeholders"
+}

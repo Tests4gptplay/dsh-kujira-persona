@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "sameProcessAcrossModels": true,
+  "rapidOffOn": true,
+  "closed": true,
+  "statuses": [
+    {
+      "renderer": "desktop",
+      "error": ""
+    },
+    {
+      "renderer": "none",
+      "error": ""
+    },
+    {
+      "renderer": "desktop",
+      "error": ""
+    },
+    {
+      "renderer": "none",
+      "error": ""
+    }
+  ]
+}

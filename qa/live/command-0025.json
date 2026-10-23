@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Stop generating',exact:true}).waitFor({state:'hidden',timeout:30000}); return {finalAnswerVisible:(await page.locator('body').innerText()).includes('是“橘子星河”'),stopButtonCount:await page.getByRole('button',{name:'Stop generating',exact:true}).count(),pageTitle:await page.title()};"}

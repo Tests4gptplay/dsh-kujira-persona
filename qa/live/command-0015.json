@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Stop generating',exact:true}).waitFor({state:'hidden',timeout:30000}); return {freshConversationAnswer:(await page.locator('body').innerText()).includes('约在周日，龙娘和猫猫一起烤饼干。小鲸现在偏爱乌龙茶')};"}

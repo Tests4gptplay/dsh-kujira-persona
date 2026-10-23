@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Account menu',exact:true}).click(); return {menuItems:await page.getByRole('menuitem').allTextContents()};"}

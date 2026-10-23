@@ -1,0 +1,1 @@
+{"tool_calls":[{"name":"persona_edit","arguments":{"action":"append","scope":"world","category":"world","text":"龙娘（GPT）与猫猫（Gemini）每周六一起烤饼干。","source":"本次隔离试用中的用户设定"}},{"name":"persona_edit","arguments":{"action":"append","scope":"persona","category":"memory","text":"我喜欢柚子茶。","source":"本次隔离试用中的用户设定，只存小鲸自己的档案"}}]}

@@ -1,0 +1,105 @@
+name: Kujira 2.0.0 resumed integration
+'on':
+  push:
+    branches: [qa/single-model-pet-20261023]
+    paths: [.github/workflows/pet-resume-v2.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/checkout@v4
+        with:
+          ref: 259845df47283bc77f14ca0d5d8d8acb3df112b7
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Prepare candidate and regression tests without touching main
+        run: |
+          cp qa/checkpoints/v2.0.0/assembled-qa/* qa/
+          python3 qa/resume-v2.py
+          mkdir -p evidence
+          node --check candidate/index.js
+          node --check candidate/catalog.js
+          node --check candidate/pet/client.js
+          node --test qa/pet.test.mjs qa/stella.test.mjs | tee evidence/unit-tests.txt
+          tar -czf source.tgz --exclude=.git --exclude=qa/checkpoints candidate qa
+      - uses: actions/upload-artifact@v4
+        with: {name: v2-source, path: source.tgz, retention-days: 14}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: v2-unit-evidence, path: evidence, retention-days: 14}
+  web:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: v2-source}
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Install exact candidate in isolated DSH Web
+        run: |
+          tar -xzf source.tgz
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          mkdir -p evidence/package trial/home trial/workspace "$HOME/.local/share/fonts"
+          curl -fL --max-time 60 https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf -o "$HOME/.local/share/fonts/NotoSansCJKsc-Regular.otf"
+          fc-cache -f
+          git -C trial/workspace init -q
+          npm pack ./candidate --ignore-scripts --json --pack-destination evidence/package > evidence/pack.json
+          export PATH="$PWD/payload/node-bin:$PWD/payload/runtime/node_modules/.bin:$PATH"
+          DSH_HOME="$PWD/trial/home" dsh plugin --profile web add "$PWD/evidence/package/dsh-kujira-persona-2.0.0.tgz" > evidence/install.log 2>&1
+          npm install --prefix qa --no-audit --no-fund playwright
+      - name: Actual UI, tasks, model changes, Stella and simulated accounts
+        run: node qa/ui-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: v2-web-evidence, path: evidence, retention-days: 14}
+  windows:
+    needs: prepare
+    runs-on: windows-2022
+    timeout-minutes: 6
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: v2-source}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Build GUI executable directly from saved product source
+        shell: pwsh
+        run: |
+          tar -xzf source.tgz
+          New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
+          $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
+          $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'
+          $out=Join-Path $PWD 'candidate\pet\native\win-x64\KujiraPet.exe'
+          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu "/out:$out" "/reference:$fw\WPF\PresentationFramework.dll" "/reference:$fw\WPF\PresentationCore.dll" "/reference:$fw\WPF\WindowsBase.dll" "/reference:$fw\System.Xaml.dll" "/reference:$fw\System.Web.Extensions.dll" $src
+          if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
+          Get-FileHash $src,$out | Format-Table -AutoSize | Out-File evidence/build-hashes.txt
+      - name: Real window visibility, single-window changes and exit
+        shell: pwsh
+        run: ./qa/native-test-v2.ps1
+      - name: Real Node bridge rapid close and reopen
+        shell: pwsh
+        run: node --test qa/native-bridge.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: v2-windows-evidence, path: evidence, retention-days: 14}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: v2-native-runtime
+          path: candidate/pet/native/win-x64/KujiraPet.exe
+          retention-days: 14

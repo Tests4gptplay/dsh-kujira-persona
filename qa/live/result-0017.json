@@ -1,0 +1,183 @@
+{
+  "ok": true,
+  "result": {
+    "sourceCommit": "687f282e8625c6b8d11ff58211a90524be2e4317",
+    "npmOrigin": {
+      "version": "0.2.1-rc.2",
+      "dist": {
+        "shasum": "a502d1551aabc881020e3cb7961c38901565731a",
+        "tarball": "https://registry.npmjs.org/@deepseek-ai/dsh/-/dsh-0.2.1-rc.2.tgz",
+        "fileCount": 20,
+        "integrity": "sha512-tvY+yhfKRifthbqPe/OK0AYxM5ZkvqfYq/jMYgJcEUxiRRL1Vwra3Ti5TB6AXgSWQdiPHYh/Vp6SJa9yHwMNuw==",
+        "signatures": [
+          {
+            "sig": "MEUCIQDzlV5D1iMmmEB24vl+G3SB66E2XZiUSgtm2Z4bUjcVBQIgChv383N7gUAjxF6MIuitkjQ8lzyD8Vr8s5zHmg59hoI=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEQCIGmYN4vmEyNNXPzkUQ5pZwVIGQj5+fXXBC5wJiZ6HfoOAiBmZQM4XSvt4lQowjVHiG9bC1dM3qPHaGI4jwhtWIwshw==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 75972
+      }
+    },
+    "installedVersion": "1.6.1",
+    "completed": true,
+    "finalAnswerVisible": true,
+    "requestCount": 9,
+    "stopButtonVisible": 0,
+    "globalWorldFile": "我们共同的暗号是：星河糖纸。"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\n星璃，我刚用外部编辑器更新\n2min\n请给当前模型创建我的原创角\n7min\n你是谁？猫猫是谁？我们每周\n8min\n小鲸，猫猫和龙娘分别是谁？\n13min\nMore\n星璃，我刚用外部编辑器更新\nStandard mode\nChat\nTrajectory\n星璃，我刚用外部编辑器更新了共同设定。请重新读一下世界观，告诉我现在大家的共同暗号是什么，不用重启或解释操作过程。\n07:51\nCompleted\nCompleted in 2m 5s\n\n是“星河糖纸”。记住啦，听起来像把星光悄悄包进了口袋。\n\nUsage 0 tok\n07:53\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\nprivate-model-v1 [TEST RELAY]\n1 turns 2 steps·0 tok/s\n0%",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "Completed in 2m 5s",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Good response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Bad response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Branch into a new conversation",
+        "title": null
+      },
+      {
+        "text": "Usage 0 tok",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "private-model-v1 [TEST RELAY]",
+        "aria": "Select model, current private-model-v1 [TEST RELAY]",
+        "title": "private-model-v1 [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      },
+      {
+        "text": "1 turns 2 steps·0 tok/s",
+        "aria": "1 turns 2 steps · 0 tok/s",
+        "title": null
+      },
+      {
+        "text": "0%",
+        "aria": "0% of context used",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

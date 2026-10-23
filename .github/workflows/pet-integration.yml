@@ -27,6 +27,7 @@ jobs:
           python3 -m pip install --quiet cairosvg pillow
           python3 qa/fix-v2.py
           python3 qa/fix-v3.py
+          python3 qa/fix-v4.py
           python3 qa/compose.py
           python3 qa/draw-pets.py
           node --check candidate/pet/client.js
@@ -92,6 +93,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: pet-candidate-source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Compile only the native display helper
         shell: pwsh
         run: |
@@ -109,7 +113,10 @@ jobs:
           if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
       - name: Real Windows single-window lifecycle and skin switching
         shell: pwsh
-        run: ./qa/native-test.ps1
+        run: ./qa/native-test-v2.ps1
+      - name: Native bridge and quick toggle
+        shell: pwsh
+        run: node --test qa/native-bridge.test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

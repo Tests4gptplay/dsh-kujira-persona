@@ -1,4 +1,5 @@
 name: Archive Kujira v2 code and screenshots
+run-name: Preserve completed code and screenshots from passed tests
 'on':
   push:
     branches: [qa/v2-code-completion-20261023]
@@ -49,7 +50,8 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           p=Path('qa/publish-v2-evidence.py');s=p.read_text()
-          s=s.replace('之前工作统计复测第一次在 Windows QA 中文编码处失败；', '本轮首次 UI 测试在重复的当前模型标签／菜单文字处触发严格定位错误；已有九个场景通过，星璃已显示。修正 QA 菜单定位后重跑，原记录保存在 [first-final-ui-failure.json](first-final-ui-failure.json)。\n\n之前工作统计复测第一次在 Windows QA 中文编码处失败；')
+          s=s.replace("'# fail 0'", "'fail 0'").replace("r'# tests (", "r'tests (")
+          s=s.replace('之前工作统计复测第一次在 Windows QA 中文编码处失败；', '本轮首次 UI 测试在重复的当前模型标签／菜单文字处触发严格定位错误；已有九个场景通过，星璃已显示。修正 QA 菜单定位后重跑，原记录保存在 [first-final-ui-failure.json](first-final-ui-failure.json)。归档首轮因 Node 输出使用 spec 而非 TAP 格式停止，修正报告解析后复用同一批通过证据，没有改动产品或重写测试结果。\n\n之前工作统计复测第一次在 Windows QA 中文编码处失败；')
           p.write_text(s,encoding='utf-8')
           PY
           python3 qa/publish-v2-evidence.py

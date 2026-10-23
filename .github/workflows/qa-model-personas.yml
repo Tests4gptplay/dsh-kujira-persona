@@ -51,9 +51,9 @@ jobs:
           node --test qa/personas.test.mjs
       - name: Install isolated first-party DSH test dependencies
         run: |
-          npm install --prefix qa --no-save --ignore-scripts --no-audit --no-fund --no-package-lock @deepseek-ai/cordis@4.0.5 @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2
+          npm install --prefix qa --no-save --ignore-scripts --no-audit --no-fund --no-package-lock @deepseek-ai/cordis@4.0.5 @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2
       - name: Real DSH scoped model-selection and prompt assembly
-        run: node --test qa/host.test.mjs
+        run: node --test qa/host.test.mjs qa/tools-host.test.mjs
       - name: Clean pnpm Git install without build permission overrides
         run: |
           set -euo pipefail

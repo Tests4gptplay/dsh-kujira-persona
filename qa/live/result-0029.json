@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "result": {
+    "chineseIntroductionVisible": true,
+    "hasDialogueExpansion": true,
+    "hasUserPriority": true,
+    "oldImplementationParagraphAbsent": true,
+    "visibleText": "新会话\n插件\n自动化任务\n工作区\nworkspace\n星璃，我用外部编辑器补了一\n5分钟\n给当前模型创建原创角色星璃\n7分钟\n你是谁？猫猫是谁？我们烤饼\n8分钟\n小鲸，重新开一段聊天：我们\n11分钟\n小鲸，猫猫和龙娘分别是谁？\n13分钟\n更多\n插件\n卸载\nAI 娘人设 · 共同世界与独立角色\nv1.6.1\n\ndsh-kujira-persona\n\n随 DSH 中选用的模型切换 AI 角色，也能通过对话持续扩充。 【世界观】大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。 【人物】每个角色自己的性格、喜好和记忆。同一模型家族的不同版本默认共用一个角色。 【直接在 DSH 聊天框里扩充】补充世界观、修改人设、创建自己的角色，或给自定义模型指定角色，都直接告诉 AI，不必手动编辑文件。 例如：‘把龙娘的语气改得活泼一点’‘把我们的新约定补进世界观’‘创建星璃，设定是……，让当前模型用这个角色’。 预设只是起点；与你的要求不同，就按你的来。\n\n包含的组件\n共 1 个 · 1 运行中\nAI 娘人设 · 共同世界与独立角色\n随 DSH 中选用的模型切换 AI 角色，也能通过对话持续扩充。 【世界观】大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。 【人物】每个角色自己的性格、喜好和记忆。同一模型家族的不同版本默认共用一个角色。 【直接在 DSH 聊天框里扩充】补充世界观、修改人设、创建自己的角色，或给自定义模型指定角色，都直接告诉 AI，不必手动编辑文件。 例如：‘把龙娘的语气改得活泼一点’‘把我们的新约定补进世界观’‘创建星璃，设定是……，让当前模型用这个角色’。 预设只是起点；与你的要求不同，就按你的来。\nwhale-persona\ndsh-kujira-persona\n运行中\n来源信息\n代码来源\nfile:/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/payload/current/dsh-kujira-persona-1.6.1.tgz\n当前版本\n1.6.1"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "新会话\n插件\n自动化任务\n工作区\nworkspace\n星璃，我用外部编辑器补了一\n5分钟\n给当前模型创建原创角色星璃\n7分钟\n你是谁？猫猫是谁？我们烤饼\n8分钟\n小鲸，重新开一段聊天：我们\n11分钟\n小鲸，猫猫和龙娘分别是谁？\n13分钟\n更多\n插件\n卸载\nAI 娘人设 · 共同世界与独立角色\nv1.6.1\n\ndsh-kujira-persona\n\n随 DSH 中选用的模型切换 AI 角色，也能通过对话持续扩充。 【世界观】大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。 【人物】每个角色自己的性格、喜好和记忆。同一模型家族的不同版本默认共用一个角色。 【直接在 DSH 聊天框里扩充】补充世界观、修改人设、创建自己的角色，或给自定义模型指定角色，都直接告诉 AI，不必手动编辑文件。 例如：‘把龙娘的语气改得活泼一点’‘把我们的新约定补进世界观’‘创建星璃，设定是……，让当前模型用这个角色’。 预设只是起点；与你的要求不同，就按你的来。\n\n包含的组件\n共 1 个 · 1 运行中\nAI 娘人设 · 共同世界与独立角色\n随 DSH 中选用的模型切换 AI 角色，也能通过对话持续扩充。 【世界观】大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。 【人物】每个角色自己的性格、喜好和记忆。同一模型家族的不同版本默认共用一个角色。 【直接在 DSH 聊天框里扩充】补充世界观、修改人设、创建自己的角色，或给自定义模型指定角色，都直接告诉 AI，不必手动编辑文件。 例如：‘把龙娘的语气改得活泼一点’‘把我们的新约定补进世界观’‘创建星璃，设定是……，让当前模型用这个角色’。 预设只是起点；与你的要求不同，就按你的来。\nwhale-persona\ndsh-kujira-persona\n运行中\n来源信息\n代码来源\nfile:/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/payload/current/dsh-kujira-persona-1.6.1.tgz\n当前版本\n1.6.1",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "搜索会话名称",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "新建会话",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "收起侧边栏",
+        "title": null
+      },
+      {
+        "text": "新会话",
+        "aria": "新建会话",
+        "title": null
+      },
+      {
+        "text": "插件",
+        "aria": "插件",
+        "title": null
+      },
+      {
+        "text": "自动化任务",
+        "aria": "自动化任务",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "搜索会话",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "视图选项",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "添加工作区",
+        "title": null
+      },
+      {
+        "text": "更多",
+        "aria": "账号菜单",
+        "title": null
+      },
+      {
+        "text": "插件",
+        "aria": "返回插件",
+        "title": null
+      },
+      {
+        "text": "卸载",
+        "aria": "卸载 AI 娘人设 · 共同世界与独立角色",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

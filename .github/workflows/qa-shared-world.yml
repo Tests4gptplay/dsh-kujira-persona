@@ -23,6 +23,8 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Preserve canonical source bytes in this disposable Runner
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:

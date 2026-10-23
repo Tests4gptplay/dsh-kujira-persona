@@ -1,0 +1,161 @@
+{
+  "ok": true,
+  "result": {
+    "installMethod": "DSH 添加插件图形界面，绝对路径指向当前主线打包的 tarball",
+    "checkboxes": 0
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nMore\nPlugins\nInstall, enable, and configure plugins\nAdd plugin\nBuilt-in plugin settings\nSubagent\nSet Subagent recursion depth, count, and models.\nWeb search\nSet up the DeepSeek search provider.\nAgent loop\nControl how the Agent dispatches tool calls.\nShell\nLimit how long each command may run and how much it may output.\nExperimental plugins\nMore\nAgent Teams\nExperimental\nEnable team collaboration, team tools, the member roster, and the shared task board.\nVoice input\nExperimental\nTranscribe recordings locally with SenseVoice; first use requires installing dependencies\nAuto Authorization Review\nExperimental\nAdd an Auto review permission mode that uses the model to assess authorization before each tool call.\nDeveloper Tools\nExperimental\nInspect and debug raw session data, grouped chat messages, and the NodeJS backend.\nAdd plugin\n\nEnter the plugin's package name, GitHub repository address, or local directory path.\n\nInstall guide and examples\nRegistry\nOfficial npm registry\n\nInstall only plugins you trust: they run with your permissions and can damage DeepSeek Harness or leak your data.\nOn-demand Official plugins offer Update when their version differs from DSH. To update other plugins, uninstall and reinstall them.\n\nInstall",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": "for example dsh-plugin-whale-pet",
+        "aria": "Package name or address",
+        "role": null,
+        "type": "text"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "About plugins",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Refresh",
+        "title": null
+      },
+      {
+        "text": "Add plugin",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Choose how to add a plugin",
+        "title": null
+      },
+      {
+        "text": "Subagent",
+        "aria": "View Subagent",
+        "title": null
+      },
+      {
+        "text": "Web search",
+        "aria": "View Web search",
+        "title": null
+      },
+      {
+        "text": "Agent loop",
+        "aria": "View Agent loop",
+        "title": null
+      },
+      {
+        "text": "Shell",
+        "aria": "View Shell",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Agent Teams",
+        "aria": "View Agent Teams",
+        "title": null
+      },
+      {
+        "text": "Voice input",
+        "aria": "View Voice input",
+        "title": null
+      },
+      {
+        "text": "Auto Authorization Review",
+        "aria": "View Auto Authorization Review",
+        "title": null
+      },
+      {
+        "text": "Developer Tools",
+        "aria": "View Developer Tools",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Close",
+        "title": null
+      },
+      {
+        "text": "Install guide and examples",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Registry Official npm registry",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Install",
+        "aria": null,
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

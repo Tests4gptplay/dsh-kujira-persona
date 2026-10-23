@@ -83,7 +83,13 @@ test('real DSH snapshots selection even when picker changes during assembly', as
 
 test('real DSH complete-prompt ownership is not overridden', async t => {
   const h = await host(t), a = h.agent('complete', 'gateway', 'gpt-6')
-  a.agent.ctx.systemPrompt.section({ name: 'test:complete', order: 0, complete: true, text: 'EXCLUSIVE_PROMPT' })
+  await a.agent.ctx.plugin({
+    name: 'exclusive-prompt-test-fixture',
+    inject: ['systemPrompt'],
+    apply(scope) {
+      scope.systemPrompt.section({ name: 'test:complete', order: 0, complete: true, text: 'EXCLUSIVE_PROMPT' })
+    },
+  })
   const result = await h.ctx.systemPrompt.assemble({ agent: a.agent, scope: a.agent })
   assert.deepEqual(result.sections.map(s => s.text), ['EXCLUSIVE_PROMPT'])
 })

@@ -1,0 +1,124 @@
+name: Kujira 2.0.0 code completion checks
+'on':
+  push:
+    branches: [qa/v2-code-completion-20261023]
+    paths: [.github/workflows/qa-v2-complete.yml]
+permissions: {contents: read, actions: read}
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/checkout@v4
+        with:
+          ref: 55611ec683902edad5873c21f9196a1f500d8790
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: pet-candidate-source
+          run-id: 39959578014
+          github-token: ${{ github.token }}
+      - name: Complete product source and prepare separate fixtures
+        run: |
+          set -euo pipefail
+          tar -xzf candidate-source.tgz qa
+          python3 qa/finish-v2.py
+          python3 qa/finish-v2-extra.py
+          python3 qa/workstats-v2.py
+          python3 qa/prepare-final-fixtures.py
+          mkdir -p evidence
+          for f in candidate/*.js candidate/pet/*.js; do node --check "$f"; done
+          node --test qa/pet.test.mjs qa/stats.test.mjs qa/final.test.mjs | tee evidence/unit-final.txt
+          tar -czf final-source.tgz --exclude=.git candidate qa
+      - uses: actions/upload-artifact@v4
+        with: {name: v2-complete-source, path: final-source.tgz, retention-days: 14}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: v2-complete-unit, path: evidence, retention-days: 14}
+  web:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: v2-complete-source}
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Install candidate in isolated actual DSH
+        run: |
+          set -euo pipefail
+          tar -xzf final-source.tgz
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          mkdir -p evidence/package trial/home trial/workspace "$HOME/.local/share/fonts"
+          git -C trial/workspace init -q
+          curl -fL --max-time 60 https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf -o "$HOME/.local/share/fonts/NotoSansCJKsc-Regular.otf"
+          fc-cache -f
+          npm pack ./candidate --ignore-scripts --json --pack-destination evidence/package > evidence/pack.json
+          export PATH="$PWD/payload/node-bin:$PWD/payload/runtime/node_modules/.bin:$PATH"
+          DSH_HOME="$PWD/trial/home" dsh plugin --profile web add "$PWD/evidence/package/dsh-kujira-persona-2.0.0.tgz" > evidence/install.log 2>&1
+          npm install --prefix qa --no-audit --no-fund playwright
+      - name: Real tasks, Stella prompts, live role binding and settings
+        run: node qa/ui-test.mjs
+      - name: Remove raw requests and temporary access tokens from evidence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('evidence')
+          for f in p.glob('request-*.json'): f.unlink()
+          for f in p.rglob('*'):
+            if f.is_file() and f.suffix in {'.json','.log','.txt'}:
+              f.write_text(re.sub(r'([?&]token=)[^\s"&]+',r'\1[redacted]',f.read_text(errors='replace')),encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: v2-complete-web, path: evidence, retention-days: 14}
+  windows:
+    needs: prepare
+    runs-on: windows-2022
+    timeout-minutes: 6
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: v2-complete-source}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Compile exact native product source
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          tar -xzf final-source.tgz
+          if($LASTEXITCODE -ne 0){throw 'Source extraction failed'}
+          New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
+          $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
+          $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'
+          $out=Join-Path $PWD 'candidate\pet\native\win-x64\KujiraPet.exe'
+          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu "/out:$out" "/reference:$fw\WPF\PresentationFramework.dll" "/reference:$fw\WPF\PresentationCore.dll" "/reference:$fw\WPF\WindowsBase.dll" "/reference:$fw\System.Xaml.dll" "/reference:$fw\System.Web.Extensions.dll" $src
+          if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
+      - name: Actual visible window, expanded bubble, model switches and shutdown
+        shell: pwsh
+        run: ./qa/native-test-v2.ps1
+      - name: Real native bridge rapid disable and reopen
+        shell: pwsh
+        run: node --test qa/native-bridge.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-complete-windows
+          path: |
+            evidence
+            candidate/pet/native/KujiraPet.cs
+            candidate/pet/native/win-x64/KujiraPet.exe
+          retention-days: 14

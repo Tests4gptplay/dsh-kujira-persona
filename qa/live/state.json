@@ -1,5 +1,8 @@
 {
-  "updated_at": "2026-10-23T07:36:38.286Z",
-  "stage": "error",
-  "error": "Error: Web startup exited 1: error: unknown option '--patch'\n\n    at file:///home/runner/work/dsh-kujira-persona/dsh-kujira-persona/qa/live-relay.mjs:114:34"
+  "updated_at": "2026-10-23T07:39:16.134Z",
+  "stage": "installing",
+  "dsh": "0.2.1-rc.2",
+  "kujira": "1.6.1",
+  "model_backend": "current-assistant-manual-relay",
+  "user_profile_changed": false
 }

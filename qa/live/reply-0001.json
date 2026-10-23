@@ -1,0 +1,1 @@
+{"tool_calls":[{"name":"persona_edit","arguments":{"action":"read","scope":"world"}},{"name":"persona_edit","arguments":{"action":"read","scope":"persona"}}]}

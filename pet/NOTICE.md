@@ -5,3 +5,5 @@
 角色识别母题沿用本项目 AI-gijinka 图鉴的署名链：DeepSeek 原型上善无形，ZipZipPipe 等角色外形整理，MiMo 外形参考甶丶；详见根目录 NOTICE.md。
 
 功能交互参考 QCYTSN/dsh-dafeiyu，代码自行实现，没有带入其 Helper、测试或图片。Codex 套餐复用 DSH Codex Native 已有只读账户接口。
+
+星璃的 svg/png 当前是 unknown 占位图的字节副本，只用于代码联调；用户未验收美术，不代表最终设计。

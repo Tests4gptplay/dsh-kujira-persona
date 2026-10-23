@@ -22,7 +22,7 @@ function configuration(raw) {
     enabled: c.enabled !== false,
     mode: c.mode === 'fixed' ? 'fixed' : 'auto',
     persona: pathOption(c.persona, 'deepseek'),
-    unknownPersona: pathOption(c.unknownPersona, 'none'),
+    unknownPersona: pathOption(c.unknownPersona, 'stella'),
     personaDir,
     memoryFile: pathOption(c.memoryFile, join(personaDir, '90-记忆.md')),
     personasDir: pathOption(c.personasDir, join(HOME, 'personas')),
@@ -61,7 +61,7 @@ export function apply(ctx, rawConfig) {
         ...config, id, label, personaDir,
         extraText: id === 'deepseek' ? config.extraText : '',
         memoryFile: id === 'deepseek' ? config.memoryFile : join(personaDir, '90-记忆.md'),
-        packagedDir: id === 'deepseek' ? join(HERE, 'persona') : join(HERE, 'personas', id),
+        packagedDir: entry.builtin === false ? null : id === 'deepseek' ? join(HERE, 'persona') : join(HERE, 'personas', id),
       }))
     }
     return dossiers.get(id)

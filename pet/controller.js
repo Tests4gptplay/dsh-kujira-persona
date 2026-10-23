@@ -8,7 +8,7 @@ export class PetController {
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.stats=null
     this.route={provider:'',model:'',family:'none',persona:'none',name:'Kujira',art:'unknown',sessionId:''}
     this.task=emptyTask();this.usage=unknownUsage('usage','选择模型后显示对应的用量')
-    this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
+    this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
   snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,revision:this.revision}}
   publish(){this.revision++;const state=this.snapshot();for(const fn of this.listeners){try{fn(state)}catch{}}return this.snapshot()}
@@ -24,7 +24,7 @@ export class PetController {
     });this.writeTail=work.catch(()=>{});return work
   }
   cancelQuery(){clearTimeout(this.timer);this.timer=null;this.queryVersion++;this.abort?.abort();this.abort=null;this.pending=null}
-  schedule(){clearTimeout(this.timer);this.timer=null;if(!this.closed&&this.config.enabled&&this.config.showUsage&&this.route.model){this.timer=setTimeout(()=>{this.timer=null;void this.refresh()},this.config.refreshSeconds*1000);this.timer.unref?.()}}
+  schedule(){clearTimeout(this.timer);this.timer=null;if(!this.closed&&this.config.enabled&&this.config.showUsage&&this.route.model&&this.config.refreshSeconds>0){this.timer=setTimeout(()=>{this.timer=null;void this.refresh()},this.config.refreshSeconds*1000);this.timer.unref?.()}}
   updateStats(session){
     let next=null
     if(this.config.enabled&&this.config.showStats){
@@ -40,14 +40,22 @@ export class PetController {
     const id=++this.routeVersion
     this.cancelQuery()
     const family=modelFamily({provider,model})
-    this.route={provider,model,sessionId,family,persona:family,art:NAMES[family]?family:'unknown',name:NAMES[family]??model??'Kujira'}
+    this.route={provider,model,sessionId,family,persona:family,art:NAMES[family]?family:'unknown',name:NAMES[family]??(model||'Kujira')}
     if(!sameSession)this.task=emptyTask()
     this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入');this.publish()
-    const persona=await Promise.resolve().then(()=>this.resolvePersona?.({provider,model})).catch(()=>null)
+    await this.refreshPersona()
     if(id!==this.routeVersion||this.closed)return this.snapshot()
-    if(persona){this.route.persona=persona.id;this.route.art=NAMES[persona.id]?persona.id:'unknown';this.route.name=NAMES[persona.id]??persona.label}
-    this.publish();if(this.config.enabled&&this.config.showUsage)void this.refresh()
+    if(this.config.enabled&&this.config.showUsage)void this.refresh()
     return this.snapshot()
+  }
+  async refreshPersona(){
+    const version=++this.personaVersion,routeVersion=this.routeVersion,route={...this.route}
+    const persona=await Promise.resolve().then(()=>this.resolvePersona?.(route)).catch(()=>null)
+    if(this.closed||version!==this.personaVersion||routeVersion!==this.routeVersion)return this.snapshot()
+    const id=persona?.id??'none'
+    this.route={...route,persona:id,art:persona?(NAMES[id]?id:'unknown'):(NAMES[route.family]?route.family:'unknown'),
+      name:persona?(persona.builtin===false?persona.label:NAMES[id]??persona.label):(NAMES[route.family]??(route.model||'Kujira'))}
+    return this.publish()
   }
   refresh(){
     if(this.closed||!this.config.enabled||!this.config.showUsage||!this.route.model)return Promise.resolve(this.snapshot())
@@ -58,7 +66,7 @@ export class PetController {
     const pending=Promise.resolve().then(()=>this.queryUsage(route,signal)).then(usage=>{
       if(version===this.queryVersion&&!this.closed){this.usage={...usage,checkedAt:this.now()};this.publish()}
     }).catch(()=>{
-      if(version===this.queryVersion&&!this.closed){this.usage=this.usage.status==='ready'?{...this.usage,status:'stale',lines:[...this.usage.lines,'上次查询；暂时无法刷新']}:unknownUsage(route.provider==='codex-local'?'codex':route.family==='deepseek'?'balance':'usage','暂时无法查询，请稍后刷新');this.publish()}
+      if(version===this.queryVersion&&!this.closed){this.usage=['ready','stale'].includes(this.usage.status)?{...this.usage,status:'stale',lines:[...this.usage.lines.filter(line=>line!=='上次查询；暂时无法刷新'),'上次查询；暂时无法刷新']}:unknownUsage(route.provider==='codex-local'?'codex':route.family==='deepseek'?'balance':'usage','暂时无法查询，请稍后刷新');this.publish()}
     }).finally(()=>{if(version===this.queryVersion){this.pending=null;this.abort=null;this.schedule()}}).then(()=>this.snapshot())
     this.pending=pending;return pending
   }

@@ -11,7 +11,7 @@ const HERE=dirname(fileURLToPath(import.meta.url))
 export function applyPet(ctx,{catalog,home}){
   ctx.inject(['sessions','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
-    let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{}
+    let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{},offCatalog=()=>{}
     const ready=(async()=>{
       let config={}
       try{config=JSON.parse(await readFile(path,'utf8'))}catch(e){if(e.code!=='ENOENT')scope.logger?.warn?.('Kujira 桌宠设置暂时无法读取，保持关闭')}
@@ -26,6 +26,7 @@ export function applyPet(ctx,{catalog,home}){
       native=new NativePet(HERE,nativeStatus,message=>{
         if(message.action==='close')void controller.configure({enabled:false})
         if(message.action==='refresh')void controller.refresh()
+        if(message.action==='position')void controller.configure({desktopX:message.x,desktopY:message.y})
       })
       function render(state){
         const target=!state.config.enabled?'none':state.config.display==='page'?'page':process.platform==='win32'?'desktop':state.config.display==='desktop'?'unsupported':'page'
@@ -40,6 +41,7 @@ export function applyPet(ctx,{catalog,home}){
         const bytes=new TextEncoder().encode(`data: ${JSON.stringify(controller.snapshot())}\n\n`)
         for(const stream of streams)try{stream.enqueue(bytes)}catch{streams.delete(stream)}
       })
+      offCatalog=catalog.subscribe(()=>{if(!closed)void controller.refreshPersona()})
       offEvent=ctx.on('session/event',(session,event)=>controller.event(session,event),{global:true})
       render(controller.snapshot());return controller
     })().catch(()=>{scope.logger?.warn?.('Kujira 桌宠未启动，人设功能继续可用');return null})
@@ -74,6 +76,6 @@ export function applyPet(ctx,{catalog,home}){
       if(id!=='unknown'&&!Object.hasOwn(NAMES,id))return new Response('not found',{status:404})
       try{if(!assets.has(id))assets.set(id,await readFile(join(HERE,'assets',id+'.svg')));return new Response(assets.get(id),{headers:{'content-type':'image/svg+xml','cache-control':'private, max-age=86400'}})}catch{return new Response('not found',{status:404})}
     }})
-    scope.on('dispose',()=>{closed=true;offEvent();offState();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
+    scope.on('dispose',()=>{closed=true;offEvent();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
   })
 }

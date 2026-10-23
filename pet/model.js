@@ -1,12 +1,12 @@
 /** Presentation data only. No model calls, file scans, or work execution. */
-export const NAMES = Object.freeze({ deepseek:'DeepSeek',gpt:'GPT',gemini:'Gemini',claude:'Claude',grok:'Grok',glm:'GLM',kimi:'Kimi',qwen:'Qwen',minimax:'MiniMax',llama:'Llama',doubao:'豆包',mistral:'Mistral',hunyuan:'混元',mimo:'MiMo' })
-export const DEFAULTS = Object.freeze({ enabled:false, display:'auto', scale:1, bubbleScale:1, activity:'normal', reducedMotion:false, sound:false, bubble:'always', showUsage:true, showStats:true, refreshSeconds:60, x:null, y:null })
+export const NAMES = Object.freeze({ deepseek:'DeepSeek',gpt:'GPT',gemini:'Gemini',claude:'Claude',grok:'Grok',glm:'GLM',kimi:'Kimi',qwen:'Qwen',minimax:'MiniMax',llama:'Llama',doubao:'豆包',mistral:'Mistral',hunyuan:'混元',mimo:'MiMo',stella:'星璃' })
+export const DEFAULTS = Object.freeze({ enabled:false, display:'auto', scale:1, bubbleScale:1, activity:'normal', reducedMotion:false, sound:false, bubble:'always', showUsage:true, showStats:true, refreshSeconds:60, x:null, y:null, desktopX:null, desktopY:null })
 export function settings(input={}) {
   const value={...DEFAULTS}
   for(const key of ['enabled','reducedMotion','sound','showUsage','showStats']) if(typeof input[key]==='boolean') value[key]=input[key]
   for(const [key,options] of Object.entries({display:['auto','desktop','page'],activity:['quiet','normal','lively'],bubble:['always','tasks','hidden']})) if(options.includes(input[key])) value[key]=input[key]
-  for(const [key,lo,hi] of [['scale',0.55,1.6],['bubbleScale',0.8,1.4],['refreshSeconds',30,600]]) if(Number.isFinite(input[key])) value[key]=Math.min(hi,Math.max(lo,input[key]))
-  for(const key of ['x','y']) if(Number.isFinite(input[key])) value[key]=input[key]
+  for(const [key,lo,hi] of [['scale',0.55,1.6],['bubbleScale',0.8,1.4],['refreshSeconds',0,600]]) if(Number.isFinite(input[key])) value[key]=Math.min(hi,Math.max(lo,input[key]))
+  for(const key of ['x','y','desktopX','desktopY']) if(Number.isFinite(input[key])) value[key]=input[key]
   return value
 }
 export const emptyTask=()=>({phase:'idle',text:'等你开始',tool:'',progress:null,inputTokens:0,outputTokens:0})

@@ -17,6 +17,7 @@ export const BUILTINS = [
   { id: 'mistral', label: 'Mistral 娘' },
   { id: 'hunyuan', label: '混元娘' },
   { id: 'mimo', label: 'MiMo 娘' },
+  { id: 'stella', label: '星璃' },
 ]
 
 const FAMILIES = [
@@ -65,6 +66,8 @@ const matchesRule = (route, rule) => matches(route.provider, rule.provider) && m
 /** The registry contains only role names and model bindings, never model credentials. */
 export function openCatalog(config) {
   const path = join(config.personasDir, '.kujira-catalog.json')
+  const listeners = new Set()
+  const notify = () => { for (const fn of listeners) { try { fn() } catch {} } }
   let state, initialization
   let tail = Promise.resolve()
   function enqueue(operation) {
@@ -88,13 +91,14 @@ export function openCatalog(config) {
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
     await rename(temporary, path)
     state = next
+    notify()
   }
   function ready() {
     return initialization ??= enqueue(async () => { state = await load() })
   }
   function entries(state) {
-    return [...BUILTINS.map(p => ({ ...p, builtin: true })), ...state.personas
-      .filter(p => safeId(p.id) && !BUILTINS.some(b => b.id === p.id))
+    return [...BUILTINS.filter(p => !state.personas.some(u => u.id === p.id)).map(p => ({ ...p, builtin: true })), ...state.personas
+      .filter(p => safeId(p.id))
       .map(p => ({ id: p.id, label: p.label, builtin: false }))]
   }
   function selected(state, id) {
@@ -119,10 +123,11 @@ export function openCatalog(config) {
   }
   return {
     path,
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn) },
     async list() { await ready(); await tail; return { personas: entries(state), bindings: [...state.bindings] } },
     async get(id) { await ready(); await tail; return selected(state, id) },
     reload() {
-      const work = enqueue(async () => { state = await load(); return { personas: entries(state), bindings: state.bindings } })
+      const work = enqueue(async () => { state = await load(); notify(); return { personas: entries(state), bindings: state.bindings } })
       initialization = work.then(() => undefined)
       initialization.catch(() => {})
       return work
@@ -133,7 +138,7 @@ export function openCatalog(config) {
       const rules = [...state.bindings, ...config.modelRules]
       const match = rules.find(rule => matchesRule(route, rule))
       const family = modelFamily(route)
-      return selected(state, match?.persona ?? (family === 'none' ? config.unknownPersona : family))
+      return selected(state, match?.persona ?? (family === 'none' ? (config.unknownPersona ?? 'stella') : family))
     },
     async change(args, current) {
       await ready()

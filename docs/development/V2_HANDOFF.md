@@ -1,3 +1,9 @@
+# 最新接续状态
+
+先看 [功能收尾状态](V2_CODE_STATUS.md) 与 [图文报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/qa/v2-code-completion-20261023/qa/V2_CODE_REPORT.md)。用户已恢复开发，并要求先完成代码、之后讨论美术。以下是保留的历史检查点，旧的暂停指令和旧失败不代表当前状态。
+
+---
+
 # Kujira 2.0.0 · 单只模型联动桌宠交接
 
 状态：**按用户要求暂停，保存开发检查点；不是发行版，也不是验收通过。**

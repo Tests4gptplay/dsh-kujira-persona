@@ -1,0 +1,135 @@
+{
+  "ok": true,
+  "result": {
+    "workspace": "/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/trial/workspace"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nNo sessions yet\nMore\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nChoose a workspace to start\nSelect Workspace Directory\nHome\nactions-runner\nwork\nNew folder\nShow hidden files\nCancel\nOpen",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "Choose workspace",
+        "aria": "Choose workspace",
+        "title": null
+      },
+      {
+        "text": "Standard mode",
+        "aria": null,
+        "title": "Choose the agent preset for your new task"
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      },
+      {
+        "text": "Home",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Edit path",
+        "title": "Edit path"
+      },
+      {
+        "text": "actions-runner",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "work",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "New folder",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Show hidden files",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Cancel",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Open",
+        "aria": null,
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

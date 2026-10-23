@@ -1,98 +1,44 @@
 {
-  "updated_at": "2026-10-23T07:39:26.894Z",
-  "stage": "web_ready",
-  "snapshot": {
-    "url": "http://127.0.0.1:3080/",
-    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nNo sessions yet\nMore\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nChoose a workspace to start\nPreview Notice\n\nDeepSeek Harness 0.2 is still in preview, and many areas need continued improvement and refinement. We welcome feedback and suggestions from all developers and users. The new desktop app now targets a broad range of users, while developer-related advanced features can be enabled in the settings. DeepSeek Harness’s product features and plugin APIs are expected to continue rapid iteration and evolution, and will gradually stabilize over time.\n\nWe look forward to exploring the limits of intelligence together with users and developers around the world, building on open-source, reusable, and composable infrastructure. We welcome everyone to bring their ideas to life with DeepSeek Harness and participate in the community to enrich the plugin ecosystem.\n\nContinue\nUnable to create default workspace. Use Choose workspace to select a folder.",
-    "inputs": [
-      {
-        "tag": "INPUT",
-        "placeholder": "Search session names",
-        "aria": null,
-        "role": null,
-        "type": "text"
-      },
-      {
-        "tag": "INPUT",
-        "placeholder": null,
-        "aria": null,
-        "role": null,
-        "type": "file"
-      }
-    ],
-    "buttons": [
-      {
-        "text": "",
-        "aria": "New session",
-        "title": null
-      },
-      {
-        "text": "",
-        "aria": "Collapse sidebar",
-        "title": null
-      },
-      {
-        "text": "New Session",
-        "aria": "New session",
-        "title": null
-      },
-      {
-        "text": "Plugins",
-        "aria": "Plugins",
-        "title": null
-      },
-      {
-        "text": "Automation tasks",
-        "aria": "Automation tasks",
-        "title": null
-      },
-      {
-        "text": "",
-        "aria": "Search sessions",
-        "title": null
-      },
-      {
-        "text": "",
-        "aria": "View options",
-        "title": null
-      },
-      {
-        "text": "",
-        "aria": "Add workspace",
-        "title": null
-      },
-      {
-        "text": "More",
-        "aria": "Account menu",
-        "title": null
-      },
-      {
-        "text": "Choose workspace",
-        "aria": "Choose workspace",
-        "title": null
-      },
-      {
-        "text": "Standard mode",
-        "aria": null,
-        "title": "Choose the agent preset for your new task"
-      },
-      {
-        "text": "",
-        "aria": "Add files or run commands",
-        "title": null
-      },
-      {
-        "text": "",
-        "aria": "Send message",
-        "title": null
-      },
-      {
-        "text": "Continue",
-        "aria": null,
-        "title": null
-      }
-    ],
-    "pageErrors": []
-  },
-  "next_command": "qa/live/command-0001.json"
+  "updated_at": "2026-10-23T07:40:33.773Z",
+  "stage": "awaiting_model_response",
+  "request_id": "0001",
+  "model": "deepseek-chat",
+  "request_path": "qa/live/request-0001.json",
+  "tools": [
+    "ask_user_question",
+    "bash",
+    "create_goal",
+    "edit",
+    "exit_plan_mode",
+    "get_goal",
+    "glob",
+    "grep",
+    "interrupt_agent",
+    "job_kill",
+    "job_list",
+    "job_output",
+    "list_agents",
+    "persona_edit",
+    "persona_manage",
+    "present",
+    "read",
+    "read_image",
+    "schedule_create",
+    "schedule_delete",
+    "schedule_list",
+    "schedule_update",
+    "send_message",
+    "skill",
+    "subagent",
+    "subagent_fork",
+    "todo_write",
+    "update_goal",
+    "web_fetch",
+    "web_search",
+    "workflow",
+    "working_directory",
+    "write"
+  ],
+  "messages": 4,
+  "reply_path": "qa/live/reply-0001.json"
 }

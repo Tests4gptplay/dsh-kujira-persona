@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "1.5.0",
-  "description": "DSH 多模型 AI 娘人设：11 个内置家族；通过对话补充设定、创建角色和绑定自定义模型，同家族版本共用记忆",
+  "version": "1.6.0",
+  "description": "DSH AI 娘：共享世界观与角色名录＋随模型切换的个人档案；对话保存自动更新缓存，无定时扫描",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",
@@ -15,6 +15,6 @@
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
-  "files": ["index.js", "dossier.js", "catalog.js", "cordis.patch.yml", "persona/*.md", "personas/*/*.md", "locale/*.json", "icon.svg", "assets/hero.svg", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md"],
+  "files": ["index.js", "dossier.js", "catalog.js", "cordis.patch.yml", "persona/*.md", "personas/*/*.md", "world/*.md", "instructions/README.md", "locale/*.json", "icon.svg", "assets/hero.svg", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md"],
   "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
 }

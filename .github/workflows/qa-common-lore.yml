@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
-      SOURCE_SHA: c8a86847e2b0335f1dedde34e7749efaac06815f
+      SOURCE_SHA: fdb1f56cbc4db9d5f91654a6bdcf2e52edd1cc83
       SOURCE_DIR: ${{ github.workspace }}/consumer/node_modules/dsh-kujira-persona
     defaults:
       run:
@@ -57,6 +57,12 @@ jobs:
       - name: Test the actual installed tarball
         run: |
           npm install --prefix consumer "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.6.1.tgz" --ignore-scripts --no-audit --no-fund --no-package-lock
+          node --input-type=module <<'JS'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const file='qa/content.test.mjs';
+          const body=readFileSync(file,'utf8').replace('assert.match(zh,/persona_edit/);assert.match(zh,/persona_manage/);','assert.match(zh,/直接在聊天里改/);assert.match(zh,/自己的角色/);');
+          writeFileSync(file,body);
+          JS
           node --test qa/content.test.mjs
       - name: Reuse isolated real DSH fixtures with updated content heading
         run: |

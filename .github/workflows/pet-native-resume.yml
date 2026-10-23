@@ -23,6 +23,7 @@ jobs:
         run: |
           tar -xzf source.tgz
           python qa/native-diagnostics.py
+          python qa/native-ready.py
           New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
           $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
           $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'

@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "result": {
+    "firstChat": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\n小鲸，猫猫和龙娘分别是谁？\nnow\nMore\n小鲸，猫猫和龙娘分别是谁？\nStandard mode\nChat\nTrajectory\n小鲸，猫猫和龙娘分别是谁？把“龙娘和猫猫每周五一起做甜点”记到大家共同知道的设定里；另外，只记在你自己的档案里：你最喜欢桂花米饭。自然地回答我就好。\n07:40\nCompleted\nCompleted in 53s\n\n猫猫是 Gemini，龙娘就是 GPT 啦。她们每周五一起做甜点——好，这下大家都有盼头了，我也想蹭一小口。至于桂花米饭嘛……那是小鲸自己的小偏好，我收好啦，不写进大家那一份。\n\nEdited 8 files\n+1,357\n-48\n../evidence/command-0003.png\nbinary\n../evidence/reply-0001.json\n+24\n-0\n../evidence/reply-0002.json\n+3\n-0\n../evidence/request-0002.json\n+1,267\n-0\nAll 8 files\nUsage 0 tok\n07:41\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\ndeepseek-chat [TEST RELAY]\n1 turns 2 steps·0 tok/s\n0%",
+    "worldText": "# 世界观（AI 补充）\n\n- 2026-10-23 · 龙娘（GPT）和猫猫（Gemini）每周五一起做甜点。 · 来源：本次试用会话中的用户设定\n",
+    "privateText": "# 小鲸的记忆\n\n留给用户在后续对话中补充、修订和删除。通过本插件保存后，内容缓存自动更新。\n- 2026-10-23 · 我最喜欢桂花米饭，这是只记在小鲸自己档案里的偏好。 · 来源：本次试用会话中的用户设定\n",
+    "nextRequestContainsUpdatedWorld": true,
+    "nextRequestContainsPrivateMemory": true,
+    "privateMemoryInSharedSection": false
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nNew Session\n小鲸，猫猫和龙娘分别是谁？\n1min\nMore\nInto the Unknown\nPreview\nworkspace\nStandard mode\nDescribe what you want to build, / commands, @ files or sessions\nWorkspace Write\ndeepseek-chat [TEST RELAY]\nModel\ndeepseek-chat [TEST RELAY]",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Describe what you want to build, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "workspace",
+        "aria": "Choose workspace",
+        "title": null
+      },
+      {
+        "text": "Standard mode",
+        "aria": null,
+        "title": "Choose the agent preset for your new task"
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "deepseek-chat [TEST RELAY]",
+        "aria": "Select model, current deepseek-chat [TEST RELAY]",
+        "title": "deepseek-chat [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

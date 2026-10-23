@@ -1,0 +1,80 @@
+name: Isolated Kujira 1.5.0 QA
+run-name: 'Eleven families and conversational role management QA'
+'on':
+  push:
+    branches: ['qa/gijinka-dialogue-1.5.0']
+    paths: ['qa/**', '.github/workflows/qa-gijinka-dialogue.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      SOURCE_SHA: 407d0efbf2acc793ac37a8b41fd1d92c68f07073
+      SOURCE_DIR: ${{ github.workspace }}/consumer/node_modules/dsh-kujira-persona
+      DSH_HOME: ${{ github.workspace }}/isolated-dsh-home
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: plugin
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Pack and audit only the production candidate
+        run: |
+          set -euo pipefail
+          node --check plugin/index.js
+          node --check plugin/catalog.js
+          node --check plugin/dossier.js
+          mkdir -p dist
+          (cd plugin && npm pack --ignore-scripts --json --pack-destination "$GITHUB_WORKSPACE/dist") > dist/pack.json
+          node qa/package-audit.mjs plugin dist/pack.json > dist/audit.json
+          cat dist/audit.json
+      - name: Install actual tarball and test families, dialogue and installed metadata
+        run: |
+          set -euo pipefail
+          npm install --prefix consumer "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.5.0.tgz" --ignore-scripts --no-audit --no-fund --no-package-lock
+          node --test qa/families.test.mjs
+      - name: Install first-party DSH libraries only in QA environment
+        run: |
+          npm install --prefix qa --no-save --ignore-scripts --no-audit --no-fund --no-package-lock @deepseek-ai/cordis@4.0.5 @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2
+      - name: Real DSH selection snapshot, tool execution and disposal
+        run: node --test qa/host.test.mjs qa/tools-host.test.mjs
+      - name: Clean pnpm Git installation without allowBuilds changes
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/kujira-git-consumer-15"
+          cd "$RUNNER_TEMP/kujira-git-consumer-15"
+          printf '{"name":"kujira-git-consumer","private":true,"version":"1.0.0"}\n' > package.json
+          pnpm add "github:Tests4gptplay/dsh-kujira-persona#$SOURCE_SHA"
+          node --input-type=module -e "import {readFileSync,existsSync} from 'node:fs'; const p=JSON.parse(readFileSync('node_modules/dsh-kujira-persona/package.json')); if(p.version!=='1.5.0'||p.scripts||p.devDependencies)throw Error('Unexpected runtime metadata'); for(const f of ['qa','tests','scripts','.github'])if(existsSync('node_modules/dsh-kujira-persona/'+f))throw Error('Test artifact installed: '+f); console.log('CLEAN_GIT_INSTALL_PASS')"
+      - name: Official DSH isolated Web profile installation and composition
+        run: |
+          set -euo pipefail
+          pnpm dlx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.5.0.tgz"
+          pnpm dlx @deepseek-ai/dsh@0.2.1-rc.2 --profile web --dump-config > "$RUNNER_TEMP/kujira-dsh-profile.txt"
+          grep -Fq dsh-kujira-persona "$RUNNER_TEMP/kujira-dsh-profile.txt"
+          echo DSH_PROFILE_COMPOSITION_PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-1.5.0-${{ matrix.os }}
+          path: |
+            dist/dsh-kujira-persona-1.5.0.tgz
+            dist/audit.json
+            dist/SHA256SUMS
+          if-no-files-found: error

@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Edit path',exact:true}).click(); await page.getByRole('textbox').last().fill(workspace); await page.getByRole('textbox').last().press('Enter'); await page.waitForTimeout(700); await page.getByRole('button',{name:'Open',exact:true}).click();"}

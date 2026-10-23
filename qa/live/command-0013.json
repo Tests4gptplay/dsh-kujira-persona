@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Stop generating',exact:true}).waitFor({state:'hidden',timeout:30000}); return {completedReplyVisible:(await page.locator('body').innerText()).includes('饼干约到周日，我的杯子里就换成乌龙茶')};"}

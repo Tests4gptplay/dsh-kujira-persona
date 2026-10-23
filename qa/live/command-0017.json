@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Stop generating',exact:true}).waitFor({state:'hidden',timeout:30000}); return {gptReplyVisible:(await page.locator('body').innerText()).includes('我是 GPT 白龙娘，猫猫是 Gemini')};"}

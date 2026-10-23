@@ -1,0 +1,157 @@
+{
+  "ok": true,
+  "result": {
+    "gptReplyVisible": true
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\n你是谁？猫猫是谁？我们烤饼\nnow\n小鲸，重新开一段聊天：我们\n2min\n小鲸，猫猫和龙娘分别是谁？\n4min\nMore\n你是谁？猫猫是谁？我们烤饼\nStandard mode\nChat\nTrajectory\n你是谁？猫猫是谁？我们烤饼干约在周几？小鲸现在喜欢喝什么，自己的档案没有就别猜。\n09:25\nCompleted\nCompleted in 28s\n\n我是 GPT 白龙娘，猫猫是 Gemini。烤饼干约在周日，这个我记得。至于小鲸现在喜欢喝什么，那是她自己的小秘密，我这边没有，就不替她猜了。\n\nUsage 0 tok\n09:26\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\ngpt-4o [TEST RELAY]\n1 turns 1 steps·0 tok/s\n0%",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "Completed in 28s",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Good response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Bad response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Branch into a new conversation",
+        "title": null
+      },
+      {
+        "text": "Usage 0 tok",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "gpt-4o [TEST RELAY]",
+        "aria": "Select model, current gpt-4o [TEST RELAY]",
+        "title": "gpt-4o [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      },
+      {
+        "text": "1 turns 1 steps·0 tok/s",
+        "aria": "1 turns 1 steps · 0 tok/s",
+        "title": null
+      },
+      {
+        "text": "0%",
+        "aria": "0% of context used",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

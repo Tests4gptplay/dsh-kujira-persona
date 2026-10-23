@@ -17,7 +17,7 @@ async function fixture(t) {
   ctx.systemPrompt.variable('provider', () => 'stale')
   ctx.systemPrompt.variable('model', () => 'deepseek-stale')
   ctx.systemPrompt.section({ name: 'host:preserve', order: 42, text: 'UNCHANGED_HOST_SECTION' })
-  ctx.systemPrompt.context({ name: 'host:context', text: 'UNCHANGED_CONTEXT' })
+  ctx.systemPrompt.context({ name: 'host:context', order: 42, text: 'UNCHANGED_CONTEXT' })
   ctx.tools.register({ name: 'ordinary_tool', description: 'unrelated host tool', parameters: { type: 'object', properties: {} },
     output: { schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] }, render: () => [{ type: 'text', text: 'HOST_TOOL_OK' }] }, execute: async () => ({ ok: true }) })
   const config = { personaDir: join(dir, 'persona'), personasDir: join(dir, 'personas'), worldDir: join(dir, 'world') }

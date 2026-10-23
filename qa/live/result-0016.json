@@ -1,0 +1,148 @@
+{
+  "ok": true,
+  "result": {
+    "beforeHadExternalSecret": false,
+    "afterHasExternalSecret": true,
+    "currentPersona": "星璃",
+    "toolResults": [
+      {
+        "role": "tool",
+        "content": "全局世界观\n已重新读取受影响内容并刷新缓存；下一次请求生效，无需重启 DSH。\n/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/trial/home/world\n下次请求生效。",
+        "tool_call_id": "call_0008_0"
+      }
+    ],
+    "requestModels": [
+      "private-model-v1",
+      "private-model-v1"
+    ],
+    "pageResponsive": "星璃，我刚用外部编辑器更新 — DeepSeek Harness"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nRunning\n星璃，我刚用外部编辑器更新\nnow\n请给当前模型创建我的原创角\n5min\n你是谁？猫猫是谁？我们每周\n7min\n小鲸，猫猫和龙娘分别是谁？\n11min\nMore\n星璃，我刚用外部编辑器更新\nStandard mode\nChat\nTrajectory\n星璃，我刚用外部编辑器更新了共同设定。请重新读一下世界观，告诉我现在大家的共同暗号是什么，不用重启或解释操作过程。\n07:51\nTool call\npersona_edit · reload\nDeep diving\nDeep diving for 38s ···\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\nprivate-model-v1 [TEST RELAY]\n1 turns 1 steps·0 tok/s\n0%",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "Tool callpersona_edit · reload",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "private-model-v1 [TEST RELAY]",
+        "aria": "Select model, current private-model-v1 [TEST RELAY]",
+        "title": "private-model-v1 [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Stop generating",
+        "title": null
+      },
+      {
+        "text": "1 turns 1 steps·0 tok/s",
+        "aria": "1 turns 1 steps · 0 tok/s",
+        "title": null
+      },
+      {
+        "text": "0%",
+        "aria": "0% of context used",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": [
+    "0009"
+  ]
+}

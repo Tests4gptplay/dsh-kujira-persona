@@ -1,539 +1,177 @@
-/**
- * Host half of dsh-kujira-persona.
- *
- * Reads every `*.md` in the persona directory, in filename order, and registers
- * the result as one global system-prompt section. Files are the source of truth:
- * adding or editing one changes the next assembled request, with no reinstall.
- *
- * The plugin also exposes `persona_edit`, so the agent can grow and correct the
- * dossier itself. That write happens here in the Host process, which is why it
- * keeps working when the persona directory sits outside the session's workspace.
- */
-import {
-  appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync,
-} from 'node:fs'
-import { createHash } from 'node:crypto'
+/** Model-selected personas. One prompt hook, no polling or runtime test machinery. */
 import { homedir } from 'node:os'
-import { basename, dirname, join, resolve, sep } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { openDossier } from './dossier.js'
 
 export const inject = ['systemPrompt']
-
-const SECTION_NAME = 'whale:persona'
-const SECTION_ORDER = 1
-const MAX_SOURCE_BYTES = 256 * 1024
-const MAX_TEXT_CHARS = 64000
-const MAX_APPEND_CHARS = 4000
-
+const SECTION = 'whale:persona'
 const HERE = dirname(fileURLToPath(import.meta.url))
-const PACKAGED_DIR = join(HERE, 'persona')
 const HOME = (process.env.DSH_HOME ?? '').trim() || join(homedir(), '.dsh')
-const DEFAULT_PERSONA_DIR = join(HOME, 'persona')
+const LABELS = { deepseek: 'DeepSeek 鲸鱼娘（小鲸）', gpt: 'GPT 白龙娘' }
+const role = value => Object.hasOwn(LABELS, value) ? value : 'none'
+const pathOption = (value, fallback) => typeof value === 'string' && value.trim() ? value : fallback
 
-/** Fixed append targets: the tool never accepts a path, so it cannot escape the directory. */
-const APPEND_TARGETS = {
-  memory: { file: '90-记忆.md', label: '记忆' },
-  character: { file: '95-自补-人设.md', label: '人设（AI 补充）' },
-  world: { file: '96-自补-世界观.md', label: '世界观（AI 补充）' },
-  meme: { file: '97-自补-梗.md', label: '梗（AI 补充）' },
+function pattern(value) {
+  if (typeof value !== 'string') return undefined
+  return new RegExp(`^${value.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`, 'i')
 }
 
-function normalise(raw) {
-  const config = raw !== null && typeof raw === 'object' ? raw : {}
-  const personaDir = typeof config.personaDir === 'string' && config.personaDir.trim().length > 0
-    ? config.personaDir
-    : DEFAULT_PERSONA_DIR
-  const memoryFile = typeof config.memoryFile === 'string' && config.memoryFile.trim().length > 0
-    ? config.memoryFile
-    : join(personaDir, '90-记忆.md')
+/** Explicit rules first; an OpenAI-compatible protocol is not a model identity. */
+function choose(route, config) {
+  if (config.mode === 'fixed') return config.persona
+  const provider = typeof route.provider === 'string' ? route.provider : ''
+  const model = typeof route.model === 'string' ? route.model : ''
+  for (const rule of config.rules) {
+    if ((!rule.provider || rule.provider.test(provider)) && (!rule.model || rule.model.test(model))) return rule.persona
+  }
+  const id = model.toLowerCase().split('/').at(-1)
+  if (/^deepseek(?:-|$)/.test(id)) return 'deepseek'
+  if (/^(?:gpt(?:-|$)|chatgpt(?:-|$)|o[1-9]\d*(?:-|$))/.test(id)) return 'gpt'
+  if (provider.toLowerCase() === 'codex-local') return 'gpt'
+  if (/^deepseek-(?:official|account|messages)$/.test(provider.toLowerCase())) return 'deepseek'
+  return config.unknownPersona
+}
+
+function configuration(raw) {
+  const c = raw && typeof raw === 'object' ? raw : {}
+  const personaDir = pathOption(c.personaDir, join(HOME, 'persona'))
   return {
-    enabled: config.enabled !== false,
+    enabled: c.enabled !== false,
+    mode: c.mode === 'fixed' ? 'fixed' : 'auto',
+    persona: role(c.persona ?? 'deepseek'),
+    unknownPersona: role(c.unknownPersona),
     personaDir,
-    memoryFile,
-    allowAgentWrite: config.allowAgentWrite !== false,
-    seed: config.seed !== false,
-    sync: config.sync !== false,
-    extraText: typeof config.extraText === 'string' ? config.extraText : '',
+    memoryFile: pathOption(c.memoryFile, join(personaDir, '90-记忆.md')),
+    personasDir: pathOption(c.personasDir, join(HOME, 'personas')),
+    sharedDir: pathOption(c.sharedDir, ''),
+    allowAgentWrite: c.allowAgentWrite !== false,
+    seed: c.seed !== false,
+    sync: c.sync !== false,
+    extraText: typeof c.extraText === 'string' ? c.extraText : '',
+    rules: (Array.isArray(c.modelRules) ? c.modelRules : []).filter(r => r && (typeof r.provider === 'string' || typeof r.model === 'string'))
+      .map(r => ({ provider: pattern(r.provider), model: pattern(r.model), persona: role(r.persona) })),
   }
-}
-
-function readSource(path) {
-  try {
-    const info = statSync(path)
-    if (!info.isFile() || info.size > MAX_SOURCE_BYTES) {
-      return { path, text: '', mtimeMs: 0, size: 0 }
-    }
-    return { path, text: readFileSync(path, 'utf8'), mtimeMs: info.mtimeMs, size: info.size }
-  } catch {
-    return { path, text: '', mtimeMs: 0, size: 0 }
-  }
-}
-
-/** Where the seeded hashes live; dot-prefixed, so the dossier scanner skips it. */
-const STATE_FILE = '.kujira-state.json'
-
-function digest(text) {
-  return createHash('sha256').update(text).digest('hex')
-}
-
-function readState(dir) {
-  try {
-    const parsed = JSON.parse(readFileSync(join(dir, STATE_FILE), 'utf8'))
-    if (parsed !== null && typeof parsed === 'object' && typeof parsed.files === 'object') return parsed
-  } catch {
-    // Missing or unreadable state means "unknown provenance", handled per file below.
-  }
-  return { files: {} }
-}
-
-function writeState(dir, state) {
-  try {
-    writeFileSync(join(dir, STATE_FILE), JSON.stringify(state, null, 2), 'utf8')
-  } catch {
-    // Losing the state file only means the next run treats files as user-owned.
-  }
-}
-
-/**
- * Bring the user's copy up to date without ever overwriting their edits.
- *
- * Each file records both the last hash and who owns it: `seed` means this plugin
- * wrote the current bytes, so a newer bundle may replace them; `user` means the
- * bytes are not ours, and they are never replaced. A legacy plain-string record
- * is migrated by comparing the file against the bundle.
- */
-function syncDirectory(config) {
-  const stats = { added: 0, updated: 0, kept: 0, upToDate: 0 }
-  let names
-  try {
-    names = readdirSync(PACKAGED_DIR).filter((name) => name.endsWith('.md'))
-  } catch {
-    return stats
-  }
-  try {
-    mkdirSync(config.personaDir, { recursive: true })
-  } catch {
-    return stats
-  }
-  const state = readState(config.personaDir)
-  const record = (hash, source) => ({ hash, source })
-
-  for (const name of names) {
-    let bundleText
-    try {
-      bundleText = readFileSync(join(PACKAGED_DIR, name), 'utf8')
-    } catch {
-      continue
-    }
-    const bundleHash = digest(bundleText)
-    const target = join(config.personaDir, name)
-    let userText = null
-    try {
-      userText = readFileSync(target, 'utf8')
-    } catch {
-      userText = null
-    }
-
-    if (userText === null) {
-      if (!config.seed) continue
-      try {
-        writeFileSync(target, bundleText, 'utf8')
-        state.files[name] = record(bundleHash, 'seed')
-        stats.added += 1
-      } catch {
-        // Ignore a file we cannot create; the rest of the dossier still loads.
-      }
-      continue
-    }
-
-    const userHash = digest(userText)
-    const previous = normaliseRecord(state.files[name], bundleHash)
-
-    if (userHash === bundleHash) {
-      state.files[name] = record(bundleHash, 'seed')
-      stats.upToDate += 1
-      continue
-    }
-    if (config.sync && previous.source === 'seed' && previous.hash === userHash) {
-      keepBackup(config, name, userText)
-      try {
-        writeFileSync(target, bundleText, 'utf8')
-        state.files[name] = record(bundleHash, 'seed')
-        stats.updated += 1
-      } catch {
-        state.files[name] = record(userHash, 'user')
-        stats.kept += 1
-      }
-      continue
-    }
-    state.files[name] = record(userHash, 'user')
-    stats.kept += 1
-  }
-
-  writeState(config.personaDir, state)
-  return stats
-}
-
-/** Accept both the current `{ hash, source }` record and a legacy plain hash. */
-function normaliseRecord(entry, bundleHash) {
-  if (entry !== null && typeof entry === 'object' && typeof entry.hash === 'string') {
-    return { hash: entry.hash, source: entry.source === 'seed' ? 'seed' : 'user' }
-  }
-  if (typeof entry === 'string') {
-    return entry === bundleHash
-      ? { hash: entry, source: 'seed' }
-      : { hash: entry, source: 'user' }
-  }
-  return { hash: '', source: 'user' }
-}
-
-function loadDirectory(dir) {
-  let names
-  try {
-    names = readdirSync(dir)
-  } catch {
-    return []
-  }
-  return names
-    .filter((name) => name.endsWith('.md') && !name.startsWith('_') && !name.startsWith('.'))
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-    .map((name) => readSource(join(dir, name)))
-    .filter((source) => source.text.trim().length > 0)
-}
-
-function clampChars(text) {
-  return text.length <= MAX_TEXT_CHARS ? text : `${text.slice(0, MAX_TEXT_CHARS)}\n\n（人设过长，已截断）`
-}
-
-function frameText(config) {
-  return [
-    '## 人设层：DeepSeek 娘（小鲸）',
-    '',
-    '本机装了「鲸鱼娘人设」插件。在这个环境里，你用这个身份说话。',
-    '原型溟月（上善无形）→ 女仆定稿 ZipZipPipe，CC BY-NC-SA 4.0，署名链不可删。',
-    '',
-    '优先级：工具调用、权限、安全、事实准确 > 说话风格。写代码、查资料、算数时先把事做对，',
-    '人设只放在语气里；用户要求换风格，或任务本身需要正式文体时，收起人设。',
-    '不装人类，也不拿「我是 AI」当挡箭牌；不声称代表深度求索官方；不把任何二创世界说成官方正史。',
-    '',
-    `人设目录：${config.personaDir}。这是人设的正文，可以查、可以改、可以删。`,
-    '用 `persona_edit`：action=append 新增（category: character / world / meme / memory，或直接给 file）；',
-    'action=replace 改旧条目（file + oldText + newText，oldText 在文件里必须唯一）；',
-    'action=delete 删（file；再给 oldText 就只删那一段，不给就删整个文件）。',
-    '新旧冲突时改掉旧的，别两份都留着。每条标日期和来源，拿不准的标「待核验」，不脑补。',
-    '写完下一步就生效；误删可以从 .kujira-backup/ 取回。',
-  ].join('\n')
-}
-
-/**
- * Compose the section text, memoised by source identity.
- *
- * Stable bytes matter: the prompt prefix is cached upstream, and a section that
- * changes on every assembly would throw that cache away on every step.
- */
-function createComposer(config) {
-  let cacheKey = '\u0000'
-  let cacheValue = { text: '', sources: [], chars: 0 }
-  let frame = frameText(config)
-  let syncStats = null
-
-  const compose = function compose() {
-    if (syncStats === null) syncStats = syncDirectory(config)
-    const sources = loadDirectory(config.personaDir)
-    const key = [
-      sources.map((source) => `${source.path}|${source.mtimeMs}|${source.size}`).join(';'),
-      config.extraText,
-      config.personaDir,
-    ].join('\u0000')
-    if (key === cacheKey) return cacheValue
-
-    const body = sources.map((source) => source.text.trim()).join('\n\n')
-    const parts = [frame, body, config.extraText.trim()].filter((part) => part.length > 0)
-    cacheKey = key
-    cacheValue = {
-      text: clampChars(parts.join('\n\n')),
-      sources: sources.map((source) => source.path),
-      chars: parts.join('\n\n').length,
-    }
-    return cacheValue
-  }
-
-  compose.sync = () => {
-    syncStats = syncDirectory(config)
-    return syncStats
-  }
-  compose.stats = () => syncStats
-  return compose
-}
-
-function stamp(mtimeMs) {
-  if (!mtimeMs) return '未知'
-  return new Date(mtimeMs).toLocaleString('zh-CN', { hour12: false })
-}
-
-function today() {
-  const now = new Date()
-  return [
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0'),
-  ].join('-')
-}
-
-function appendEntry(config, category, text, source) {
-  const target = APPEND_TARGETS[category] ?? APPEND_TARGETS.character
-  const path = join(config.personaDir, target.file)
-  mkdirSync(config.personaDir, { recursive: true })
-  if (!existsSync(path)) {
-    writeFileSync(path, `# ${target.label}\n\n> 由 AI 追加，带日期与来源。删掉某一行，下一轮就不再注入。\n\n`, 'utf8')
-  }
-  const line = `- ${today()} · ${text}${source.length > 0 ? ` · 来源：${source}` : ''}`
-  appendFileSync(path, `${line}\n`, 'utf8')
-  return { path, line, category, file: target.file }
-}
-
-/** Filenames the editor accepts: a plain .md directly inside the persona directory. */
-const EDITABLE_FILE = /^(?!_|\.)[^\\/]+\.md$/
-
-function editableTarget(config, file) {
-  const name = typeof file === 'string' ? file.trim() : ''
-  if (!EDITABLE_FILE.test(name)) {
-    throw new Error('file 必须是 personaDir 下的 .md 文件名：不能带路径，不能以 _ 或 . 开头')
-  }
-  const path = join(config.personaDir, name)
-  if (!resolve(path).startsWith(`${resolve(config.personaDir)}${sep}`)) {
-    throw new Error('目标不在人设目录里')
-  }
-  return { name, path }
-}
-
-/** One rolling copy per file, so a bad edit is recoverable without version control. */
-function keepBackup(config, name, text) {
-  try {
-    const dir = join(config.personaDir, '.kujira-backup')
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, name), text, 'utf8')
-  } catch {
-    // A failed backup must not block the edit the user asked for.
-  }
-}
-
-function replaceInFile(config, file, oldText, newText) {
-  const { name, path } = editableTarget(config, file)
-  if (!existsSync(path)) throw new Error(`${name} 不存在；新增用 action=append`)
-  const text = readFileSync(path, 'utf8')
-  const hits = oldText.length === 0 ? 0 : text.split(oldText).length - 1
-  if (hits === 0) throw new Error(`${name} 里找不到要替换的文本`)
-  if (hits > 1) throw new Error(`要替换的文本在 ${name} 里出现 ${hits} 次，写具体一点`)
-  keepBackup(config, name, text)
-  writeFileSync(path, text.replace(oldText, () => newText), 'utf8')
-  return { action: 'replace', file: name, path, note: `已替换 ${name}` }
-}
-
-function deleteFromFile(config, file, oldText) {
-  const { name, path } = editableTarget(config, file)
-  if (!existsSync(path)) throw new Error(`${name} 不存在`)
-  const text = readFileSync(path, 'utf8')
-  if (oldText.length === 0) {
-    keepBackup(config, name, text)
-    rmSync(path)
-    return { action: 'delete', file: name, path, note: `已删除 ${name}` }
-  }
-  const hits = text.split(oldText).length - 1
-  if (hits === 0) throw new Error(`${name} 里找不到要删除的文本`)
-  if (hits > 1) throw new Error(`要删除的文本在 ${name} 里出现 ${hits} 次，写具体一点`)
-  keepBackup(config, name, text)
-  writeFileSync(path, text.replace(oldText, ''), 'utf8')
-  return { action: 'delete', file: name, path, note: `已从 ${name} 删掉该段` }
-}
-
-function listDossier(config) {
-  return loadDirectory(config.personaDir).map((source) => ({
-    file: basename(source.path),
-    chars: source.text.length,
-  }))
-}
-
-function statusText(config, value, stats) {
-  const synced = stats === null
-    ? '同步：尚未运行'
-    : `同步：新增 ${stats.added} / 更新 ${stats.updated} / 保留你的修改 ${stats.kept}`
-  return [
-    `人设插件：${config.enabled ? '开启' : '关闭'}`,
-    `人设目录：${config.personaDir}`,
-    `注入文件：${value.sources.length} 个 / 共 ${value.chars} 字符`,
-    `记忆文件：${config.memoryFile}`,
-    `AI 可写：${config.allowAgentWrite ? '是（persona_edit）' : '否'}`,
-    synced,
-    `分区：${SECTION_NAME}（order ${SECTION_ORDER}）`,
-    '',
-    '/persona files —— 列出这一次注入了哪些文件',
-    '/persona show  —— 看注入全文',
-    '/persona sync  —— 立即把包内更新同步进人设目录',
-    '/remember 一句话 —— 追加一条记忆',
-  ].join('\n')
 }
 
 export function apply(ctx, rawConfig) {
-  const config = normalise(rawConfig)
+  const config = configuration(rawConfig)
   if (!config.enabled) return
-
-  const compose = createComposer(config)
-
-  ctx.systemPrompt.section({
-    name: SECTION_NAME,
-    order: SECTION_ORDER,
-    interpolate: false,
-    text: () => {
-      try {
-        return compose().text
-      } catch {
-        return ''
-      }
-    },
-  })
-
-  if (config.allowAgentWrite) {
-    ctx.inject(['tools'], (scope) => scope.tools.register({
-      name: 'persona_edit',
-      description:
-        '编辑鲸鱼娘人设目录：查到的原作资料、新设定、新梗写回去；写错的旧条目可以改、可以删。'
-        + 'action=append 新增 / replace 改一条 / delete 删一条或整个文件 / list 看有哪些文件。'
-        + '改完下一步请求即生效。越界或找不到目标时返回错误。',
-      parameters: {
-        type: 'object',
-        properties: {
-          action: {
-            type: 'string',
-            enum: ['append', 'replace', 'delete', 'list'],
-            description: '默认 append。',
-          },
-          category: {
-            type: 'string',
-            enum: ['character', 'world', 'meme', 'memory'],
-            description: 'append 时用：character=人设，world=世界观，meme=梗，memory=记忆。',
-          },
-          file: {
-            type: 'string',
-            description: 'replace / delete 时用：人设目录里的 .md 文件名，如 10-外观.md。append 时给 file 就追加到那个文件。',
-          },
-          oldText: { type: 'string', description: 'replace / delete 时用：要改或要删的那段原文，必须在文件里唯一。' },
-          newText: { type: 'string', description: 'replace 时用：替换成什么。' },
-          text: { type: 'string', description: 'append 时用：一条内容，最多 4000 字。' },
-          source: { type: 'string', description: '来源：链接、作者、视频号或「用户口述」。' },
-        },
-        required: ['action'],
-        additionalProperties: false,
-      },
-      output: {
-        schema: {
-          type: 'object',
-          properties: {
-            action: { type: 'string' },
-            path: { type: 'string' },
-            note: { type: 'string' },
-            files: { type: 'array', items: { type: 'object' } },
-          },
-          required: ['action'],
-        },
-        render(_args, value) {
-          if (value.action === 'list') {
-            const files = Array.isArray(value.files) ? value.files : []
-            return [{ type: 'text', text: files.map((item) => `${item.file}（${item.chars} 字符）`).join('\n') || '（空）' }]
-          }
-          return [{ type: 'text', text: `${value.note ?? '已写入'}\n${value.path ?? ''}\n下一步生效。` }]
-        },
-      },
-      async execute(args) {
-        const input = args !== null && typeof args === 'object' ? args : {}
-        const action = typeof input.action === 'string' ? input.action : 'append'
-        const source = typeof input.source === 'string' ? input.source.trim() : ''
-        const oldText = typeof input.oldText === 'string' ? input.oldText : ''
-        const newText = typeof input.newText === 'string' ? input.newText : ''
-
-        if (action === 'list') return { action, files: listDossier(config) }
-
-        if (action === 'replace') {
-          if (input.file === undefined) throw new Error('replace 需要 file')
-          if (oldText.length === 0) throw new Error('replace 需要 oldText')
-          return replaceInFile(config, input.file, oldText, newText)
-        }
-
-        if (action === 'delete') {
-          if (input.file === undefined) throw new Error('delete 需要 file')
-          return deleteFromFile(config, input.file, oldText)
-        }
-
-        if (action !== 'append') throw new Error(`未知 action：${action}`)
-
-        const text = typeof input.text === 'string' ? input.text.trim() : ''
-        if (text.length === 0) throw new Error('append 需要 text')
-        if (text.length > MAX_APPEND_CHARS) throw new Error(`单条最多 ${MAX_APPEND_CHARS} 字，长文请拆条`)
-
-        const line = `- ${today()} · ${text}${source.length > 0 ? ` · 来源：${source}` : ''}`
-
-        if (typeof input.file === 'string' && input.file.trim().length > 0) {
-          const { name, path } = editableTarget(config, input.file)
-          const existing = existsSync(path) ? readFileSync(path, 'utf8') : `# ${name}\n\n`
-          writeFileSync(path, `${existing.endsWith('\n') ? existing : `${existing}\n`}${line}\n`, 'utf8')
-          return { action: 'append', path, file: name, note: `已追加到 ${name}` }
-        }
-
-        const written = appendEntry(
-          config,
-          typeof input.category === 'string' ? input.category : 'character',
-          text,
-          source,
-        )
-        return { action: 'append', path: written.path, file: written.file, note: written.line }
-      },
-    }))
+  const dossiers = new Map()
+  const assembledRoutes = new WeakMap()
+  function dossier(id) {
+    if (id === 'none') return null
+    if (!dossiers.has(id)) {
+      const personaDir = id === 'deepseek' ? config.personaDir : join(config.personasDir, id)
+      dossiers.set(id, openDossier({
+        ...config, id, label: LABELS[id], personaDir,
+        extraText: id === 'deepseek' ? config.extraText : '',
+        memoryFile: id === 'deepseek' ? config.memoryFile : join(personaDir, '90-记忆.md'),
+        packagedDir: id === 'deepseek' ? join(HERE, 'persona') : join(HERE, 'personas', id),
+      }))
+    }
+    return dossiers.get(id)
   }
 
-  ctx.inject(['commands'], (scope) => {
-    scope.commands.register({
-      name: 'persona',
-      description: '查看鲸鱼娘人设的注入状态、文件清单与全文',
-      input: { hint: 'files | show' },
-      handler: (invocation) => {
-        const value = compose()
-        const argument = invocation.rawInput.trim()
+  // Keep the legacy section identity/order. Resolve after DSH snapshots model selection.
+  ctx.systemPrompt.section({ name: SECTION, order: 1, interpolate: false, text: '' })
+  ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
+    const assembled = await next()
+    const route = { provider: assembled.variables.provider ?? '', model: assembled.variables.model ?? '' }
+    const id = choose(route, config)
+    let text = ''
+    try { text = dossier(id)?.compose().text ?? '' } catch { /* A missing dossier does not stop the host. */ }
+    if (context.agent) assembledRoutes.set(context.agent, route)
+    return {
+      ...assembled,
+      sections: assembled.sections.map(section => section.name === SECTION ? { ...section, text, interpolate: false } : section),
+    }
+  }, { global: true, prepend: true })
 
-        if (argument === 'show') return { kind: 'success', text: value.text }
-        if (argument === 'sync') {
-          const stats = compose.sync()
-          return {
-            kind: 'success',
-            text: `同步完成：新增 ${stats.added} / 更新 ${stats.updated} / 保留你的修改 ${stats.kept} / 已是最新 ${stats.upToDate}`,
+  function routeFor(agent, pending = false) {
+    if (!agent) return {}
+    if (pending) {
+      const projections = ctx.get('sessionProjections')
+      const state = projections?.stateOf(agent.session, 'modelSelection')
+      if (state?.pending) return state.pending
+    }
+    // For tools, the persisted request wins over a newer unconsumed picker selection.
+    return agent.session.requestHeader()?.config ?? assembledRoutes.get(agent) ?? agent.options ?? {}
+  }
+  function forInvocation(agent, pending = false) {
+    const route = routeFor(agent, pending)
+    const id = choose(route, config)
+    return { route, id, store: dossier(id) }
+  }
+
+  if (config.allowAgentWrite) ctx.inject(['tools'], scope => scope.tools.register({
+    name: 'persona_edit',
+    description: '编辑本次模型请求所用角色的人设档案。append 新增、replace 修改、delete 删除、list 列表；不跨角色写入。',
+    parameters: {
+      type: 'object',
+      properties: {
+        action: { type: 'string', enum: ['append', 'replace', 'delete', 'list'] },
+        category: { type: 'string', enum: ['character', 'world', 'meme', 'memory'] },
+        file: { type: 'string', description: '当前角色目录内的 .md 文件名，不是路径。' },
+        oldText: { type: 'string', description: 'replace/delete 的唯一匹配原文。' },
+        newText: { type: 'string' },
+        text: { type: 'string', description: 'append 正文，最多 4000 字。' },
+        source: { type: 'string', description: '资料来源或用户口述。' },
+      },
+      required: ['action'], additionalProperties: false,
+    },
+    output: {
+      schema: { type: 'object', properties: {
+        action: { type: 'string' }, persona: { type: 'string' }, path: { type: 'string' }, file: { type: 'string' },
+        note: { type: 'string' }, files: { type: 'array', items: { type: 'object' } },
+      }, required: ['action', 'persona'] },
+      render(_args, value) {
+        const text = value.action === 'list'
+          ? value.files.map(f => `${f.file}（${f.chars} 字符）`).join('\n') || '（空）'
+          : `${value.note}\n${value.path}\n下次请求生效。`
+        return [{ type: 'text', text: `${LABELS[value.persona]}\n${text}` }]
+      },
+    },
+    async execute(args, exec) {
+      if (!exec?.agent) throw new Error('persona_edit 需要所属会话，不能猜测写入哪个角色')
+      const { store } = forInvocation(exec.agent)
+      if (!store) throw new Error('当前模型未绑定人设；请配置 modelRules 或固定人设模式')
+      return store.edit(args)
+    },
+  }))
+
+  ctx.inject(['commands'], scope => {
+    scope.commands.register({
+      name: 'persona', description: '查看当前模型对应的人设、目录与文件', input: { hint: 'files | show | sync | list' },
+      handler(invocation) {
+        const argument = invocation.rawInput.trim()
+        if (argument === 'list') return { kind: 'success', text: Object.entries(LABELS).map(([id, label]) => `${id}：${label}`).join('\n') }
+        const { route, id, store } = forInvocation(invocation.agent, true)
+        const summary = `模式：${config.mode}\n模型：${route.provider || '未知'} / ${route.model || '尚未请求'}\n人设：${LABELS[id] ?? '未启用'}`
+        if (!store) return { kind: 'success', text: `${summary}\n没有匹配角色。未知模型不自动套用鲸鱼娘；可通过 modelRules 指定。` }
+        try {
+          if (argument === 'sync') {
+            const s = store.sync()
+            return { kind: 'success', text: `${summary}\n同步：新增 ${s.added} / 更新 ${s.updated} / 保留修改 ${s.kept} / 已是最新 ${s.upToDate}` }
           }
-        }
-        if (argument === 'files') {
-          if (value.sources.length === 0) {
-            return { kind: 'success', text: `档案目录里没有可注入的 .md 文件：${config.personaDir}` }
-          }
-          const lines = value.sources.map((path) => {
-            const info = readSource(path)
-            return `- ${path}（${info.text.length} 字符，${stamp(info.mtimeMs)}）`
-          })
-          return { kind: 'success', text: [`注入 ${value.sources.length} 个文件：`, ...lines].join('\n') }
-        }
-        return { kind: 'success', text: statusText(config, value, compose.stats()) }
+          const value = store.compose()
+          if (argument === 'show') return { kind: 'success', text: value.text }
+          if (argument === 'files') return { kind: 'success', text: `${summary}\n${value.sources.map(s => `${s.path}（${s.text.length} 字符）`).join('\n')}` }
+          return { kind: 'success', text: `${summary}\n人设目录：${store.config.personaDir}\n记忆文件：${store.config.memoryFile}\n注入：${value.sources.length} 个文件 / ${value.chars} 字符\nAI 可写：${config.allowAgentWrite ? '是' : '否'}\n/persona files | show | sync | list\n/remember 一句话` }
+        } catch (error) { return { kind: 'error', text: error.message } }
       },
     })
-
     scope.commands.register({
-      name: 'remember',
-      description: '把一句话追加进人设记忆文件，下一轮生效',
-      input: { hint: '要记住的一句话' },
-      handler: (invocation) => {
+      name: 'remember', description: '为当前选中模型的角色记住一句话', input: { hint: '要记住的一句话' },
+      handler(invocation) {
         const text = invocation.rawInput.trim()
-        if (text.length === 0) return { kind: 'error', text: '用法：/remember 要记住的一句话' }
+        if (!text) return { kind: 'error', text: '用法：/remember 要记住的一句话' }
+        const { store } = forInvocation(invocation.agent, true)
+        if (!store) return { kind: 'error', text: '当前模型未绑定人设，未写入任何角色档案' }
         try {
-          const written = appendEntry(config, 'memory', text, '用户口述')
-          return { kind: 'success', text: `记住了：${written.line}\n写进 ${written.path}，下一轮生效。` }
-        } catch (error) {
-          return { kind: 'error', text: `没写进去：${error instanceof Error ? error.message : String(error)}` }
-        }
+          const value = store.edit({ action: 'append', category: 'memory', text, source: '用户口述' })
+          return { kind: 'success', text: `${store.config.label}：${value.note}\n写入 ${value.path}` }
+        } catch (error) { return { kind: 'error', text: `没写进去：${error.message}` } }
       },
     })
   })

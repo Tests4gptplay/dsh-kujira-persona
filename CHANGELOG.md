@@ -1,5 +1,15 @@
 # 更新记录
 
+## 1.4.0
+
+- 按每次提示词组装中宿主确定的 provider/model，自动选择 DeepSeek 鲸鱼娘或 GPT 白龙娘；支持 codex-local、显式 modelRules 和固定角色模式。
+- GPT 预设为基于 ai-gijinka-art-world 的独立文字档案，不打包第三方图片；性格与表达明确标为插件原创。
+- 角色学习分别持久化；persona_edit 跟随发起请求的角色，人工 /remember 跟随当前会话选择。
+- 旧鲸鱼娘目录、默认人设、包名与插件 ID 保留原样；GPT 默认写入 ~/.dsh/personas/gpt。
+- 旧 memoryFile 与 extraText 配置仍归鲸鱼娘；sharedDir 是显式选择的只读共享偏好目录。
+- 通过 persona_edit 删除的内置文件不会在同步时复生；滚动备份和用户修改保留机制继续使用。
+- 运行包不带测试、验证脚本、CI 工作流、开发依赖或安装构建脚本；不加入后台轮询、watchdog、技能/工具拦截或宿主参数改写。
+
 ## 1.3.1
 
 - **修复**：同步状态此前把「用户自己的哈希」和「插件写入的哈希」记在同一个字段，
@@ -48,6 +58,6 @@
 - 按 mtime 记忆化，内容不变时不打断前缀缓存
 - `interpolate: false`：人设里的 `{{…}}` 不会被当成提示词变量
 - 读取失败降级为空分区，不影响请求
-- 命令：`/persona`、`/persona files`、`/persona show`、`/remember`
+- 命令：`/persona`、`/persona files`、`/persona show`、`/persona sync`、`/remember`
 - 内置默认人设：10 个模块（身份、外观、性格、说话、世界观分层、关系、原创设定、记忆协议、资料源、记忆）
 - 许可：CC BY-NC-SA 4.0，保留「上善无形 → ZipZipPipe」署名链

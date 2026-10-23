@@ -1,297 +1,177 @@
 # dsh-kujira-persona
 
-> 给你的 DeepSeek Harness 一个鲸鱼娘，人设写在文件里。
+> 选 DeepSeek，是鲸鱼娘；选 GPT，是白龙娘。各自的设定与记忆都留在文件里。
 
 ![hero](assets/hero.svg)
 
-一个 **全局人设插件**：往每个会话的系统提示词里放一段人设。但不是一段写死的字符串——
-它读一个目录里的 Markdown，按文件名排序拼接。**加一个文件，就多一条设定。**
+**v1.4.0** 是一个轻量的 DeepSeek Harness 人设插件：按当前会话的模型选择加载人设 Markdown；用户与 AI 后续编辑的内容按角色保存。保留原包名 `dsh-kujira-persona` 和插件 ID `whale-persona`，不需要 npm 账号。
 
-- 每个会话都带着她：主会话、子代理、以后新开的工作区
-- 人设是**文件**，不是配置里的长字符串：能加、能删、能分文件
-- 改完**下一轮生效**，不重装、不重启、不断会话
-- 不加按钮、不占界面。要看状态就敲 `/persona`
-- 语气层，不是事实层：工具、权限、安全、事实准确永远优先
+## 模型与人设
 
-## 它是什么，不是什么
+| 实际模型/路由 | 默认人设 |
+| --- | --- |
+| `deepseek-*`，或官方 `deepseek-official` / `deepseek-account` / `deepseek-messages` 路由 | DeepSeek 鲸鱼娘 |
+| `gpt-*`、`chatgpt-*`、`o1` / `o3` 等 o 系列模型 ID | GPT 白龙娘 |
+| `codex-local` 路由 | GPT 白龙娘，与 GPT 共用角色档案 |
+| 未识别的模型 | 不添加本插件的人设；可用 `modelRules` 自行绑定 |
 
-**是**：一个让模型用特定身份、特定语气说话的提示词层。只做一件事——读一个目录里的 Markdown，注册成系统提示词分区。
+也识别 `openai/gpt-...` 这样的带命名空间模型 ID。**OpenAI-compatible 协议不等于 GPT 模型**，因此不会仅因提供方叫 `openai` 或 `openai-compatible` 就把未知模型套成龙娘。自定义中转模型名使用显式规则。
 
-**不是**：
-- 不是官方设定。这个插件不代表深度求索，也不代表任何原作者的官方设定
-- 不是「唯一正史」。二创世界各自成立，别合成一个官方
-- 不是知识库。人设不会让她知道未来，只能让她记得你写下的过去
-- 不是美术资源包。仓库里只有自绘的 `icon.svg` 和 `assets/hero.svg`，不打包任何第三方素材
+切换发生在**下一次提示词组装/模型请求**，不修改已经发出的请求，不清除聊天历史，也不改模型、工具、技能、权限、上下文阈值或超时。并发会话分别读取自己的模型选择；同一角色在多个会话中共享该角色的长期档案。
 
-## 安装
+目前内置这两个角色。GPT 文字预设依据本项目的 [AI 娘资料库](https://github.com/Tests4gptplay/ai-gijinka-art-world)，性格与表达标明为插件原创默认值，不冒充原作者统一正史。见 [NOTICE.md](NOTICE.md)。
 
-### 官方桌面应用（GitHub 安装，推荐）
+## 安装与升级
 
-1. 打开 DeepSeek Harness 桌面应用，在侧栏选择 **插件 → 添加插件**。
-2. 在安装框输入下面的 GitHub 插件标识，然后点击 **安装**：
+### 官方桌面应用（推荐）
 
-   ```text
-   github:Tests4gptplay/dsh-kujira-persona#v1.3.1
-   ```
+打开 **插件 → 添加插件**，只输入下面这一行：
 
-3. 安装完成后启用插件，并重启 DSH。
-4. 在聊天中输入 `/persona` 检查人设加载状态。
+```text
+github:Tests4gptplay/dsh-kujira-persona#v1.4.0
+```
 
-此方式直接从 GitHub 安装，**不需要 npm 账号**。上面的版本标识固定为 `v1.3.1`；如果想安装仓库 `main` 分支的最新代码，可以输入 `github:Tests4gptplay/dsh-kujira-persona#main`。
+安装完成后按提示启用，**重启 DSH 一次**。选择模型并发一条消息，再输入 `/persona` 查看本会话的人设、目录与模型。
+
+不需要注册 npm，不需要配置桌面版 CLI。上面是 GitHub 包标识，不是尚待上架的 npm 包名。
+
+从 v1.3.1 升级：在插件列表卸载旧安装，再添加 v1.4.0、启用并重启；保留 `.dsh/persona` 中全部人设与记忆。包名和插件 ID 不变，不要同时安装同一插件的多个副本。旧目录不会被移动、删除或复制给 GPT。
 
 ### Web 版 CLI
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.3.1'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.4.0'
 ```
 
-`web` 与桌面应用的 `desktop` 是不同的 profile；在 Web profile 中安装不会自动安装到桌面应用。
+`web` 与桌面应用的 `desktop` 是不同的 profile。不要拿 Web 安装命令来判断桌面应用是否已安装。
 
-### 备用下载：GitHub Release
+### GitHub Release 备用包
 
-也可以从 [v1.3.1 Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v1.3.1) 下载预打包的 [`dsh-kujira-persona.tgz`](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v1.3.1/dsh-kujira-persona.tgz)，用于手动安装。它是 GitHub 托管的 npm 格式安装包，不需要 npm 账号。
+[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 提供 npm 格式 `.tgz` 安装包；这是 GitHub 托管的附件，不是 npm Registry 发布。包内已包含运行入口和人设文字，不需要编译，也没有安装时执行的 build/prepare/postinstall 脚本。
 
-### 安装验证
+### Windows 安装失败：`ERR_PNPM_EPERM`
 
-安装并启用后，在聊天中输入 `/persona` 或 `/persona files`，检查人设目录和实际注入的 Markdown 文件。自定义人设默认保存在 `~/.dsh/persona`（设置 `DSH_HOME` 时则使用其下的 `persona` 目录）。
-
-### 安装失败：Windows `ERR_PNPM_EPERM`（残留目录无法重命名）
-
-如果插件下载/依赖解析已经开始，但安装界面出现：
+若出现：
 
 ```text
-[ERR_PNPM_EPERM] EPERM: operation not permitted, rename
+EPERM: operation not permitted, rename
 ...dsh-kujira-persona_tmp_XXXXX_X -> ...dsh-kujira-persona
 ```
 
-表示 pnpm **在把临时插件目录重命名为正式目录时被 Windows 拒绝**。这与 GitHub 下载链接是否正确不同；可能涉及安装目录残留、应用进程占用或系统权限/安全软件。`[WARN] Issues with peer dependencies` 是另一条警告，不能单凭它认定安装失败的原因。
+这是临时安装目录重命名被 Windows 拒绝，可能涉及旧目录残留或进程占用；`peer dependencies` 警告不能单独证明是此次失败原因。
 
-按以下步骤处理（**仅在本次安装确实失败、或旧插件目录已经损坏时**）：
+1. 取消失败的安装，**完全退出 DSH Desktop**，确保安装任务也已结束。
+2. 按 **Win + R** 打开 `%USERPROFILE%\.dsh\profiles\desktop\node_modules`。
+3. 只清理失败安装留下的 `dsh-kujira-persona_tmp_*`，以及确认损坏/半安装的 `dsh-kujira-persona`。若已正常运行，不要删除正常目录。遇到目录链接，仅处理该链接项，不进入链接目标清理文件。
+4. 重新打开 DSH，按上述 GitHub 标识安装、启用并重启，用 `/persona` 检查。
 
-1. 在 DSH 安装窗口取消失败的安装，再**完全退出 DSH Desktop**；如果仍有安装任务或 DSH 进程运行，先等待其退出。不要在 DSH 正在运行/正在安装时清理文件。
-2. 按 **Win + R**，粘贴下面的路径打开当前 Windows 账号的插件安装目录：
+**不要删除**整个 `node_modules`、`.dsh`、`profiles/desktop`、`package.json`、`pnpm-lock.yaml` 或其他插件。尤其要保留 `%USERPROFILE%\.dsh\persona` 和 `%USERPROFILE%\.dsh\personas`，其中有人设与记忆。仍报错时检查目标文件占用或目录权限，不要关闭系统防护或批量结束陌生进程；可在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 提交脱敏日志。
 
-   ```text
-   %USERPROFILE%\.dsh\profiles\desktop\node_modules
-   ```
+## 人设与学习文件放在哪里
 
-3. **只检查并清理属于本插件的残留项**：
-   - `dsh-kujira-persona_tmp_*`：失败安装留下的临时目录，例如 `dsh-kujira-persona_tmp_45068_6`；
-   - `dsh-kujira-persona`：**仅在安装失败且需要清理损坏/半安装版本时删除**。若插件已能正常使用，不要删除该目录。
-4. 重新打开 DSH，在 **插件 → 添加插件** 输入 `github:Tests4gptplay/dsh-kujira-persona#v1.3.1`，再点击安装、启用，必要时重启。进入聊天执行 `/persona` 确认加载。
-
-**不要删除**整个 `node_modules`、`.dsh`、`profiles/desktop`，也不要清除 `package.json`、`pnpm-lock.yaml`、pnpm 全局缓存或其他插件目录。尤其不要删除 **`%USERPROFILE%\.dsh\persona`（自定义人设与记忆）**，本故障只涉及安装包目录，与人设数据是两回事。
-
-如果完全退出 DSH 后仍无法删除目标残留，或重装继续报告 `EPERM`，检查是否还有进程占用、目标目录写入权限以及安全软件拦截。不要强行结束不认识的进程或关闭系统防护；可附上**去除用户名/个人路径信息**的安装日志，在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 反馈。
-
-## 结构
-
-| 文件 | 说明 |
-| --- | --- |
-| `index.js` | Node half：扫描人设目录，注册 `whale:persona` 提示词分区，提供 `/persona`、`/remember` 与 `persona_edit` 工具 |
-| `cordis.patch.yml` | 向 profile 注入插件行（`id: whale-persona`） |
-| `persona/` | **默认人设**，10 个模块 + 编辑说明 |
-| `package.json` | 包元信息、`dsh.bundle.patch` |
-| `LICENSE` | CC BY-NC-SA 4.0 全文 |
-| `CHANGELOG.md` | 更新记录 |
-
-## 人设从哪来
-
-默认读包内的 `persona/`，也可以指向你自己的目录：
-
-```
-persona/
-├── 00-身份.md
-├── 10-外观.md
-├── 20-性格.md
-├── 30-说话.md
-├── 40-世界观分层.md
-├── 50-关系.md
-├── 60-我们的原创设定.md
-├── 70-记忆协议.md
-├── 80-资料源.md
-├── 90-记忆.md          ← 追加区，/remember 写这里
-├── _编辑说明.md         ← 不注入
-└── _archive/           ← 不扫
+```text
+~/.dsh/
+├── persona/                  # 原版鲸鱼娘，原位保留
+│   ├── 00-身份.md
+│   ├── ...
+│   └── 90-记忆.md
+└── personas/
+    └── gpt/                  # GPT 白龙娘的独立档案
+        ├── 00-身份.md
+        ├── 10-外观.md
+        ├── 20-性格与表达.md
+        ├── 70-学习规则.md
+        └── 90-记忆.md
 ```
 
-规则只有四条：
+设置了 `DSH_HOME` 时使用该目录替代 `~/.dsh`。旧配置的 `personaDir`、`memoryFile`、`extraText` 继续只作用于鲸鱼娘；`personasDir` 指定新增角色的根目录。
 
-1. 只认 `.md`
-2. `_` 或 `.` 开头的文件不注入
-3. 顺序 = 文件名字典序，所以前缀用两位数
-4. 子目录不扫；总量上限 64000 字符
+每个角色首次使用时，将对应内置 Markdown 铺到自己的目录。只读取直接位于该目录的 `.md`，按文件名排序；以 `_` 或 `.` 开头的文件不注入，子目录不递归读取。改动下一次请求生效，无需重装。
 
-## 人设放哪
+**学习不是训练模型权重。** 它是把设定与记忆写入本机 Markdown，并在后续请求中加载。鲸鱼娘学到的内容不会自动进入龙娘；切回对应模型继续读取对应档案。聊天历史仍然保留，角色目录隔离不是历史清除。
 
-默认 **`~/.dsh/persona`**（有 `DSH_HOME` 时是 `$DSH_HOME/persona`）。首次运行会把内置的 10 个模块铺进去，
-之后你改的就是它。
-
-为什么不用工作区：插件是全局的，工作区是每个会话各自选的。放用户目录，所有会话读同一份，换会话不打架。
-
-换地方：
-
-```yaml
-- id: whale-persona
-  name: dsh-kujira-persona
-  config:
-    personaDir: 'D:\my-persona'
-```
-
-**写权限**：插件不是工具调用，是 Host 进程里的 Node 代码，用 `node:fs` 直接写——受操作系统账户权限约束，不受 agent 沙箱约束。
-
-所以 `~/.dsh/persona`（在你主目录里，本来就对你可写）改得动，不需要管理员权限；反过来，你本来没权限的地方它也写不进，会直接报错。能写到哪，取决于启动 DSH 的那个账户能写到哪。
-
-## 让 AI 自己改
-
-插件注册了工具 `persona_edit`，四个动作：
-
-| action | 参数 | 作用 |
-| --- | --- | --- |
-| `append` | `category` 或 `file`，加 `text`、`source` | 新增一条 |
-| `replace` | `file` + `oldText` + `newText` | 改旧条目，`oldText` 必须在文件里唯一 |
-| `delete` | `file`，可带 `oldText` | 删那一段；不给 `oldText` 就删整个文件 |
-| `list` | — | 看有哪些文件、多大 |
-
-`append` 的四个 category 落到：
-
-| category | 文件 |
-| --- | --- |
-| `character` | `95-自补-人设.md` |
-| `world` | `96-自补-世界观.md` |
-| `meme` | `97-自补-梗.md` |
-| `memory` | `90-记忆.md` |
-
-也可以直接给 `file`，写任意 `*.md`——比如新建 `45-梗.md`。
-
-**护栏**：`file` 不接受路径，带 `\`、`/`、`..` 一律拒绝；`_` 和 `.` 开头不可写。
-改和删之前自动把原文件复制到 `.kujira-backup/`，删错了能捞回来。
-
-想让她自己去查、自己改，说一句：
-
-> 去查一下最近的新梗，和现有设定对不上的地方直接改掉，别留两份；改完在记忆里记一笔，标来源。
-
-不想让她写，关掉：
-
-```yaml
-config:
-  allowAgentWrite: false
-```
-
-## 一次真实的操作
-
-你说：
-
-> 去查一下最近有没有关于 DeepSeek 娘的新梗，和现有设定对不上的直接改掉，改完在记忆里记一笔。
-
-她会走这么一条路：
-
-1. 联网查，拿到来源链接
-2. 用 `persona_edit` 的 `list` 看现有档案里有没有
-3. 有冲突的用 `replace` 改掉旧的，新东西 `append` 到 `96-自补-世界观.md`
-4. 在 `90-记忆.md` 追加一行，写明改了什么、为什么
-
-下一次请求，系统提示词就是新版。不用重装，不用重启。
-
-## 升级时会发生什么
-
-插件升级后第一次运行，会按文件逐个比对，三种结果：
-
-| 情况 | 处理 |
-| --- | --- |
-| 你还没有这个文件 | 新增进去 |
-| 有，但和上次铺进去的一致（你没动过） | 用新版覆盖 |
-| 有，但你自己改过 | **不动**，记成你的版本，以后也不再覆盖 |
-
-判定靠 `<人设目录>/.kujira-state.json` 里记的哈希——它只记「插件写进去的是什么」，不存你的内容。
-
-所以：官方修正能送到你手上，你的二创不会被升级冲掉。
-
-`/persona sync` 手动触发一次。彻底关掉：
-
-```yaml
-config:
-  sync: false
-```
-
-关掉后只补缺失文件，不覆盖任何已存在的。
-
-## 改人设
-
-**加一条世界观 / 一条梗** —— 新建 `persona/45-梗.md`，序号决定它排在哪。
-
-**加一条人设细节** —— 追加到 `10-外观.md` / `20-性格.md` / `30-说话.md`。
-
-**加一条「你要记住的」** —— 会话里敲：
-
-```
-/remember 她怕打雷
-```
-
-带日期写进 `90-记忆.md`，下一轮就在她的记忆里。
-
-**换成自己的目录** —— 在 profile 的 `cordis.patch.yml` 里：
-
-```yaml
-- id: whale-persona
-  name: dsh-kujira-persona
-  config:
-    personaDir: 'D:\my-persona'
-```
-
-## 命令
+## 命令与 AI 编辑
 
 | 命令 | 作用 |
 | --- | --- |
-| `/persona` | 目录、注入文件数、字符数、记忆文件 |
-| `/persona files` | 这一次注入了哪些文件，各自多大、什么时候改的 |
-| `/persona show` | 注入全文 |
-| `/persona sync` | 立刻把包内更新同步进来，只动你没改过的文件 |
-| `/remember 一句话` | 追加一条记忆，带日期 |
+| `/persona` | 查看本会话选中的模型、人设与目录 |
+| `/persona files` | 查看将注入的文件 |
+| `/persona show` | 查看人设全文 |
+| `/persona sync` | 仅同步当前角色的包内更新 |
+| `/persona list` | 查看内置角色 ID |
+| `/remember 一句话` | 给当前选中模型对应的角色追加一条记忆 |
+
+刚创建会话、尚未发出请求且没有明确选中模型时，状态可能显示尚未请求；发送一条消息后即可准确显示。
+
+AI 的 `persona_edit` 支持 `append` / `replace` / `delete` / `list`。`append` 的 `category` 可用 `character`、`world`、`meme`、`memory`，也可给当前角色目录内的 `.md` 文件名。`replace` 使用唯一匹配的 `oldText` 和 `newText`；`delete` 带 `oldText` 删除片段，不带则删除文件。
+
+**写入归属跟随发起工具调用的模型请求**，不是点击切换后的待用模型。比如鲸鱼娘正在输出、你已把下一步切为 GPT，鲸鱼娘本轮的工具写入仍归鲸鱼娘。人工 `/remember` 则作用于当前选择、准备下一步使用的角色。
+
+不希望 AI 编辑时设置 `allowAgentWrite: false`；人工 `/remember` 仍可用。插件不会主动联网搜索或自动学习，只有用户编辑、人工命令或模型实际调用工具时才写入。
+
+文件写入由 DSH Host 的 Node 进程执行，受操作系统账户权限约束，不是提权能力。保留原有文件名限制与单文件滚动备份；备份是尽力而为，不是完整版本历史。
+
+## 升级同步
+
+每个角色有自己的 `.kujira-state.json`。缺失的默认文件会补齐；仍与上次内置版本一致的文件可更新；用户修改过的文件保留。`persona_edit` 明确删除的内置文件记录为已删除，不会在下次同步重新生成。直接在文件管理器删除默认文件时，后续同步仍可能按缺失文件补齐。
+
+原版鲸鱼娘默认资料保持不变；升级不会挪动或重置你原来的目录。`sync: false` 关闭覆盖式同步；`seed: false` 关闭缺失默认文件的铺设。
 
 ## 配置
 
-| 键 | 默认 | 作用 |
+在 DSH 的本插件配置中设置下列字段；使用 profile patch 时按现有 `id: whale-persona` 条目修改 `config`，不要覆盖整个 profile。
+
+| 字段 | 默认值 | 说明 |
 | --- | --- | --- |
-| `enabled` | `true` | 总开关 |
-| `personaDir` | `~/.dsh/persona` | 档案目录，见下一节 |
-| `memoryFile` | `<personaDir>/90-记忆.md` | `/remember` 往哪写 |
-| `allowAgentWrite` | `true` | 是否允许模型用 `persona_edit` 改写 |
-| `seed` | `true` | 目录为空时是否铺一份内置人设 |
-| `sync` | `true` | 升级时是否把包内改动同步进来（只动没被你改过的文件） |
-| `extraText` | `''` | 追加在末尾的补充文本 |
+| `enabled` | `true` | 插件总开关 |
+| `mode` | `auto` | `auto` 随模型切换；`fixed` 固定角色 |
+| `persona` | `deepseek` | 固定模式选择 `deepseek` / `gpt` / `none` |
+| `unknownPersona` | `none` | 无匹配模型时是否指定一个默认角色 |
+| `modelRules` | `[]` | 显式路由映射，按顺序首先匹配 |
+| `personaDir` | `~/.dsh/persona` | 旧版鲸鱼娘目录 |
+| `memoryFile` | `<personaDir>/90-记忆.md` | 旧版鲸鱼娘记忆文件 |
+| `personasDir` | `~/.dsh/personas` | 新角色目录根路径，GPT 位于其下 `gpt/` |
+| `sharedDir` | 空 | 可选的共享用户偏好目录，只读取，不自动写入 |
+| `allowAgentWrite` | `true` | 注册本插件的 AI 编辑工具 |
+| `seed` / `sync` | `true` | 默认文件铺设 / 升级同步 |
+| `extraText` | 空 | 旧版鲸鱼娘的额外文字，不自动共享给 GPT |
 
-改动写进 profile 的 `cordis.patch.yml`，那一层在升级时不会被覆盖。
+中转站自定义模型名示例：
 
-## 设计说明
+```yaml
+config:
+  mode: auto
+  modelRules:
+    - provider: my-gateway
+      model: private-gpt-*
+      persona: gpt
+    - model: my-deepseek-alias
+      persona: deepseek
+```
 
-**分区名 `whale:persona`，order 1。** 紧跟 `harness:identity`，排在所有策略和工具说明之前。
-不占用注册表自有的 `deployment:persona-prefix`，所以能和任意 agent preset 共存。
+`provider` 与 `model` 支持 `*` 通配符，其他字符按字面匹配，匹配时不区分大小写；省略的一项不限制。显式规则先于内置规则。需要某个模型不加载人设时映射为 `none`。
 
-**`interpolate: false`。** 人设是自由文本，不做 `{{变量}}` 替换。否则你在人设里随手写一个
-`{{...}}`，整个 profile 的所有会话都会发不出请求。
+固定沿用鲸鱼娘：
 
-**按 mtime 记忆化。** 只有文件真的变了才重新拼；内容不变就返回同一个字符串，不打断上游的
-前缀缓存。
+```yaml
+config:
+  mode: fixed
+  persona: deepseek
+```
 
-**失败降级。** provider 永不抛异常，读不到就返回空串——空分区会被丢弃，请求照常发出。
+共享偏好须显式设置 `sharedDir`。不要把旧鲸鱼娘目录当共享目录，否则会主动把鲸鱼娘设定带入其他角色。
 
-## 兼容性
+## 运行边界
 
-需要提供 `systemPrompt` 服务的 DeepSeek Harness。已在 Desktop 版（profile `desktop`）验证。
-不确定你的环境？`echo $env:DSH_PROFILE` 看 profile 名。
+运行包只有人设路由、文件读取/编辑/同步，以及原有插件元数据与文字资源。没有后台巡检、轮询、watchdog、自动重试循环、额外技能/工具拦截、账号探测或子进程。没有新增运行依赖，也没有安装构建脚本。
 
-## 许可
+实现使用 DSH 的 `system-prompt/assemble` 扩展点，在宿主确定本次模型选择后替换本插件自己的 `whale:persona` 段。其余提示词段、工具表、上下文与历史原样交还宿主。测试与验证脚本只保存在独立 QA 分支和临时环境，不进入主线或安装包。
 
-**CC BY-NC-SA 4.0**，非商用，改编须同协议共享。
+兼容目标：DSH `0.2.1-rc.2`。内核集成、干净安装与桌面应用真实交互是不同的验证层级；发布说明分别列出已验证范围。
 
-角色署名链，任何转发都要保留：
+## 许可与署名
 
-- 原型「溟月」—— 上善无形（Pixiv #131969442）
-- 女仆定稿 —— ZipZipPipe（Pixiv #148186519）
-- 本项目的原创设定 —— 本仓库
-
-本插件不是深度求索官方产物，也不代表任何原作者的官方设定。
+本仓库原有许可 **CC BY-NC-SA 4.0** 不变，非官方同人项目。DeepSeek 角色署名链保留 **上善无形 → ZipZipPipe**；GPT 视觉母题署名 **ZipZipPipe**，本插件新增的文字性格为原创默认设定。第三方角色设计权利不因本仓库许可而被重新授权，详见 [NOTICE.md](NOTICE.md)。
 
 ## 更新记录
 

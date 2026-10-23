@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "1.3.1",
-  "description": "DeepSeek Harness 全局人设插件：鲸鱼娘人设写成文件，可改可删，AI 可自行查证补充",
+  "version": "1.4.0",
+  "description": "DeepSeek Harness 多模型人设：DeepSeek 鲸鱼娘 / GPT 白龙娘随会话模型切换，Markdown 档案与学习记忆按角色保存",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",
@@ -13,33 +13,12 @@
   "bugs": {
     "url": "https://github.com/Tests4gptplay/dsh-kujira-persona/issues"
   },
-  "keywords": [
-    "deepseek-harness",
-    "dsh",
-    "dsh-plugin",
-    "persona",
-    "whale",
-    "鲸鱼娘"
-  ],
+  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "persona", "whale", "dragon", "鲸鱼娘", "龙娘"],
   "exports": {
     ".": "./index.js",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
-  "files": [
-    "index.js",
-    "cordis.patch.yml",
-    "persona/*.md",
-    "locale/*.json",
-    "icon.svg",
-    "assets/hero.svg",
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md"
-  ],
-  "dsh": {
-    "bundle": {
-      "patch": "./cordis.patch.yml"
-    }
-  }
+  "files": ["index.js", "dossier.js", "cordis.patch.yml", "persona/*.md", "personas/gpt/*.md", "locale/*.json", "icon.svg", "assets/hero.svg", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
 }

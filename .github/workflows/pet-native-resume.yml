@@ -1,4 +1,5 @@
 name: Kujira 2.0.0 native visibility diagnosis
+run-name: Native visible window and real process exit verification
 'on':
   push:
     branches: [qa/single-model-pet-20261023]

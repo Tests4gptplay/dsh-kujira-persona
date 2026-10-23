@@ -1,4 +1,5 @@
 name: Kujira v2 work statistics isolated checks
+run-name: Work statistics with UTF-8 fixtures and real UI screenshots
 'on':
   push:
     branches: [qa/v2-workstats-20261023]
@@ -33,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           tar -xzf candidate-source.tgz qa
-          python3 qa/workstats-v2.py
+          python3 -X utf8 qa/workstats-v2.py
           (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
           tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
           mkdir -p evidence/package trial/home trial/workspace "$HOME/.local/share/fonts"
@@ -87,8 +88,11 @@ jobs:
       - name: Compile source-matched display helper
         shell: pwsh
         run: |
+          $ErrorActionPreference='Stop'
           tar -xzf candidate-source.tgz qa
-          python qa/workstats-v2.py
+          if($LASTEXITCODE -ne 0){throw 'QA fixture extraction failed'}
+          python -X utf8 qa/workstats-v2.py
+          if($LASTEXITCODE -ne 0){throw 'QA fixture preparation failed'}
           New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
           $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
           $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'

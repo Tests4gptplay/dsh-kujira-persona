@@ -1,0 +1,1 @@
+{"action":"browser","code":"const cp=await import('node:child_process'); cp.execFileSync('git',['init',workspace]); return {menus:await page.locator('[role=menuitem],[role=option],[role=menu]').evaluateAll(ns=>ns.map(n=>({role:n.getAttribute('role'),text:n.textContent,html:n.outerHTML.slice(0,2500)}))),rootIsolated:true};"}

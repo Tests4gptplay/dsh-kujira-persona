@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'View AI Gijinka · Shared World, Individual Personas',exact:true}).click(); const p=JSON.parse(await readFile(join(home,'profiles','web','node_modules','dsh-kujira-persona','package.json'),'utf8')); return {installedVersion:p.version,installedPackage:p.name};"}

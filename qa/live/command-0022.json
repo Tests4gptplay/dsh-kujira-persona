@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Stop generating',exact:true}).waitFor({state:'hidden',timeout:30000}); return {customPersonaAnswerVisible:(await page.locator('body').innerText()).includes('你好，我是星璃')};"}

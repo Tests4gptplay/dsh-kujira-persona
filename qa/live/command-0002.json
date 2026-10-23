@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('button',{name:'Uninstall AI Gijinka · Shared World, Individual Personas',exact:true}).click(); return {purpose:'仅在隔离测试profile里卸载并重新安装，检查真实图形界面安装流程'};"}

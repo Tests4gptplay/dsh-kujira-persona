@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByRole('menuitem',{name:'Settings',exact:true}).click(); return {comboboxes:await page.getByRole('combobox').evaluateAll(ns=>ns.map(n=>({aria:n.getAttribute('aria-label'),text:n.textContent,tag:n.tagName}))),selects:await page.locator('select').evaluateAll(ns=>ns.map(n=>({value:n.value,text:n.textContent})))};"}

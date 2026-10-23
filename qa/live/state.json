@@ -1,8 +1,98 @@
 {
-  "updated_at": "2026-10-23T07:39:16.134Z",
-  "stage": "installing",
-  "dsh": "0.2.1-rc.2",
-  "kujira": "1.6.1",
-  "model_backend": "current-assistant-manual-relay",
-  "user_profile_changed": false
+  "updated_at": "2026-10-23T07:39:26.894Z",
+  "stage": "web_ready",
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nNo sessions yet\nMore\nInto the Unknown\nPreview\nChoose workspace\nStandard mode\nChoose a workspace to start\nPreview Notice\n\nDeepSeek Harness 0.2 is still in preview, and many areas need continued improvement and refinement. We welcome feedback and suggestions from all developers and users. The new desktop app now targets a broad range of users, while developer-related advanced features can be enabled in the settings. DeepSeek Harness’s product features and plugin APIs are expected to continue rapid iteration and evolution, and will gradually stabilize over time.\n\nWe look forward to exploring the limits of intelligence together with users and developers around the world, building on open-source, reusable, and composable infrastructure. We welcome everyone to bring their ideas to life with DeepSeek Harness and participate in the community to enrich the plugin ecosystem.\n\nContinue\nUnable to create default workspace. Use Choose workspace to select a folder.",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "Choose workspace",
+        "aria": "Choose workspace",
+        "title": null
+      },
+      {
+        "text": "Standard mode",
+        "aria": null,
+        "title": "Choose the agent preset for your new task"
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      },
+      {
+        "text": "Continue",
+        "aria": null,
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "next_command": "qa/live/command-0001.json"
 }

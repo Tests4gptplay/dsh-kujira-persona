@@ -1,0 +1,119 @@
+name: Kujira UI docs rerun
+run-name: Current-main DSH UI trial with screenshots
+'on':
+  push:
+    branches: ['qa/ui-docs-rerun-20261023']
+    paths: ['.github/workflows/qa-ui-docs-rerun.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  trial:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      SOURCE_SHA: c5e633637689fe26254860dce862b41e4f1e068a
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: c5e633637689fe26254860dce862b41e4f1e068a
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - name: Prepare isolated runtime and pack exact current source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          mkdir -p qa payload/current trial/evidence trial/workspace
+          git -C trial/workspace init -q
+          (cd candidate && npm pack --ignore-scripts --json --pack-destination "$GITHUB_WORKSPACE/payload/current") > trial/evidence/pack.json
+          sha256sum payload/current/*.tgz > trial/evidence/package.sha256
+          printf '%s\n' "$SOURCE_SHA" > trial/evidence/source-commit.txt
+          gh api 'repos/Tests4gptplay/dsh-kujira-persona/contents/qa/live-relay.mjs?ref=9269574276c6e459b3af9ebccb9bb06ee962a4df' --jq '.content' | base64 -d > qa/live-relay.mjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('qa/live-relay.mjs');s=p.read_text()
+          replacements={
+            "const branch = 'qa/live-dsh-relay-20261023'":"const branch = 'qa/ui-docs-rerun-20261023'",
+            "resolve('payload/releases/dsh-kujira-persona-1.6.1.tgz')":"resolve('payload/current/dsh-kujira-persona-1.6.1.tgz')",
+            "const patchPath = join(root, 'trial.patch.yml')":"const patchPath = join(home, 'profiles', 'web', 'cordis.patch.yml')",
+            "['web','--no-open','--patch',patchPath]":"['web','--no-open']",
+            "name: 'Current assistant · test relay'":"displayName: 'Current assistant · test relay'",
+            '30*60*1000':'35*60*1000',
+            "  const job = writes.then(async () => {":"  const job = writes.then(async () => {\n    await writeFile(join(evidence, path.split('/').at(-1)), JSON.stringify(data,null,2)+'\\n')",
+            "    await page.screenshot({path:join(evidence,`${id}.png`),fullPage:true})":"    await page.screenshot({path:join(evidence,`${id}.png`),fullPage:true})\n    await publishImage(id)",
+          }
+          for a,b in replacements.items():
+            assert a in s,a;s=s.replace(a,b)
+          anchor="const state = extra => publish('qa/live/state.json', { updated_at: new Date().toISOString(), ...extra })"
+          addition="""
+          async function publishImage(id) {
+            const path = 'qa/screenshots/'+id+'.png';
+            const raw = await readFile(join(evidence,id+'.png'));
+            const r=await fetch(api+path,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({branch,message:'test screenshot: '+id,content:raw.toString('base64')})});
+            if(!r.ok)throw new Error('Screenshot publication '+r.status);
+          }
+          """
+          assert anchor in s;s=s.replace(anchor,anchor+'\n'+addition)
+          p.write_text(s)
+          PY
+          node --check qa/live-relay.mjs
+          npm install --prefix qa --no-audit --no-fund playwright
+          qa/node_modules/.bin/playwright install chromium --with-deps
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+      - name: Real Web UI and current-assistant request relay
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node qa/live-relay.mjs
+      - name: Build screenshot report from actual evidence
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,html,base64,hashlib,datetime
+          e=Path('trial/evidence');e.mkdir(parents=True,exist_ok=True)
+          data=json.loads((e/'report-data.json').read_text()) if (e/'report-data.json').exists() else {'title':'Kujira DSH 实际界面复测','summary':'执行记录见下方；没有结果的项目不视为通过。','cases':[]}
+          esc=lambda s:html.escape(str(s))
+          blocks=[];md=['# '+data['title'],'',data['summary'],'','测试主线提交：`'+__import__('os').environ['SOURCE_SHA']+'`。','真实 DSH Web + 当前助手人工中转模型端；不是真实 DeepSeek/GPT 服务或独立模型行为盲测。','']
+          for c in data.get('cases',[]):
+            image=e/c.get('image','')
+            fig=''
+            if image.is_file():
+              img='data:image/png;base64,'+base64.b64encode(image.read_bytes()).decode()
+              fig='<figure><img src="'+img+'"><figcaption>'+esc(c.get('caption',c['title']))+'</figcaption></figure>'
+            blocks.append('<section><h2>'+esc(c['title'])+'</h2><p><b>'+esc(c.get('status','已观察'))+'</b> · '+esc(c.get('detail',''))+'</p>'+fig+'</section>')
+            md.extend(['## '+c['title'],c.get('status','已观察')+'：'+c.get('detail',''),''])
+            if image.is_file():md.extend(['!['+c.get('caption',c['title'])+']('+image.name+')',''])
+          checks=json.dumps(data.get('checks',{}),ensure_ascii=False,indent=2)
+          limits=data.get('limitations','未测试 Windows Electron 与真实账号推理；没有长期稳定性或性能保证。')
+          body='<h1>'+esc(data['title'])+'</h1><p class="lead">'+esc(data['summary'])+'</p><p>测试对象：当前主线 c5e633637689fe26254860dce862b41e4f1e068a；npm 包内版本仍为 1.6.1，属于未发布的文案修订测试包。</p><p>环境：官方 DSH 0.2.1-rc.2 发布构建、Ubuntu 22.04、Node 24、Chromium。真实 Web 界面与工具执行，模型回复由当前 ChatGPT 助手根据实际请求中转；不等同于真实品牌模型账号测试。</p>'+''.join(blocks)+'<section><h2>文件与请求核对</h2><pre>'+esc(checks)+'</pre></section><section><h2>范围与限制</h2><p>'+esc(limits)+'</p><p>主线、发行包、市场条目和用户本机均未由本次试用修改。测试材料仅保留在独立 QA 分支。</p></section>'
+          css='body{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;background:#f5f7fa;color:#182530;margin:0;padding:42px;line-height:1.7}main{max-width:1160px;margin:auto}h1{font-size:32px}h2{font-size:23px}section{background:white;padding:24px;margin:24px 0;border:1px solid #dce2e8;border-radius:12px}.lead{font-size:18px}img{width:100%;height:auto;border:1px solid #dce2e8}figure{margin:20px 0}figcaption{font-size:13px;color:#546373}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px} @media print{body{padding:0;background:white}section{break-inside:avoid;page-break-inside:avoid;border:0}img{max-height:230mm;object-fit:contain}}'
+          (e/'Kujira_DSH_截图测试报告.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>'+esc(data['title'])+'</title><style>'+css+'</style><main>'+body+'</main></html>')
+          md.extend(['## 文件与请求核对','```json',checks,'```','## 范围与限制',limits]);(e/'REPORT.md').write_text('\n'.join(md))
+          (e/'README.txt').write_text('请打开 Kujira_DSH_截图测试报告.html 查看完整报告，截图已嵌入，无需联网。原始 PNG、请求与工具结果也在本压缩包中。\n')
+          hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in e.glob('*') if p.is_file()};(e/'evidence-sha256.json').write_text(json.dumps(hashes,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Kujira-current-main-UI-report
+          path: trial/evidence
+          retention-days: 14
+          if-no-files-found: error

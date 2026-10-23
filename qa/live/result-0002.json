@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "result": null,
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nNew Session\nMore\nInto the Unknown\nPreview\nworkspace\nStandard mode\nDescribe what you want to build, / commands, @ files or sessions\nWorkspace Write\ndeepseek-chat [TEST RELAY]",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Describe what you want to build, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "workspace",
+        "aria": "Choose workspace",
+        "title": null
+      },
+      {
+        "text": "Standard mode",
+        "aria": null,
+        "title": "Choose the agent preset for your new task"
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "deepseek-chat [TEST RELAY]",
+        "aria": "Select model, current deepseek-chat [TEST RELAY]",
+        "title": "deepseek-chat [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

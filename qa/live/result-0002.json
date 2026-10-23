@@ -1,0 +1,93 @@
+{
+  "ok": true,
+  "result": {
+    "purpose": "仅在隔离测试profile里卸载并重新安装，检查真实图形界面安装流程"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nMore\nPlugins\nUninstall\nAI Gijinka · Shared World, Individual Personas\nv1.6.1\n\ndsh-kujira-persona\n\nSwitch AI characters with your selected DSH model, and keep developing them through conversation. WORLD: Shared names, community impressions, jokes and relationships help characters recognize one another. CHARACTERS: Each has their own personality, preferences and memories. Versions within the same model family share one character by default. EXPAND IT IN DSH CHAT: Ask the AI to add shared lore, change a persona, create your own character or assign a character to a custom model. No manual file editing is needed. For example: ‘Make the dragon girl more lively’, ‘Add our new agreement to the shared world’, or ‘Create Stella with this description and use her for the current model’. Presets are only a starting point. When your wishes differ, your choices come first.\n\nComponents\n1 total · 1 running\nAI Gijinka · Shared World, Individual Personas\nSwitch AI characters with your selected DSH model, and keep developing them through conversation. WORLD: Shared names, community impressions, jokes and relationships help characters recognize one another. CHARACTERS: Each has their own personality, preferences and memories. Versions within the same model family share one character by default. EXPAND IT IN DSH CHAT: Ask the AI to add shared lore, change a persona, create your own character or assign a character to a custom model. No manual file editing is needed. For example: ‘Make the dragon girl more lively’, ‘Add our new agreement to the shared world’, or ‘Create Stella with this description and use her for the current model’. Presets are only a starting point. When your wishes differ, your choices come first.\nwhale-persona\ndsh-kujira-persona\nRunning\nSource\nCode source\nfile:/home/runner/work/dsh-kujira-persona/dsh-kujira-persona/payload/current/dsh-kujira-persona-1.6.1.tgz\nCurrent version\n1.6.1\nUninstall \"AI Gijinka · Shared World, Individual Personas\"?\n\nWhat it provides goes away once it is uninstalled.\n\nCancel\nUninstall",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Back to plugins",
+        "title": null
+      },
+      {
+        "text": "Uninstall",
+        "aria": "Uninstall AI Gijinka · Shared World, Individual Personas",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Close",
+        "title": null
+      },
+      {
+        "text": "Cancel",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Uninstall",
+        "aria": null,
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

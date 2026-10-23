@@ -1,0 +1,1 @@
+{"action":"browser","code":"await page.getByText('English',{exact:true}).click(); return {options:await page.getByRole('option').allTextContents(),menuItems:await page.getByRole('menuitem').allTextContents()};"}

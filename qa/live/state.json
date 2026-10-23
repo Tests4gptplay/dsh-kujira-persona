@@ -1,0 +1,8 @@
+{
+  "updated_at": "2026-10-23T09:14:03.728Z",
+  "stage": "installing",
+  "dsh": "0.2.1-rc.2",
+  "kujira": "1.6.1",
+  "model_backend": "current-assistant-manual-relay",
+  "user_profile_changed": false
+}

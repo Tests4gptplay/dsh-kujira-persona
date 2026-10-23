@@ -1,0 +1,46 @@
+name: Kujira 2.0.0 native visibility diagnosis
+'on':
+  push:
+    branches: [qa/single-model-pet-20261023]
+    paths: [.github/workflows/pet-native-resume.yml]
+permissions: {contents: read, actions: read}
+jobs:
+  native:
+    runs-on: windows-2022
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-source
+          run-id: 39965479770
+          github-token: ${{ github.token }}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Compile exact candidate and add diagnostics only to QA
+        shell: pwsh
+        run: |
+          tar -xzf source.tgz
+          python qa/native-diagnostics.py
+          New-Item -ItemType Directory -Force candidate/pet/native/win-x64,evidence | Out-Null
+          $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
+          $src=Join-Path $PWD 'candidate\pet\native\KujiraPet.cs'
+          $out=Join-Path $PWD 'candidate\pet\native\win-x64\KujiraPet.exe'
+          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu "/out:$out" "/reference:$fw\WPF\PresentationFramework.dll" "/reference:$fw\WPF\PresentationCore.dll" "/reference:$fw\WPF\WindowsBase.dll" "/reference:$fw\System.Xaml.dll" "/reference:$fw\System.Web.Extensions.dll" $src
+          if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
+      - name: Observe startup then assert actual visible HWND and lifecycle
+        shell: pwsh
+        run: ./qa/native-test-v2.ps1
+      - name: Native bridge rapid close and reopen
+        shell: pwsh
+        run: node --test qa/native-bridge.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-native-diagnosis
+          path: |
+            evidence
+            candidate/pet/native/win-x64/KujiraPet.exe
+            candidate/pet/native/KujiraPet.cs
+          retention-days: 14

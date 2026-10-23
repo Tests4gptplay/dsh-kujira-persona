@@ -1,5 +1,5 @@
 /** Model-family routing and user-authored persona bindings. No background work. */
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 export const BUILTINS = [
@@ -59,9 +59,16 @@ const matchesRule = (route, rule) => matches(route.provider, rule.provider) && m
 /** The registry contains only role names and model bindings, never model credentials. */
 export function openCatalog(config) {
   const path = join(config.personasDir, '.kujira-catalog.json')
-  function load() {
+  let state, initialization
+  let tail = Promise.resolve()
+  function enqueue(operation) {
+    const result = tail.then(operation)
+    tail = result.then(() => undefined, () => undefined)
+    return result
+  }
+  async function load() {
     let raw
-    try { raw = readFileSync(path, 'utf8') } catch (e) {
+    try { raw = await readFile(path, 'utf8') } catch (e) {
       if (e.code === 'ENOENT') return { v: 1, personas: [], bindings: [] }
       throw e
     }
@@ -69,11 +76,15 @@ export function openCatalog(config) {
     if (value.v !== 1 || !Array.isArray(value.personas) || !Array.isArray(value.bindings)) throw new Error('人设目录索引格式无效，未覆盖原文件')
     return value
   }
-  function save(state) {
-    mkdirSync(config.personasDir, { recursive: true })
+  async function save(next) {
+    await mkdir(config.personasDir, { recursive: true })
     const temporary = `${path}.${process.pid}.tmp`
-    writeFileSync(temporary, `${JSON.stringify(state, null, 2)}\n`, 'utf8')
-    renameSync(temporary, path)
+    await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
+    await rename(temporary, path)
+    state = next
+  }
+  function ready() {
+    return initialization ??= enqueue(async () => { state = await load() })
   }
   function entries(state) {
     return [...BUILTINS.map(p => ({ ...p, builtin: true })), ...state.personas
@@ -102,49 +113,59 @@ export function openCatalog(config) {
   }
   return {
     path,
-    list() { const state = load(); return { personas: entries(state), bindings: state.bindings } },
-    get(id) { return selected(load(), id) },
-    resolve(route) {
-      const state = load()
+    async list() { await ready(); await tail; return { personas: entries(state), bindings: [...state.bindings] } },
+    async get(id) { await ready(); await tail; return selected(state, id) },
+    reload() {
+      const work = enqueue(async () => { state = await load(); return { personas: entries(state), bindings: state.bindings } })
+      initialization = work.then(() => undefined)
+      initialization.catch(() => {})
+      return work
+    },
+    async resolve(route) {
+      await ready(); await tail
       if (config.mode === 'fixed') return selected(state, config.persona)
       const rules = [...state.bindings, ...config.modelRules]
       const match = rules.find(rule => matchesRule(route, rule))
       const family = modelFamily(route)
       return selected(state, match?.persona ?? (family === 'none' ? config.unknownPersona : family))
     },
-    change(args, current) {
-      const state = load(), id = text(args.persona), action = args.action
-      if (action === 'create') {
-        if (!safeId(id)) throw new Error('角色 ID 使用小写字母开头的字母、数字、短横线，最多 64 字符')
-        if (entries(state).some(p => p.id === id)) throw new Error('该角色已存在；补充设定请用 persona_edit，不要按模型版本重复创建角色')
-        const label = text(args.name), body = text(args.text)
-        if (!label || !body) throw new Error('create 需要 name 和 text（基本人设）')
-        const rule = args.use_current_model === true || text(args.model) || text(args.provider) ? routeRule(args, current) : null
-        const directory = join(config.personasDir, id)
-        if (existsSync(directory)) throw new Error('角色目录已存在，未覆盖其中的文件；请使用另一个角色 ID')
-        mkdirSync(directory, { recursive: true })
-        writeFileSync(join(directory, '00-用户设定.md'), `# ${label}\n\n> 用户自定义角色，不是模型厂商的官方设定。\n\n${body}\n`, 'utf8')
-        writeFileSync(join(directory, '90-记忆.md'), `# ${label}的记忆\n\n`, 'utf8')
-        state.personas.push({ id, label })
-        if (rule) putBinding(state, rule, id)
-        save(state)
-        return { action, persona: id, note: `已创建 ${label}（${id}）${rule ? '并绑定指定模型' : '；尚未绑定模型'}。不同版本请绑定这个相同角色 ID。`, path: directory }
-      }
-      if (action === 'bind') {
-        const rule = routeRule(args, current)
-        putBinding(state, rule, id)
-        save(state)
-        return { action, persona: id, note: `已绑定 ${rule.provider ?? '*'}/${rule.model ?? '*'} → ${id}；下次请求生效。`, path }
-      }
-      if (action === 'unbind') {
-        const rule = routeRule(args, current)
-        const before = state.bindings.length
-        state.bindings = state.bindings.filter(b => b.provider !== rule.provider || b.model !== rule.model)
-        if (before === state.bindings.length) throw new Error('未找到完全相同的用户绑定；请先 list 查看规则')
-        save(state)
-        return { action, note: '已移除这条用户绑定，恢复配置/内置匹配；角色文件与记忆未删除。', path }
-      }
-      throw new Error(`未知管理操作：${action}`)
+    async change(args, current) {
+      await ready()
+      return enqueue(async () => {
+        const next = { ...state, personas: [...state.personas], bindings: [...state.bindings] }
+        const id = text(args.persona), action = args.action
+        if (action === 'create') {
+          if (!safeId(id)) throw new Error('角色 ID 使用小写字母开头的字母、数字、短横线，最多 64 字符')
+          if (entries(next).some(p => p.id === id)) throw new Error('该角色已存在；补充设定请用 persona_edit，不要按模型版本重复创建角色')
+          const label = text(args.name), body = text(args.text)
+          if (!label || !body) throw new Error('create 需要 name 和 text（基本人设）')
+          const rule = args.use_current_model === true || text(args.model) || text(args.provider) ? routeRule(args, current) : null
+          const directory = join(config.personasDir, id)
+          await mkdir(config.personasDir, { recursive: true })
+          await mkdir(directory)
+          await writeFile(join(directory, '00-用户设定.md'), `# ${label}\n\n> 用户自定义角色，不是模型厂商的官方设定。\n\n${body}\n`, 'utf8')
+          await writeFile(join(directory, '90-记忆.md'), `# ${label}的记忆\n\n`, 'utf8')
+          next.personas.push({ id, label })
+          if (rule) putBinding(next, rule, id)
+          await save(next)
+          return { action, persona: id, note: `已创建 ${label}（${id}）${rule ? '并绑定指定模型' : '；尚未绑定模型'}。不同版本请绑定这个相同角色 ID。`, path: directory }
+        }
+        if (action === 'bind') {
+          const rule = routeRule(args, current)
+          putBinding(next, rule, id)
+          await save(next)
+          return { action, persona: id, note: `已绑定 ${rule.provider ?? '*'}/${rule.model ?? '*'} → ${id}；下次请求生效。`, path }
+        }
+        if (action === 'unbind') {
+          const rule = routeRule(args, current)
+          const before = next.bindings.length
+          next.bindings = next.bindings.filter(b => b.provider !== rule.provider || b.model !== rule.model)
+          if (before === next.bindings.length) throw new Error('未找到完全相同的用户绑定；请先 list 查看规则')
+          await save(next)
+          return { action, note: '已移除这条用户绑定，恢复配置/内置匹配；角色文件与记忆未删除。', path }
+        }
+        throw new Error(`未知管理操作：${action}`)
+      })
     },
   }
 }

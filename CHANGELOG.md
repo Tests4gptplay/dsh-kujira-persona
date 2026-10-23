@@ -1,5 +1,14 @@
 # 更新记录
 
+## 1.6.0
+
+- 拆分全局世界观/公开角色名录与当前角色个人档案。world 所有角色共用，个人记忆不自动共享；保留旧资料原位。
+- 包内 instructions/README.md 启动读一次并显式加入全局提示词，说明工具保存后的自动缓存更新、外部编辑后的单次定向重载，以及不要重启 DSH。
+- 人设、世界观及模型绑定改为按需内存快照：温热请求不扫描、不 stat、不读档案；对话保存直接更新对应快照。
+- persona_edit 增加 scope=world|persona 和 action=reload；persona_manage 增加外部绑定索引的单次 reload。本插件写入操作本身无需再 reload。
+- 首次读写与持久化改用异步文件接口；同一档案的写入按调用顺序处理，无后台任务、文件监听、定时器或额外运行依赖。
+- 测试和文件操作计数只在独立 QA 分支，不进入 main 或安装包。
+
 ## 1.5.0
 
 - 内置 AI-gijinka 资料库已有的 11 个模型家族文字预设：DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包/Seed；新增角色性格注明为插件原创基础值，不转载原图。

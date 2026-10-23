@@ -1,8 +1,9 @@
 {
-  "status": "checks-passed-feature-ref-update-pending",
+  "status": "code-candidate-saved-to-feature-branch-not-released",
   "source_base": "55611ec683902edad5873c21f9196a1f500d8790",
   "product_commit": "bb527797408b73fa4ee5e3c67b4a2b304ed238e4",
   "feature_branch": "feat/v2.0.0-single-model-pet",
+  "main_unchanged": "6a9649612dc99ed8030aa5e961af42a37902598f",
   "test_run": 39975902936,
   "unit_tests": 41,
   "web_cases": 17,

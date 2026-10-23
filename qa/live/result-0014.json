@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "result": {
+    "model": "deepseek-chat",
+    "assistantHistoryCount": 0,
+    "newWorldFromSystem": true,
+    "newPersonaFromSystem": true,
+    "userPrompt": "小鲸，重新开一段聊天：我们烤饼干的约定在周几？你最喜欢喝什么？"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nRunning\n小鲸，重新开一段聊天：我们\nnow\n小鲸，猫猫和龙娘分别是谁？\n2min\nMore\n小鲸，重新开一段聊天：我们\nStandard mode\nChat\nTrajectory\n小鲸，重新开一段聊天：我们烤饼干的约定在周几？你最喜欢喝什么？\n09:23\nDeep diving\nDeep diving for 6s ···\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\ndeepseek-chat [TEST RELAY]",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "deepseek-chat [TEST RELAY]",
+        "aria": "Select model, current deepseek-chat [TEST RELAY]",
+        "title": "deepseek-chat [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Stop generating",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": [
+    "0006"
+  ]
+}

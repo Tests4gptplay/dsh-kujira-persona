@@ -1,0 +1,79 @@
+name: Isolated Kujira 1.6.0 QA
+run-name: Shared world and zero-scan refresh QA
+'on':
+  push:
+    branches: ['qa/shared-world-cache-1.6.0']
+    paths: ['qa/**', '.github/workflows/qa-shared-world.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      SOURCE_SHA: 5df98c71dbdf20cdb43c11b9fd99eac562dbdcc8
+      SOURCE_DIR: ${{ github.workspace }}/consumer/node_modules/dsh-kujira-persona
+      DSH_HOME: ${{ github.workspace }}/isolated-dsh-home
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: plugin
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Pack only production files and match locally tested runtime bytes
+        run: |
+          set -euo pipefail
+          node --check plugin/index.js
+          node --check plugin/dossier.js
+          node --check plugin/catalog.js
+          mkdir -p dist
+          (cd plugin && npm pack --ignore-scripts --json --pack-destination "$GITHUB_WORKSPACE/dist") > dist/pack.json
+          node qa/audit.mjs plugin dist/pack.json > dist/audit.json
+          cat dist/audit.json
+      - name: Install tarball and verify event-driven refresh and zero warm I/O
+        run: |
+          set -euo pipefail
+          npm install --prefix consumer "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.6.0.tgz" --ignore-scripts --no-audit --no-fund --no-package-lock
+          node --test qa/world-cache.test.mjs
+      - name: Install first-party libraries in QA only
+        run: npm install --prefix qa --no-save --ignore-scripts --no-audit --no-fund --no-package-lock @deepseek-ai/cordis@4.0.5 @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2
+      - name: Real DSH tools, model selection and clean disposal
+        run: node --test qa/host.test.mjs
+      - name: Clean pnpm Git install without allowBuilds overrides
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/kujira-git-16"
+          cd "$RUNNER_TEMP/kujira-git-16"
+          printf '{"name":"kujira-consumer","version":"1.0.0","private":true}\n' > package.json
+          pnpm add "github:Tests4gptplay/dsh-kujira-persona#$SOURCE_SHA"
+          node --input-type=module -e "import {readFileSync,existsSync} from 'node:fs'; const p=JSON.parse(readFileSync('node_modules/dsh-kujira-persona/package.json')); if(p.version!=='1.6.0'||p.scripts||p.dependencies)throw Error('Unexpected package'); for(const f of ['qa','tests','scripts','.github'])if(existsSync('node_modules/dsh-kujira-persona/'+f))throw Error('QA leaked: '+f); console.log('CLEAN_GIT_INSTALL_PASS')"
+      - name: Official DSH isolated profile installation and composition
+        run: |
+          set -euo pipefail
+          pnpm dlx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add "$GITHUB_WORKSPACE/dist/dsh-kujira-persona-1.6.0.tgz"
+          pnpm dlx @deepseek-ai/dsh@0.2.1-rc.2 --profile web --dump-config > "$RUNNER_TEMP/kujira-profile-16.txt"
+          grep -Fq dsh-kujira-persona "$RUNNER_TEMP/kujira-profile-16.txt"
+          echo DSH_PROFILE_COMPOSITION_PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-1.6.0-${{ matrix.os }}
+          path: |
+            dist/dsh-kujira-persona-1.6.0.tgz
+            dist/audit.json
+            dist/SHA256SUMS
+          if-no-files-found: error

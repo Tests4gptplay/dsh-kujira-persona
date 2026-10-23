@@ -8,6 +8,8 @@
 
 **人物**是每个角色自己的性格、喜好和记忆。切换模型家族时切换角色；同一家族的不同版本默认共用一个角色和已有记忆。已有多种 AI 娘基础预设，没有预设的模型也可以自行添加角色。
 
+默认自称使用 DeepSeek、GPT、GLM 等模型家族名称，平时自然说“我”。白龙、鲸鱼、猫猫等保留为形象和别称，不会要求角色用“XX娘”介绍自己。你另起名字或使用自定义角色时，就按你选定的称呼来。
+
 预设只是起点。称呼、性格、关系和模型对应的角色都能改；与你的要求不同，就按你的来。
 
 ## 扩充和修改，直接在 DSH 聊天框里说
@@ -29,7 +31,7 @@
 DSH Desktop：打开 **插件 → 添加插件**，输入当前发行版：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v1.6.1
+github:Tests4gptplay/dsh-kujira-persona#v1.6.2
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
@@ -37,7 +39,7 @@ github:Tests4gptplay/dsh-kujira-persona#v1.6.1
 Web 版安装命令：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.6.1'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.6.2'
 ```
 
 Web 与 Desktop 分别安装。[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 也提供备用 `.tgz` 安装包。

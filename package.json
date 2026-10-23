@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "1.6.1",
-  "description": "DSH AI 娘基础草案：共同称呼与社区印象、独立角色性格，支持对话编辑和自动更新缓存",
+  "version": "1.6.2",
+  "description": "DSH AI 人设插件：随模型切换角色，共享世界观、独立人物档案，可通过对话扩充和修改",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",

@@ -21,9 +21,12 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '24'}
       - name: Prepare candidate and regression tests without touching main
+        shell: bash
         run: |
-          cp qa/checkpoints/v2.0.0/assembled-qa/* qa/
+          set -euo pipefail
+          cp -a qa/checkpoints/v2.0.0/assembled-qa/. qa/
           python3 qa/resume-v2.py
+          python3 qa/stella-existing-user.py
           mkdir -p evidence
           node --check candidate/index.js
           node --check candidate/catalog.js

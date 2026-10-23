@@ -1,0 +1,61 @@
+name: Archive Kujira v2 code and screenshots
+'on':
+  push:
+    branches: [qa/v2-code-completion-20261023]
+    paths: [.github/workflows/qa-v2-deliver.yml]
+permissions: {contents: write, actions: read}
+env:
+  TEST_RUN: '39975902936'
+jobs:
+  deliver:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Require successful completion of the exact test run
+        env: {GH_TOKEN: '${{ github.token }}'}
+        run: gh run watch "$TEST_RUN" --repo "$GITHUB_REPOSITORY" --exit-status --interval 5
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-complete-source
+          run-id: ${{ env.TEST_RUN }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-complete-web
+          run-id: ${{ env.TEST_RUN }}
+          github-token: ${{ github.token }}
+          path: input/web
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-complete-windows
+          run-id: ${{ env.TEST_RUN }}
+          github-token: ${{ github.token }}
+          path: input/windows
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2-complete-unit
+          run-id: ${{ env.TEST_RUN }}
+          github-token: ${{ github.token }}
+          path: input/unit
+      - name: Preserve code candidate and report on their separate Git surfaces
+        env: {GH_TOKEN: '${{ github.token }}'}
+        run: |
+          set -euo pipefail
+          tar -xzf final-source.tgz candidate
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('qa/publish-v2-evidence.py');s=p.read_text()
+          s=s.replace('之前工作统计复测第一次在 Windows QA 中文编码处失败；', '本轮首次 UI 测试在重复的当前模型标签／菜单文字处触发严格定位错误；已有九个场景通过，星璃已显示。修正 QA 菜单定位后重跑，原记录保存在 [first-final-ui-failure.json](first-final-ui-failure.json)。\n\n之前工作统计复测第一次在 Windows QA 中文编码处失败；')
+          p.write_text(s,encoding='utf-8')
+          PY
+          python3 qa/publish-v2-evidence.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Kujira-v2-code-and-screenshot-report
+          path: delivery
+          retention-days: 30

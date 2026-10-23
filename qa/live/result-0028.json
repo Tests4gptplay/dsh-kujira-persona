@@ -1,0 +1,256 @@
+{
+  "ok": true,
+  "result": {
+    "options": [],
+    "menuItems": [
+      "中文",
+      "English"
+    ]
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\n星璃，我用外部编辑器补了一\n2min\n给当前模型创建原创角色星璃\n3min\n你是谁？猫猫是谁？我们烤饼\n4min\n小鲸，重新开一段聊天：我们\n7min\n小鲸，猫猫和龙娘分别是谁？\n9min\nMore\n星璃，我用外部编辑器补了一\nStandard mode\nChat\nTrajectory\n星璃，我用外部编辑器补了一条共同暗号。请重新读一下世界观，告诉我现在的暗号是什么，不用解释操作过程。\n09:29\nCompleted\nCompleted in 1m 43s\n\n是“橘子星河”。记住啦，像一小片带着甜味的星空。\n\nUsage 0 tok\n09:31\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\nprivate-model-v1 [TEST RELAY]\n1 turns 2 steps·0 tok/s\n0%\nSettings\nGeneral\nModels\nBuilt-in plugins\nAgent presets\nOpen configuration file\nClose\nPermission\nChoose the default permission mode for new sessions\nWorkspace Write\nLanguage\nEnglish\nAppearance\nLight\nDark\nSystem\nFont size\nOnly affects conversation content\n14\npx\nWork details\nChoose how much detail to show for tool calls\nDetailed\nWhen to Collapse Work Details\nChoose when to automatically collapse work details\nOn completion\nShow coding view\nShows trajectory, code diffs, and all Agent presets\nKeyboard shortcuts\n\nView and edit available shortcuts and input actions\n\nEdit shortcuts\nSend behavior while busy\nWhat Enter and the Send button do while the agent is running; Cmd/Ctrl+Enter uses the other behavior\nQueue\nPerformance & usage\nChoose how much performance and usage information to show\nDetailed\nUpload Session Log when using the official model API\nHelp improve DeepSeek models and products.\nCurrent version: 0.2.1-rc.2\n中文\nEnglish",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "Completed in 1m 43s",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Good response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Bad response",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Branch into a new conversation",
+        "title": null
+      },
+      {
+        "text": "Usage 0 tok",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "private-model-v1 [TEST RELAY]",
+        "aria": "Select model, current private-model-v1 [TEST RELAY]",
+        "title": "private-model-v1 [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Send message",
+        "title": null
+      },
+      {
+        "text": "1 turns 2 steps·0 tok/s",
+        "aria": "1 turns 2 steps · 0 tok/s",
+        "title": null
+      },
+      {
+        "text": "0%",
+        "aria": "0% of context used",
+        "title": null
+      },
+      {
+        "text": "General",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Models",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Built-in plugins",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Agent presets",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Open configuration file",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Close",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "English",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Light",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Dark",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "System",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Increase font size",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Decrease font size",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More font settings",
+        "title": "More font settings"
+      },
+      {
+        "text": "Detailed",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "On completion",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Edit shortcuts",
+        "aria": "Edit shortcuts",
+        "title": null
+      },
+      {
+        "text": "Queue",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Detailed",
+        "aria": null,
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

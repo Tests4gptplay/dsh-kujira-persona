@@ -14,6 +14,9 @@ export const BUILTINS = [
   { id: 'minimax', label: 'MiniMax 创作娘' },
   { id: 'llama', label: 'Llama 羊驼娘' },
   { id: 'doubao', label: '豆包 / Seed 娘' },
+  { id: 'mistral', label: 'Mistral 娘' },
+  { id: 'hunyuan', label: '混元娘' },
+  { id: 'mimo', label: 'MiMo 娘' },
 ]
 
 const FAMILIES = [
@@ -28,6 +31,9 @@ const FAMILIES = [
   ['minimax', /^mini-?max(?:[-._:]|\d|$)/],
   ['llama', /^(?:meta-)?llama(?:[-._:]|\d|$)/],
   ['doubao', /^(?:doubao|seed)(?:[-._:]|\d|$)/],
+  ['mistral', /^(?:mistral|mixtral|ministral|devstral|codestral|magistral)(?:[-._:]|\d|$)/],
+  ['hunyuan', /^hunyuan(?:[-._:]|\d|$)/],
+  ['mimo', /^mimo(?:[-._:]|\d|$)/],
 ]
 const text = value => typeof value === 'string' ? value.trim() : ''
 const safeId = value => /^[a-z][a-z0-9-]{0,63}$/.test(value) && value !== 'none'

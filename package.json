@@ -1,20 +1,53 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "1.6.0",
-  "description": "DSH AI 娘：共享世界观与角色名录＋随模型切换的个人档案；对话保存自动更新缓存，无定时扫描",
+  "version": "1.6.1",
+  "description": "DSH AI 娘基础草案：共同称呼与社区印象、独立角色性格，支持对话编辑和自动更新缓存",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",
   "homepage": "https://github.com/Tests4gptplay/dsh-kujira-persona#readme",
-  "repository": { "type": "git", "url": "git+https://github.com/Tests4gptplay/dsh-kujira-persona.git" },
-  "bugs": { "url": "https://github.com/Tests4gptplay/dsh-kujira-persona/issues" },
-  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "persona", "gijinka", "鲸鱼娘", "龙娘"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tests4gptplay/dsh-kujira-persona.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tests4gptplay/dsh-kujira-persona/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "persona",
+    "gijinka",
+    "鲸鱼娘",
+    "龙娘"
+  ],
   "exports": {
     ".": "./index.js",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
     "./icon": "./icon.svg"
   },
-  "files": ["index.js", "dossier.js", "catalog.js", "cordis.patch.yml", "persona/*.md", "personas/*/*.md", "world/*.md", "instructions/README.md", "locale/*.json", "icon.svg", "assets/hero.svg", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md"],
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+  "files": [
+    "index.js",
+    "dossier.js",
+    "catalog.js",
+    "cordis.patch.yml",
+    "persona/*.md",
+    "personas/*/*.md",
+    "world/*.md",
+    "instructions/README.md",
+    "locale/*.json",
+    "icon.svg",
+    "assets/hero.svg",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
 }

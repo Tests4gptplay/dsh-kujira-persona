@@ -25,6 +25,7 @@ jobs:
       - name: Assemble isolated candidate and original vector drafts
         run: |
           python3 -m pip install --quiet cairosvg pillow
+          python3 qa/fix-v2.py
           python3 qa/compose.py
           python3 qa/draw-pets.py
           node --check candidate/pet/client.js
@@ -86,13 +87,15 @@ jobs:
         run: |
           tar -xzf candidate-source.tgz
           New-Item -ItemType Directory -Force candidate/pet/native/win-x64 | Out-Null
-          $file=Join-Path $PWD 'qa/KujiraPet.cs'
+          $file=Join-Path $PWD 'qa\KujiraPet.cs'
           $s=[IO.File]::ReadAllText($file)
           $s=$s.Replace('public static void Main(){','public static void Main(){ Console.InputEncoding=new UTF8Encoding(false); Console.OutputEncoding=new UTF8Encoding(false);')
           $s=$s.Replace('Topmost=true;ShowInTaskbar=false;','Topmost=true;ShowActivated=false;ShowInTaskbar=false;')
           [IO.File]::WriteAllText($file,$s,[Text.UTF8Encoding]::new($false))
           $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
-          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu /out:candidate/pet/native/win-x64/KujiraPet.exe /reference:"$fw\WPF\PresentationFramework.dll" /reference:"$fw\WPF\PresentationCore.dll" /reference:"$fw\WPF\WindowsBase.dll" /reference:"$fw\System.Xaml.dll" /reference:"$fw\System.Web.Extensions.dll" qa/KujiraPet.cs
+          $out=Join-Path $PWD 'candidate\pet\native\win-x64\KujiraPet.exe'
+          $compileArgs=@('/nologo','/target:winexe','/platform:anycpu',"/out:$out","/reference:$fw\WPF\PresentationFramework.dll","/reference:$fw\WPF\PresentationCore.dll","/reference:$fw\WPF\WindowsBase.dll","/reference:$fw\System.Xaml.dll","/reference:$fw\System.Web.Extensions.dll",$file)
+          & "$fw\csc.exe" @compileArgs
           if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
       - name: Real Windows single-window lifecycle and skin switching
         shell: pwsh
@@ -103,6 +106,7 @@ jobs:
           name: pet-windows-evidence
           path: |
             candidate/pet/native/win-x64/KujiraPet.exe
+            qa/KujiraPet.cs
             evidence
           retention-days: 14
           if-no-files-found: warn

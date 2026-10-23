@@ -1,0 +1,108 @@
+name: Kujira optional single pet isolated trial
+'on':
+  push:
+    branches: [qa/single-model-pet-20261023]
+    paths: [.github/workflows/pet-integration.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 6a9649612dc99ed8030aa5e961af42a37902598f
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Assemble isolated candidate and original vector drafts
+        run: |
+          python3 -m pip install --quiet cairosvg pillow
+          python3 qa/compose.py
+          python3 qa/draw-pets.py
+          node --check candidate/pet/client.js
+          node --check candidate/pet/index.js
+          node --check candidate/pet/controller.js
+          tar -czf candidate-source.tgz --exclude=.git candidate qa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pet-candidate-source
+          path: candidate-source.tgz
+          retention-days: 7
+  web:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pet-candidate-source
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install actual DSH and candidate in isolated profile
+        run: |
+          tar -xzf candidate-source.tgz
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          mkdir -p evidence/package trial/home trial/workspace
+          git -C trial/workspace init -q
+          npm pack ./candidate --ignore-scripts --json --pack-destination evidence/package > evidence/pack.json
+          export PATH="$PWD/payload/node-bin:$PWD/payload/runtime/node_modules/.bin:$PATH"
+          DSH_HOME="$PWD/trial/home" dsh plugin --profile web add "$PWD/evidence/package/dsh-kujira-persona-1.7.0-alpha.1.tgz" > evidence/install.log 2>&1
+          npm install --prefix qa --no-audit --no-fund playwright
+      - name: Actual UI, model picker, tasks and simulated usage
+        run: node qa/ui-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pet-web-evidence
+          path: evidence
+          retention-days: 14
+          if-no-files-found: warn
+  windows:
+    needs: prepare
+    runs-on: windows-2022
+    timeout-minutes: 8
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pet-candidate-source
+      - name: Compile only the native display helper
+        shell: pwsh
+        run: |
+          tar -xzf candidate-source.tgz
+          New-Item -ItemType Directory -Force candidate/pet/native/win-x64 | Out-Null
+          $file=Join-Path $PWD 'qa/KujiraPet.cs'
+          $s=[IO.File]::ReadAllText($file)
+          $s=$s.Replace('public static void Main(){','public static void Main(){ Console.InputEncoding=new UTF8Encoding(false); Console.OutputEncoding=new UTF8Encoding(false);')
+          $s=$s.Replace('Topmost=true;ShowInTaskbar=false;','Topmost=true;ShowActivated=false;ShowInTaskbar=false;')
+          [IO.File]::WriteAllText($file,$s,[Text.UTF8Encoding]::new($false))
+          $fw='C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
+          & "$fw\csc.exe" /nologo /target:winexe /platform:anycpu /out:candidate/pet/native/win-x64/KujiraPet.exe /reference:"$fw\WPF\PresentationFramework.dll" /reference:"$fw\WPF\PresentationCore.dll" /reference:"$fw\WPF\WindowsBase.dll" /reference:"$fw\System.Xaml.dll" /reference:"$fw\System.Web.Extensions.dll" qa/KujiraPet.cs
+          if($LASTEXITCODE -ne 0){throw 'Native compile failed'}
+      - name: Real Windows single-window lifecycle and skin switching
+        shell: pwsh
+        run: ./qa/native-test.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pet-windows-evidence
+          path: |
+            candidate/pet/native/win-x64/KujiraPet.exe
+            evidence
+          retention-days: 14
+          if-no-files-found: warn

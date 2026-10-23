@@ -1,0 +1,1 @@
+{"tool_calls":[{"name":"persona_edit","arguments":{"action":"replace","scope":"world","file":"96-自补-世界观.md","oldText":"龙娘（GPT）与猫猫（Gemini）每周六一起烤饼干。","newText":"龙娘（GPT）与猫猫（Gemini）每周日一起烤饼干。"}},{"name":"persona_edit","arguments":{"action":"replace","scope":"persona","file":"90-记忆.md","oldText":"我喜欢柚子茶。","newText":"我喜欢乌龙茶。"}}]}

@@ -1,6 +1,6 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "1.6.2",
+  "version": "2.0.0",
   "description": "DSH AI 人设插件：随模型切换角色，共享世界观、独立人物档案，可通过对话扩充和修改",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
@@ -26,7 +26,8 @@
     ".": "./index.js",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
-    "./icon": "./icon.svg"
+    "./icon": "./icon.svg",
+    "./client": "./pet/client.js"
   },
   "files": [
     "index.js",
@@ -43,11 +44,23 @@
     "LICENSE",
     "NOTICE.md",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "pet/*.js",
+    "pet/assets/*.svg",
+    "pet/assets/*.png",
+    "pet/native/win-x64/KujiraPet.exe",
+    "pet/NOTICE.md"
   ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-plugin-manager",
+        "@deepseek-ai/dsh-client-ui-model-selection"
+      ]
     }
   }
 }

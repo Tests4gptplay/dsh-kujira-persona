@@ -5,6 +5,7 @@ import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { openDossier } from './dossier.js'
 import { openCatalog } from './catalog.js'
+import { applyPet } from './pet/index.js'
 
 export const inject = ['systemPrompt']
 const SECTION = 'whale:persona'
@@ -39,6 +40,7 @@ export function apply(ctx, rawConfig) {
   const config = configuration(rawConfig)
   if (!config.enabled) return
   const catalog = openCatalog(config)
+  applyPet(ctx, { catalog, home: HOME })
   const world = openDossier({ ...config, id: 'world', kind: 'world', label: '全局世界观',
     personaDir: config.worldDir, memoryFile: null, extraText: '', packagedDir: join(HERE, 'world') })
   const shared = config.sharedDir ? openDossier({ ...config, id: 'shared', kind: 'shared',

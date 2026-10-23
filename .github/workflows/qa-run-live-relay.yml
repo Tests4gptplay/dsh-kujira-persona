@@ -1,0 +1,46 @@
+name: Live DSH Web with assistant relay
+run-name: Isolated DSH Web session and conversational Kujira trial
+'on':
+  push:
+    branches: ['qa/live-dsh-relay-20261023']
+    paths: ['.github/workflows/qa-run-live-relay.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  live:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v4
+        with:
+          name: isolated-dsh-runtime
+          run-id: 39917580157
+          github-token: ${{ github.token }}
+          path: runtime-download
+      - name: Prepare actual application and isolated browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
+          tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          node --check qa/live-relay.mjs
+          npm install --prefix qa --no-audit --no-fund playwright
+          qa/node_modules/.bin/playwright install chromium --with-deps
+      - name: Drive real Web UI with manually relayed inference
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node qa/live-relay.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-dsh-evidence
+          path: trial/evidence
+          retention-days: 7
+          if-no-files-found: warn

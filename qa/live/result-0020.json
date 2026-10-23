@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "result": {
+    "model": "private-model-v1",
+    "unmappedHasNoPreset": true,
+    "sharedWorldAvailable": true,
+    "noWhalePrivateTea": true,
+    "userPrompt": "给当前模型创建原创角色星璃，ID 用 stella：喜欢看星星，说话温柔简洁。让当前模型使用她，大家的共同约定照旧。完成后像她一样打个招呼。"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\nRunning\n给当前模型创建原创角色星璃\nnow\n你是谁？猫猫是谁？我们烤饼\nnow\n小鲸，重新开一段聊天：我们\n3min\n小鲸，猫猫和龙娘分别是谁？\n6min\nMore\n给当前模型创建原创角色星璃\nStandard mode\nChat\nTrajectory\n给当前模型创建原创角色星璃，ID 用 stella：喜欢看星星，说话温柔简洁。让当前模型使用她，大家的共同约定照旧。完成后像她一样打个招呼。\n09:27\nDeep diving\nDeep diving for 6s ···\nMessage or run a task, / commands, @ files or sessions\nWorkspace Write\nprivate-model-v1 [TEST RELAY]",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      },
+      {
+        "tag": "DIV",
+        "placeholder": null,
+        "aria": "Message or run a task, / commands, @ files or sessions",
+        "role": "textbox",
+        "type": null
+      },
+      {
+        "tag": "INPUT",
+        "placeholder": null,
+        "aria": null,
+        "role": null,
+        "type": "file"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "More actions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Open right sidebar",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Copy",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add files or run commands",
+        "title": null
+      },
+      {
+        "text": "Workspace Write",
+        "aria": "Access mode, current: Workspace Write",
+        "title": null
+      },
+      {
+        "text": "private-model-v1 [TEST RELAY]",
+        "aria": "Select model, current private-model-v1 [TEST RELAY]",
+        "title": "private-model-v1 [TEST RELAY]"
+      },
+      {
+        "text": "",
+        "aria": "Stop generating",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": [
+    "0009"
+  ]
+}

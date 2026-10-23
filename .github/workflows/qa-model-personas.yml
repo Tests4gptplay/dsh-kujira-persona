@@ -18,7 +18,7 @@ jobs:
     env:
       SOURCE_SHA: 92774a2fa1cc1d38c90cc9cdfa8a3ae561a0a243
       SOURCE_DIR: ${{ github.workspace }}/consumer/node_modules/dsh-kujira-persona
-      DSH_HOME: ${{ runner.temp }}/kujira-isolated-profile
+      DSH_HOME: ${{ github.workspace }}/isolated-dsh-home
     defaults:
       run:
         shell: bash

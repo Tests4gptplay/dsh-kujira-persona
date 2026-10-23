@@ -1,0 +1,42 @@
+name: Pet source references
+'on':
+  push:
+    branches: [qa/single-model-pet-20261023]
+    paths: [.github/workflows/pet-reference.yml]
+permissions:
+  contents: read
+jobs:
+  references:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 6a9649612dc99ed8030aa5e961af42a37902598f
+          persist-credentials: false
+          path: references/kujira
+      - uses: actions/checkout@v4
+        with:
+          repository: QCYTSN/dsh-dafeiyu
+          ref: 43542f8fc9567f45ce98534d407abca2ff4ff74e
+          persist-credentials: false
+          path: references/dafeiyu
+          sparse-checkout: |
+            src
+            lib
+            runtime
+            native
+      - uses: actions/checkout@v4
+        with:
+          repository: Tests4gptplay/dsh-codex-native
+          ref: 5b59a4feab1dfbf52f261c5134bd8cd4256a6f38
+          persist-credentials: false
+          path: references/codex-native
+          sparse-checkout: |
+            src
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pet-pinned-references
+          path: references
+          retention-days: 3
+          if-no-files-found: error

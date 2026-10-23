@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "result": {
+    "requestId": "0007",
+    "model": "private-model-v1",
+    "currentPersona": "星璃",
+    "hasSharedFridayPlan": true,
+    "hasOwnCharacter": true,
+    "sharedHasCustomName": true,
+    "sharedHasPrivateFullDescription": false,
+    "hasWhalePrivateFood": false,
+    "hasGPTPrivateNickname": false,
+    "registry": {
+      "v": 1,
+      "personas": [
+        {
+          "id": "stella",
+          "label": "星璃"
+        }
+      ],
+      "bindings": [
+        {
+          "provider": "trial-relay",
+          "model": "private-model-v1",
+          "persona": "stella"
+        }
+      ]
+    },
+    "customFile": "# 星璃\n\n> 用户自定义角色，不是模型厂商的官方设定。\n\n我是用户自定义的星璃，喜欢看星星，说话温柔但简洁。\n",
+    "dshSourceCommit": "687f282e8625c6b8d11ff58211a90524be2e4317\n"
+  },
+  "snapshot": {
+    "url": "http://127.0.0.1:3080/",
+    "text": "New Session\nPlugins\nAutomation tasks\nWorkspaces\nworkspace\n请给当前模型创建我的原创角\n3min\n你是谁？猫猫是谁？我们每周\n4min\n小鲸，猫猫和龙娘分别是谁？\n9min\nMore\nPlugins\nInstall, enable, and configure plugins\nAdd plugin\nBuilt-in plugin settings\nSubagent\nSet Subagent recursion depth, count, and models.\nWeb search\nSet up the DeepSeek search provider.\nAgent loop\nControl how the Agent dispatches tool calls.\nShell\nLimit how long each command may run and how much it may output.\nExperimental plugins\nMore\nAgent Teams\nExperimental\nEnable team collaboration, team tools, the member roster, and the shared task board.\nVoice input\nExperimental\nTranscribe recordings locally with SenseVoice; first use requires installing dependencies\nAuto Authorization Review\nExperimental\nAdd an Auto review permission mode that uses the model to assess authorization before each tool call.\nDeveloper Tools\nExperimental\nInspect and debug raw session data, grouped chat messages, and the NodeJS backend.\nInstalled plugins\nAI Gijinka · Shared World, Individual Personas\nYOUR CHOICES COME FIRST: This is a starting point for your own characters and stories. Preset names, personalities, relationships, role bindings and update suggestions can all be changed. When they conflict with your current explicit request, your request takes precedence. Later research and persona updates should follow your choices rather than reset your character to the defaults. TWO PERSPECTIVES: world holds how others see a character: familiar names, appearance, community jokes and basic relationships. persona holds who that character is: personality, preferences, inner attitudes and personal memories. Includes basic material for 14 families. Versions normally share one role; undocumented models remain unassigned until you choose or create a persona. JUST ASK IN CHAT: Say ‘Add this relationship to our shared lore’, ‘Use this nickname from now on’, or ‘Make my current persona more concise and save the change.’ The AI edits the relevant content; successful saves update the cache for the next request without making you refresh or restart DSH. Replies should stay natural and consistent with the current character, not turn into a technical checklist. Ask for storage details when you need them. MAKE IT YOUR OWN: Say ‘Create Stella with this description and bind the current model’, or ‘Bind all my-model-* versions to Stella and keep the same memories.’ Names, personalities and model bindings can all be revised through conversation. A custom character's name appears in the shared roster; you decide which background and relationships to share. LOADING AND UPDATES: instructions/README.md is actually included in this plugin's prompt so the AI receives the editing guidance. Plugin-owned saves update the affected cache directly; edits made with other file tools need one targeted reload. Ordinary chat reuses cached content, without periodic refreshes, session clearing or DSH restarts. Independently running DSH instances do not synchronize in the background. Routing uses actual provider/model IDs. GPT/Codex variants normally share the dragon persona, and you can customize their role bindings. Configure new API providers in DSH Settings; this plugin does not handle credentials. /persona help explains editing; /persona world shows the shared material. Disabling allowAgentWrite removes the conversational write tools.",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "placeholder": "Search session names",
+        "aria": null,
+        "role": null,
+        "type": "text"
+      }
+    ],
+    "buttons": [
+      {
+        "text": "",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Collapse sidebar",
+        "title": null
+      },
+      {
+        "text": "New Session",
+        "aria": "New session",
+        "title": null
+      },
+      {
+        "text": "Plugins",
+        "aria": "Plugins",
+        "title": null
+      },
+      {
+        "text": "Automation tasks",
+        "aria": "Automation tasks",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Search sessions",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "View options",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Add workspace",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": "Account menu",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "About plugins",
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Refresh",
+        "title": null
+      },
+      {
+        "text": "Add plugin",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "",
+        "aria": "Choose how to add a plugin",
+        "title": null
+      },
+      {
+        "text": "Subagent",
+        "aria": "View Subagent",
+        "title": null
+      },
+      {
+        "text": "Web search",
+        "aria": "View Web search",
+        "title": null
+      },
+      {
+        "text": "Agent loop",
+        "aria": "View Agent loop",
+        "title": null
+      },
+      {
+        "text": "Shell",
+        "aria": "View Shell",
+        "title": null
+      },
+      {
+        "text": "More",
+        "aria": null,
+        "title": null
+      },
+      {
+        "text": "Agent Teams",
+        "aria": "View Agent Teams",
+        "title": null
+      },
+      {
+        "text": "Voice input",
+        "aria": "View Voice input",
+        "title": null
+      },
+      {
+        "text": "Auto Authorization Review",
+        "aria": "View Auto Authorization Review",
+        "title": null
+      },
+      {
+        "text": "Developer Tools",
+        "aria": "View Developer Tools",
+        "title": null
+      },
+      {
+        "text": "AI Gijinka · Shared World, Individual Personas",
+        "aria": "View AI Gijinka · Shared World, Individual Personas",
+        "title": null
+      }
+    ],
+    "pageErrors": []
+  },
+  "pending_requests": []
+}

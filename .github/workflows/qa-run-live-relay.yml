@@ -30,6 +30,15 @@ jobs:
           set -euo pipefail
           (cd runtime-download && sha256sum -c dsh-isolated-runtime.sha256)
           tar -xzf runtime-download/dsh-isolated-runtime.tar.gz
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('qa/live-relay.mjs')
+          s=p.read_text()
+          s=s.replace("const patchPath = join(root, 'trial.patch.yml')", "const patchPath = join(home, 'profiles', 'web', 'cordis.patch.yml')")
+          s=s.replace("['web','--no-open','--patch',patchPath]", "['web','--no-open']")
+          s=s.replace("name: 'Current assistant · test relay'", "displayName: 'Current assistant · test relay'")
+          p.write_text(s)
+          PY
           node --check qa/live-relay.mjs
           npm install --prefix qa --no-audit --no-fund playwright
           qa/node_modules/.bin/playwright install chromium --with-deps

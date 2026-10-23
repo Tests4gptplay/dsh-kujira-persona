@@ -49,6 +49,11 @@ public class KujiraPet : Window {
     bool nextReduced=Bool(cfg,"reducedMotion");string nextActivity=Str(cfg,"activity","normal");if(!initialized||reduced!=nextReduced||activity!=nextActivity){reduced=nextReduced;activity=nextActivity;StartMotion();}
     var sb=new StringBuilder(persona+"\n"+Str(task,"text","等你开始"));
     var progress=Map(Get(task,"progress"));if(progress.Count>0)sb.Append("\n"+Get(progress,"done",0)+" / "+Get(progress,"total",0)+" 项");
+    var stats=Map(Get(state,"stats"));
+    if(Bool(cfg,"showStats")&&phase!="idle"){
+      var readings=Get(stats,"lines") as IEnumerable;
+      if(readings!=null){sb.Append("\n");foreach(var line in readings)sb.Append("\n"+line);}
+    }
     if(Bool(cfg,"showUsage")&&usage.Count>0){sb.Append("\n\n"+Str(usage,"title"));var lines=Get(usage,"lines") as IEnumerable;if(lines!=null)foreach(var line in lines)sb.Append("\n"+line);}
     text.Text=sb.ToString();var bm=Str(cfg,"bubble","always");bubble.Visibility=bm=="hidden"||(bm=="tasks"&&phase=="idle")?Visibility.Hidden:Visibility.Visible;
     if(initialized&&Bool(cfg,"sound")&&phase!=lastPhase&&(phase=="completed"||phase=="error"))System.Media.SystemSounds.Asterisk.Play();

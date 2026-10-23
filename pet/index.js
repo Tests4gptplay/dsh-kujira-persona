@@ -2,6 +2,7 @@
 import { readFile,writeFile,mkdir,rename } from 'node:fs/promises'
 import { dirname,join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { STATS_KEYS } from './stats.js'
 import { PetController } from './controller.js'
 import { createUsageReader } from './usage.js'
 import { NAMES } from './model.js'
@@ -15,7 +16,10 @@ export function applyPet(ctx,{catalog,home}){
       let config={}
       try{config=JSON.parse(await readFile(path,'utf8'))}catch(e){if(e.code!=='ENOENT')scope.logger?.warn?.('Kujira 桌宠设置暂时无法读取，保持关闭')}
       if(closed)return null
-      controller=new PetController({config,resolvePersona:route=>catalog.resolve(route),queryUsage:createUsageReader(scope),persist:async value=>{
+      controller=new PetController({config,resolvePersona:route=>catalog.resolve(route),queryUsage:createUsageReader(scope),readStats:(id,session)=>{
+        const selected=session??scope.sessions.get(id)
+        return selected?scope.get('sessionProjections')?.snapshot(selected,STATS_KEYS).values:undefined
+      },persist:async value=>{
         await mkdir(home,{recursive:true});const temp=path+`.${process.pid}.tmp`;await writeFile(temp,JSON.stringify(value,null,2)+'\n');await rename(temp,path)
       }})
       function nativeStatus(renderer,error){if(closed)return;if(controller.renderer!==renderer||controller.nativeError!==error){controller.renderer=renderer;controller.nativeError=error;controller.publish()}}

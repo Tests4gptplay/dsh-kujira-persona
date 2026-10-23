@@ -37,6 +37,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       return null
     }
     function Usage({value}){return value?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...value.lines.map((t,i)=>h('div',{key:i},t)),...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},`${w.label}重置：${new Date(w.resetAt).toLocaleString()}`))):null}
+    function WorkStats({value}){return value?h('div',{className:'kujira-usage','data-kujira-stats':'session','aria-label':'会话工作统计'},...value.lines.map((line,i)=>h('div',{key:i},line))):null}
     function Settings(){
       const s=usePet(),[error,setError]=useState(''),[busy,setBusy]=useState(false)
       if(!s)return h('section',{className:'kujira-card'},'正在读取桌宠设置…')
@@ -52,7 +53,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         range('scale','角色大小',.55,1.6),range('bubbleScale','气泡大小',.8,1.4),
         choice('activity','活动程度',[['quiet','安静'],['normal','标准'],['lively','活泼']]),
         choice('bubble','气泡显示',[['always','常驻'],['tasks','仅工作与完成状态'],['hidden','隐藏']]),
-        toggle('reducedMotion','减少动态'),toggle('sound','完成与出错提示音'),toggle('showUsage','显示余额或套餐余量'),
+        toggle('reducedMotion','减少动态'),toggle('sound','完成与出错提示音'),toggle('showUsage','显示余额或套餐余量'),toggle('showStats','显示工作统计'),
         row('当前模型',h('span',null,s.route.name+(s.route.model?' · '+s.route.model:''))),
         h('div',{className:'kujira-small'},'形象跟随当前对话的模型；后台任务不会把它换成另一个角色。同一家族各版本保持同一形象。'),
         s.nativeError?h('div',{role:'status'},s.nativeError):null,
@@ -77,7 +78,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         bubble?h('div',{className:'kujira-bubble',style:{position:'absolute',bottom:'95%',right:8,fontSize:13*s.config.bubbleScale},'aria-live':'polite'},
           h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'关闭桌宠',onClick:()=>void call('config',{enabled:false})},'×')),
           h('div',null,s.task.text),s.task.progress?h('div',null,`${s.task.progress.done} / ${s.task.progress.total} 项`):null,
-          s.task.inputTokens+s.task.outputTokens>0?h('div',{className:'kujira-small'},`本轮 ${s.task.inputTokens+s.task.outputTokens} tokens`):null,h(Usage,{value:s.usage})):null,
+          s.config.showStats&&s.task.phase!=='idle'?h(WorkStats,{value:s.stats}):null,h(Usage,{value:s.usage})):null,
         h('img',{src:'/api/kujira-pet/image?id='+encodeURIComponent(s.route.art),alt:s.route.name+' 桌宠',draggable:false,
           className:s.config.reducedMotion?'':reaction?'kujira-hop':'kujira-live',style:{pointerEvents:'auto',cursor:drag.current?'grabbing':'grab',animationDuration:reaction?'.65s':s.config.activity==='quiet'?'9s':s.config.activity==='lively'?'2.8s':'5s'},onPointerDown:down,onPointerMove:move,onPointerUp:up,onPointerCancel:()=>{drag.current=null}}))
     }

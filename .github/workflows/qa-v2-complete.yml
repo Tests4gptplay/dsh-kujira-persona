@@ -1,4 +1,5 @@
 name: Kujira 2.0.0 code completion checks
+run-name: Complete code with exact model-menu targeting
 'on':
   push:
     branches: [qa/v2-code-completion-20261023]
@@ -31,6 +32,7 @@ jobs:
           python3 qa/finish-v2-extra.py
           python3 qa/workstats-v2.py
           python3 qa/prepare-final-fixtures.py
+          python3 qa/final-picker.py
           mkdir -p evidence
           for f in candidate/*.js candidate/pet/*.js; do node --check "$f"; done
           node --test qa/pet.test.mjs qa/stats.test.mjs qa/final.test.mjs | tee evidence/unit-final.txt

@@ -1,63 +1,43 @@
 # 更新记录
 
+## 1.5.0
+
+- 内置 AI-gijinka 资料库已有的 11 个模型家族文字预设：DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包/Seed；新增角色性格注明为插件原创基础值，不转载原图。
+- 以模型家族稳定 ID 归档，同家族的版本号、大小、推理档位与不同接入通道共用角色及记忆；按实际 provider/model ID 匹配，而非按钮文字或 API 协议。
+- 扩展 GPT / ChatGPT / o 系列 / Codex 命名识别，区分内置 openai-codex 与本地 codex-local；其他明确家族优先按实际模型识别，不把多厂商中转站整组当 GPT。
+- 新增 persona_manage：按用户对话创建自定义角色、绑定当前或指定模型、解除用户绑定；models 按需读取 DSH 实际供应商/模型目录及对应角色。
+- persona_edit 新增 read 和可选明确目标 persona；保留原有修改/记忆工具，默认写入归属捕获在请求边界，不因同轮新增绑定而串角色。
+- 更新 DSH 安装后使用的中英文 meta.description，说明通过对话补充、修改、自定义角色与模型绑定；补充 package.json 导出以支持宿主元数据读取。
+- 保留 v1.4.0 原有人设文件、用户目录、包名、插件 ID 与同步行为。零新增运行依赖，无安装构建钩子；测试与发布工具留在独立 QA 分支。
+
 ## 1.4.0
 
-- 按每次提示词组装中宿主确定的 provider/model，自动选择 DeepSeek 鲸鱼娘或 GPT 白龙娘；支持 codex-local、显式 modelRules 和固定角色模式。
-- GPT 预设为基于 ai-gijinka-art-world 的独立文字档案，不打包第三方图片；性格与表达明确标为插件原创。
-- 角色学习分别持久化；persona_edit 跟随发起请求的角色，人工 /remember 跟随当前会话选择。
-- 旧鲸鱼娘目录、默认人设、包名与插件 ID 保留原样；GPT 默认写入 ~/.dsh/personas/gpt。
-- 旧 memoryFile 与 extraText 配置仍归鲸鱼娘；sharedDir 是显式选择的只读共享偏好目录。
-- 通过 persona_edit 删除的内置文件不会在同步时复生；滚动备份和用户修改保留机制继续使用。
-- 运行包不带测试、验证脚本、CI 工作流、开发依赖或安装构建脚本；不加入后台轮询、watchdog、技能/工具拦截或宿主参数改写。
+- 按本次 provider/model 自动选择 DeepSeek 鲸鱼娘或 GPT 白龙娘；支持 codex-local、显式规则及固定角色模式。
+- GPT 文字预设依据 ai-gijinka-art-world，性格注明为原创，未打包第三方图片。
+- 角色学习分别持久化，旧鲸鱼娘目录和默认资料原位保留。
+- 通过工具删除的内置文件不在同步时复生；用户修改保留与滚动备份继续使用。
+- 安装包不带 QA、CI、开发依赖或安装构建脚本。
 
 ## 1.3.1
 
-- **修复**：同步状态此前把「用户自己的哈希」和「插件写入的哈希」记在同一个字段，
-  导致升级时把你改过的文件当成自己写的、覆盖回出厂版
-- 状态记录改成 `{ hash, source: 'seed' | 'user' }`：只有 source 为 `seed` 且哈希未变才会被覆盖
-- 旧格式（纯字符串）自动迁移：文件内容与包内一致记为 `seed`，不一致记为 `user`
-- 同步覆盖前也会留 `.kujira-backup/` 备份
+- 同步状态改为 `{ hash, source: 'seed' | 'user' }`，只更新插件仍拥有且用户未改动的文件，避免覆盖用户设定。
+- 迁移旧版纯哈希记录；同步替换前保留滚动备份。
 
 ## 1.3.0
 
-- **人设可以改、可以删了**：`persona_append` 换成 `persona_edit`，四个动作
-  `append` / `replace` / `delete` / `list`
-- `replace` 与 `delete` 按 `oldText` 定位，要求唯一匹配；找不到或匹配到多处都会报错，不会误伤
-- `delete` 不给 `oldText` 时删整个文件；给 `file` 的 `append` 可以写任意 `*.md`
-- 路径护栏：`file` 不接受路径，`\`、`/`、`..` 一律拒绝，`_` 与 `.` 开头不可写
-- 改和删之前自动留一份 `.kujira-backup/<文件名>`，删错能捞回来
-- 注入文本改成「可以查、可以改、可以删」，并写明新旧冲突时改掉旧的，别留两份
+- persona_append 升级为 persona_edit，支持 append / replace / delete / list。
+- 修改与删除要求 oldText 唯一匹配；保留目录内文件名限制与单文件滚动备份。
 
 ## 1.2.0
 
-- **升级会同步，但不动你的修改**：启动时逐文件比对哈希。缺失的补上；你没动过的用新版覆盖；
-  你改过的一律保留，并记成你的版本，以后也不再覆盖
-- 哈希记录在 `<人设目录>/.kujira-state.json`，只记插件写入的内容，不存用户数据
-- 新增命令 `/persona sync`，手动触发一次同步
-- 新增配置 `sync`（默认 `true`）；关掉后只补缺失文件，不覆盖任何已存在的
-- `/persona` 增加同步结果一栏
+- 内置文件同步与用户修改保留；增加 /persona sync 和 sync 配置。
 
 ## 1.1.0
 
-- **默认目录改成用户级**：`~/.dsh/persona`（或 `$DSH_HOME/persona`）。首次运行把内置的 10 个模块铺进去，
-  不再需要先手动建目录；换机器、升级插件都不丢
-- **新增工具 `persona_append`**：模型可以自己把查到的资料写回人设，四类目标文件，不接受路径参数，
-  只能写这四类；写入发生在 Host 进程，因此目录在工作区外也能补
-- 注入文本里增加了「可写协议」：人设目录、可写方式、只追加不改他人条目、标日期与来源
-- `/remember` 改成同一套追加逻辑，也能写进 `90-记忆.md`
-- 新增配置 `allowAgentWrite`（默认 `true`）与 `seed`（默认 `true`）
-- `/persona` 增加「AI 可写」一栏
+- 默认存储改为 ~/.dsh/persona；首次铺设默认文字。
+- 增加 AI 写入工具、人工 /remember 及 allowAgentWrite / seed 配置。
 
 ## 1.0.0
 
-首个公开版本。
-
-- 全局人设注入：一个 `whale:persona` 系统提示词分区，作用域覆盖整个 profile 的所有会话
-- 人设来自目录：扫描 `persona/*.md`，按文件名顺序拼接，`_` 开头跳过
-- 热更新：改文件、加文件，下一轮请求生效，不重装不重启
-- 按 mtime 记忆化，内容不变时不打断前缀缓存
-- `interpolate: false`：人设里的 `{{…}}` 不会被当成提示词变量
-- 读取失败降级为空分区，不影响请求
-- 命令：`/persona`、`/persona files`、`/persona show`、`/persona sync`、`/remember`
-- 内置默认人设：10 个模块（身份、外观、性格、说话、世界观分层、关系、原创设定、记忆协议、资料源、记忆）
-- 许可：CC BY-NC-SA 4.0，保留「上善无形 → ZipZipPipe」署名链
+- 一个 whale:persona 系统提示词段，按文件名读取可编辑 Markdown，下一次请求生效。
+- 初版鲸鱼娘模块与 CC BY-NC-SA 4.0，保留上善无形 → ZipZipPipe 署名链。

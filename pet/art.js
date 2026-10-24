@@ -1,5 +1,6 @@
 /** Reviewed original sprite rectangles. PNG source pixels remain unmodified. */
 import {buildStandardManifest} from './standard-manifest.js'
+import {SECONDARY_ART} from './art-secondary.js'
 
 // One scale for an entire authored action; anchors fix the layout ground, not each frame's height.
 const frames=(sheet,rows,scale=1,lift=[])=>rows.map(([x,y,w,h,ax,ay],i)=>({
@@ -64,6 +65,7 @@ export const ART = {
       idle:loop(cycle(stellaIdle,[0,1,2,1,0]),[3000,100,80,120,450]),
       working:loop(cycle(stellaWork,[0,1,2,1,0]),[550,300,250,300,500])
     }
-  })
+  }),
+  ...SECONDARY_ART
 }
 export const artFor=id=>Object.hasOwn(ART,id)?ART[id]:null

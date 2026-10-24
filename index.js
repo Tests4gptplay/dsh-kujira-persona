@@ -185,7 +185,7 @@ export function apply(ctx, rawConfig) {
       description: 'reload 仅用于外部修改绑定索引后重读一次；本工具 create/bind/unbind 成功已自动更新缓存，不再重复 reload。用户明确要求时，通过对话创建角色、把模型绑定到角色或解除自定义绑定。list 查角色与规则；models 从 DSH 当前宿主读取真实供应商/模型目录和分类。供应商显示名、provider ID、model ID 不混用；同家族各版本共用角色，不为版本号另建角色。这里只添加人设绑定，不新增 API 服务或处理密钥。',
       parameters: { type: 'object', properties: {
         action: { type: 'string', enum: ['list', 'models', 'create', 'bind', 'unbind', 'reload'] },
-        persona: { type: 'string', description: '稳定角色 ID，例如 gpt / qwen / 自定义 stella；bind 可用 none 表示不启用人设。' },
+        persona: { type: 'string', description: '稳定角色 ID，例如 gpt / qwen / 已创建的自定义角色；bind 可用 none 表示不启用人设。' },
         name: { type: 'string', description: 'create 的显示名称。' },
         text: { type: 'string', description: 'create 的基本人设；写明用户自定义，不虚构来源。' },
         provider: { type: 'string', description: '实际 provider ID，不是显示名称。models 可按它筛选；绑定时支持用户明确要求的 * 通配符。' },

@@ -17,7 +17,7 @@ export const BUILTINS = [
   { id: 'mistral', label: 'Mistral 娘' },
   { id: 'hunyuan', label: '混元娘' },
   { id: 'mimo', label: 'MiMo 娘' },
-  { id: 'stella', label: '星璃' },
+  { id: 'stella', label: '星璃', hidden: true },
 ]
 
 const FAMILIES = [
@@ -124,7 +124,7 @@ export function openCatalog(config) {
   return {
     path,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn) },
-    async list() { await ready(); await tail; return { personas: entries(state), bindings: [...state.bindings] } },
+    async list() { await ready(); await tail; return { personas: entries(state).filter(p => !p.hidden), bindings: [...state.bindings] } },
     async get(id) { await ready(); await tail; return selected(state, id) },
     reload() {
       const work = enqueue(async () => { state = await load(); notify(); return { personas: entries(state), bindings: state.bindings } })

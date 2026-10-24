@@ -7,8 +7,10 @@
 - 显示 DSH 工作统计，与 DeepSeek 余额／Codex Native 套餐分开。
 - 补齐窗口内容布局、位置保存、刷新设置和重复网络故障时的上次结果。
 - 接续 1.6.3 的公共学习指引：长期偏好主动保存、个人与共同偏好分开、保存成功再确认，以及有依据地行动和必要性优先；保留 2.0.0 版本与已有功能。
-- 美术仍为占位，待用户另行讨论；未发布、未更新市场。
-- 测试、截图与模拟仅在 QA；报告：https://github.com/Tests4gptplay/dsh-kujira-persona/blob/qa/v2-code-completion-20261023/qa/V2_CODE_REPORT.md
+- 完成 14 个公开 AI 角色及未定义模型回退形象的桌宠动作接入；共 40 张动画图集、88 个动作片段，按各角色资料设计任务、结果与交互动作，部分状态采用标准功能动作。
+- Web 与 Windows 共用逐帧动画，支持思考、查找、编辑、执行、检查、等待、完成、出错、拖放和触摸交互，并新增离线交互试玩。
+- 完成独立 DSH 宿主的实际工具联动、人设修改保存与模型选择器联动检查，另有 15 分钟播放器持续运行记录。详情见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)。
+- 2.0.0 功能候选已保存，正式发行版与商店条目将在发布时更新。
 
 ## 1.6.3
 

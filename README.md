@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **2.0.0 开发分支，尚未发布。** 开发进度见 [本轮记录](docs/development/PROGRESS_20261024.md)，正式版本的安装方法见下方。
+> **2.0.0 功能候选。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
 
 ## 世界观与人物
 
@@ -60,15 +60,9 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 
 ## 离线动作试玩
 
-保留 `index.html` 与相邻的 `assets` 文件夹，双击即可打开试玩，无需 npm、服务器或网络。可以切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
+离线试玩独立提供 ZIP 压缩包，解压后保留 `index.html` 和 `assets` 的目录结构，双击打开即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
 
-离线试玩用于手动预览角色动作和任务阶段，实际任务联动在 DSH 插件中运行。试玩复用插件的播放器和动画图集，源码工作副本可用 Node.js 构建：
-
-```bash
-node scripts/qa/build-playable.mjs ./trial
-```
-
-图集或播放器更新后，重新构建即可更新试玩。运行环境、检查结果和源码散列汇总在 [开发记录](docs/development/PROGRESS_20261024.md)；开发脚本位于 `scripts/qa`，安装包收录运行文件、使用中的图集和许可文件。
+试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)。
 
 ## 安装和升级
 

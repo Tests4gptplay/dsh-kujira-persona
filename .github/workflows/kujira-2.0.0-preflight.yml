@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
           python3 -m pip install --user Pillow --break-system-packages
           python3 scripts/qa/state-art-bounds.py
-          python3 scripts/qa/minimax-response-rgba-check.py
+          # Original MiniMax RGBA cells were checked before removing the obsolete v001 atlas.
       - name: Build and inspect distributable
         shell: bash
         run: |

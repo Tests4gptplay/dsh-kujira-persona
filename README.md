@@ -2,11 +2,11 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **2.0.0-alpha.2 测试版。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
+> **Kujira 2.0.0。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
 ## 世界观与人物
 
-**世界观**是大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。比如与 DeepSeek聊天时，她也知道“猫猫”通常指 Gemini、“白龙”指 GPT。故事发生在哪里、角色如何相处，都可以由你继续设定。
+**世界观**是大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。比如与 DeepSeek 聊天时，她也知道“猫猫”通常指 Gemini、“白龙”指 GPT。故事发生在哪里、角色如何相处，都可以由你继续设定。
 
 **人物**是每个角色自己的性格、喜好和记忆。切换模型家族时切换角色；同一家族的不同版本默认共用一个角色和已有记忆。内置多种 AI 角色基础预设，也支持通过对话创建与调整自己的角色。
 
@@ -32,7 +32,7 @@
 
 各角色都有待机、工作、等待和结果反应。部分角色的思考、查找、编辑等阶段共用中性工作动作；性格尚未明确的角色采用阅读、工作、等待等标准功能动作。
 
-GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、拖起和落地动作。MiMo 通过眨眼和工作姿态表现过程，完成与出错时保持各自的结果姿态。
+GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也依照自身图集表现不同任务阶段。新图集按不同人物的动作特点分别编排。
 
 动画图集依据 AI-gijinka 资料库和角色参考，通过 AI 生成与整理，保留各角色的发型、服饰、配件和识别特征。来源与使用条件见 [桌宠说明](pet/NOTICE.md)。
 
@@ -64,7 +64,7 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 
 离线试玩独立提供 ZIP 压缩包，解压后保留 `index.html` 和 `assets` 的目录结构，双击打开即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
 
-试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)。
+试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/development/PROGRESS_20261024.md)。
 
 ### 设置中的人物档案入口（2.0.0）
 
@@ -72,24 +72,14 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 
 修改世界观、人物性格、记忆、角色绑定或档案存放位置，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
 
-## 2.0.0-alpha.2 测试更新地址
-
-在 DSH 的插件管理中添加以下 GitHub 来源即可安装当前测试版本：
-
-```text
-github:Tests4gptplay/dsh-kujira-persona#v2.0.0-alpha.2
-```
-
-开发中的最新版本可使用 `github:Tests4gptplay/dsh-kujira-persona#feat/v2.0.0-single-model-pet`。`v2.0.0-alpha.2` 为固定的测试版本分支；后续改进将另建版本。
-
 ## 安装和升级
 
-以下为正式版本 v1.6.2 的安装方法。
+以下为 **v2.0.0** 的安装与升级方法。
 
 DSH Desktop：打开 **插件 → 添加插件**，输入：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v1.6.2
+github:Tests4gptplay/dsh-kujira-persona#v2.0.0
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
@@ -97,7 +87,7 @@ github:Tests4gptplay/dsh-kujira-persona#v1.6.2
 Web 版安装命令：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v1.6.2'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.0.0'
 ```
 
 Web 与 Desktop 分别安装。[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 也提供备用 `.tgz` 安装包。

@@ -4,7 +4,7 @@ const DATA={
   "qwen": {
     "sheets": {
       "qwen-core-v1": "qwen-core-v1.png",
-      "qwen-status-v1": "qwen-status-v1.png"
+      "qwen-status-v1": "qwen-status-v2.png"
     },
     "clips": {
       "idle": {
@@ -229,12 +229,13 @@ const DATA={
         ],
         "scale": 0.86
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "kimi": {
     "sheets": {
       "kimi-core-v1": "kimi-core-v1.png",
-      "kimi-status-v1": "kimi-status-v1.png"
+      "kimi-status-v1": "kimi-status-v2.png"
     },
     "clips": {
       "idle": {
@@ -459,7 +460,8 @@ const DATA={
         ],
         "scale": 0.86
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "glm": {
     "sheets": {
@@ -1276,7 +1278,7 @@ const DATA={
   "mistral": {
     "sheets": {
       "mistral-core-v1": "mistral-core-v1.png",
-      "mistral-status-v1": "mistral-status-v1.png"
+      "mistral-status-v1": "mistral-status-v2.png"
     },
     "clips": {
       "idle": {
@@ -1469,7 +1471,8 @@ const DATA={
         ],
         "scale": 0.95
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "deepseek": {
     "sheets": {
@@ -1867,8 +1870,8 @@ const DATA={
   },
   "claude": {
     "sheets": {
-      "claude-core-work-v1": "claude-core-work-v1.png",
-      "claude-status-v1": "claude-status-v1.png"
+      "claude-core-work-v1": "claude-core-work-v2.png",
+      "claude-status-v1": "claude-status-v2.png"
     },
     "clips": {
       "idle": {
@@ -2093,7 +2096,8 @@ const DATA={
         ],
         "scale": 0.84
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "gemini": {
     "sheets": {
@@ -2328,7 +2332,7 @@ const DATA={
   "grok": {
     "sheets": {
       "grok-core-v1": "grok-core-v1.png",
-      "grok-work-v2": "grok-work-v2.png",
+      "grok-work-v2": "grok-work-v3.png",
       "grok-status-v1": "grok-status-v1.png"
     },
     "clips": {
@@ -2538,7 +2542,8 @@ const DATA={
         ],
         "scale": 0.86
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "hunyuan": {
     "sheets": {
@@ -2724,7 +2729,7 @@ const DATA={
   },
   "stella": {
     "sheets": {
-      "stella-status-v1": "stella-status-v1.png",
+      "stella-status-v1": "stella-status-v2.png",
       "stella-core-v1": "stella-core-v1.png"
     },
     "clips": {
@@ -2919,11 +2924,12 @@ const DATA={
     },
     "fallbackSources": {
       "working": "error"
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   },
   "mimo": {
     "sheets": {
-      "mimo-work-v2": "mimo-work-v2.png",
+      "mimo-work-v2": "mimo-work-v3.png",
       "mimo-status-v1": "mimo-status-v1.png",
       "mimo-idle-v3": "mimo-idle-v3.png"
     },
@@ -3036,7 +3042,8 @@ const DATA={
           1100
         ]
       }
-    }
+    },
+    "revision": "anatomy-fix-20261025-2"
   }
 }
 const times=(name,n)=>Array.from({length:n},(_,i)=>name==='idle'?(i===0?2600:i===n-1?550:130):name==='waiting'?(i===0?1100:i===n-1?600:280):name==='success'?(i===n-1?650:200):name==='error'?(i===n-1?850:280):name==='dragging'?150:name==='landing'?(i===n-1?220:95):i===0||i===n-1?500:240)
@@ -3047,7 +3054,7 @@ function manifest(data){
       size:[Math.round(w*clip.scale*100)/100,Math.round(h*clip.scale*100)/100]})),
     durations:clip.durations??times(name,clip.sequence?.length??clip.rows.length),loop:!['success','error','landing','head_pat','poke','tail'].includes(name)
   }]))
-  return buildStandardManifest({revision:'reviewed-20261024-2',canvas:[320,380],sheets:data.sheets,
+  return buildStandardManifest({revision:data.revision??'reviewed-20261024-2',canvas:[320,380],sheets:data.sheets,
     stateMap:{idle:'idle',working:'working'},fallbackSources:data.fallbackSources,clips})
 }
 export const SECONDARY_ART=Object.fromEntries(Object.entries(DATA).map(([id,data])=>[id,manifest(data)]))

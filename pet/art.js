@@ -1,4 +1,4 @@
-/** Reviewed original sprite rectangles. PNG source pixels remain unmodified. */
+/** Reviewed sprite rectangles with anatomy-corrected production atlases. */
 import {buildStandardManifest} from './standard-manifest.js'
 import {SECONDARY_ART} from './art-secondary.js'
 
@@ -32,8 +32,8 @@ const stellaWork=frames('core',[[34,846,267,408,133.5,405],[340,846,273,408,136.
 
 export const ART = {
   gpt:buildStandardManifest({
-    revision:'anatomy-fix-20261025-1',canvas:[320,380],
-    sheets:{core:'gpt-core-v2.png',research:'gpt-research-edit-v1.png',commands:'gpt-command-test-v1.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v1.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png'},
+    revision:'anatomy-fix-20261025-2',canvas:[320,380],
+    sheets:{core:'gpt-core-v3.png',research:'gpt-research-edit-v2.png',commands:'gpt-command-test-v2.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v2.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png'},
     stateMap:{idle:'idle',thinking:'thinking',working:'commanding',waiting:'waiting',success:'success',error:'error'},
     workingActivityMap:{searching:'searching',editing:'editing',commanding:'commanding',testing:'testing'},
     idleMicroClips:['stretch','yawn'],

@@ -3,7 +3,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 export const BUILTINS = [
-  { id: 'deepseek', label: 'DeepSeek · 小鲸' },
+  { id: 'deepseek', label: 'DeepSeek' },
   { id: 'gpt', label: 'GPT' },
   { id: 'gemini', label: 'Gemini · 星猫' },
   { id: 'claude', label: 'Claude' },

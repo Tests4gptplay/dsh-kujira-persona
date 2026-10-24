@@ -39,7 +39,7 @@ test('a drain that fills the pipe preserves the final frame for the next drain',
   pet.child=null;pet.dispose()
 })
 
-test('animated routes send only their atlas frames; custom routes retain the static fallback',()=>{
+test('all native routes use atlas frames; unmapped and custom routes use Stella assets',()=>{
   const pet=new NativePet('/pet',()=>{},()=>{}),written=[]
   pet.child={stdin:{writable:true,writableNeedDrain:false,write(line){written.push(JSON.parse(line));return true}}}
   const state={config:{reducedMotion:true},route:{art:'gpt',sessionId:'one'},task:{phase:'idle'}}
@@ -48,9 +48,12 @@ test('animated routes send only their atlas frames; custom routes retain the sta
   assert.equal(written[0].image,'')
   assert.equal(written[1].type,'frame')
   assert.match(written[1].image,/gpt-core-v1\.png$/)
+  const before=written.length
   pet.send({...state,route:{art:'unknown',sessionId:'one'}})
-  assert.equal(written.at(-1).animated,false)
-  assert.match(written.at(-1).image,/unknown\.png$/)
+  assert.equal(written[before].animated,true)
+  assert.equal(written[before].image,'')
+  assert.equal(written[before+1].type,'frame')
+  assert.match(written[before+1].image,/stella-(?:core|status)-v1\.png$/)
   pet.child=null;pet.dispose()
 })
 

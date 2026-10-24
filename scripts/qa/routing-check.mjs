@@ -15,6 +15,10 @@ test('automatic routing preserves default, configured and explicit user selectio
   const controller=new PetController({config:{enabled:true,showUsage:false},resolvePersona:route=>catalog.resolve(route)})
   const unknown={provider:'neutral-local',model:'unmapped-123',sessionId:'one'}
   try {
+    assert.equal(controller.snapshot().route.art,'stella')
+    assert.equal(controller.snapshot().route.name,'星璃')
+    assert.equal((await catalog.resolve({provider:'',model:''})).id,'stella')
+    assert.equal((await catalog.resolve({provider:'neutral-local',model:''})).id,'stella')
     assert.equal((await catalog.resolve(unknown)).id,'stella')
     assert(!(await catalog.list()).personas.some(p=>p.id==='stella'))
     assert.equal((await catalog.get('stella')).id,'stella')
@@ -29,11 +33,15 @@ test('automatic routing preserves default, configured and explicit user selectio
     await controller.refreshPersona()
     assert.equal(controller.snapshot().route.persona,'user-character')
     assert.equal(controller.snapshot().route.name,'用户角色')
-    assert.equal(controller.snapshot().route.art,'unknown')
+    assert.equal(controller.snapshot().route.art,'stella')
     assert.equal((await openCatalog(config).resolve(unknown)).id,'user-character')
     await catalog.change({action:'bind',persona:'none',use_current_model:true},unknown)
     assert.equal(await catalog.resolve(unknown),null)
-    await controller.refreshPersona();assert.equal(controller.snapshot().route.persona,'none')
+    await controller.refreshPersona();assert.equal(controller.snapshot().route.persona,'stella')
+    assert.equal(controller.snapshot().route.art,'stella')
+    await controller.select({provider:'',model:'',sessionId:'one'})
+    assert.equal(controller.snapshot().route.name,'星璃')
+    assert.equal(controller.snapshot().route.art,'stella')
     const fixed=openCatalog({...config,mode:'fixed',persona:'kimi'})
     assert.equal((await fixed.resolve(unknown)).id,'kimi')
   } finally { controller.dispose();await rm(personasDir,{recursive:true,force:true}) }

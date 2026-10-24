@@ -1,8 +1,8 @@
-import {open,readFile,writeFile,mkdir} from 'node:fs/promises'
+import {open,readdir,writeFile,mkdir} from 'node:fs/promises'
 import {resolve,dirname,sep} from 'node:path'
 import {fileURLToPath,pathToFileURL} from 'node:url'
 import {BUILTINS} from '../../catalog.js'
-import {NAMES} from '../../pet/model.js'
+import {artFor} from '../../pet/art.js'
 import {AnimationPlayer} from '../../pet/animation.js'
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..')
@@ -37,12 +37,10 @@ export async function checkManifestAssets(art,{assets=resolve(root,'pet/assets')
   const dimensions=new Map(),sources=new Set()
   const inAssets=file=>typeof file==='string'&&file.length>0&&resolve(assets,file).startsWith(resolve(assets)+sep)
   for(const id of expected)if(!Object.hasOwn(art,id))issue('missing-character',id,'Built-in character has no raster manifest')
-  for(const id of [...Object.keys(NAMES),'unknown']) {
-    try {
-      const svg=await readFile(resolve(assets,id+'.svg'),'utf8')
-      if(!/<svg\b/.test(svg))issue('invalid-fallback',id,'Referenced fallback file is not SVG')
-    } catch(error) {issue('missing-fallback',id,'Referenced fallback SVG is unavailable',{reason:error.code??error.message})}
-  }
+  // The old flat character placeholders are removed from the shipped asset set.
+  const oldFlat=new Set([...expected,'unknown'].flatMap(id=>[`${id}.png`,`${id}.svg`]))
+  for(const file of await readdir(assets))if(oldFlat.has(file))issue('legacy-static-asset',file,'Legacy flat character art remains in the product asset folder')
+  for(const id of [null,'','unknown','unmapped-model'])if(artFor(id)!==art.stella)issue('stella-route',String(id),'Unmapped routes must resolve to Stella art')
   for(const [id,manifest]of Object.entries(art)) {
     const start=report.errors.length,clips=manifest?.clips??{},sheets=manifest?.sheets??{}
     const character=report.characters[id]={revision:manifest?.revision??null,clipCount:Object.keys(clips).length,frameEntries:0,uniqueSourceRects:0,resolvedStates:{},fallbackSources:manifest?.fallbackSources??{}}

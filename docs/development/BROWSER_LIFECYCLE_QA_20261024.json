@@ -1,0 +1,113 @@
+{
+  "schema": "kujira.browser-lifecycle-qa.v1",
+  "checkedAt": "2026-10-24T11:44:15.178Z",
+  "passed": true,
+  "runtime": {
+    "node": "v24.19.0",
+    "chromium": "151.0.7922.34",
+    "react": "19.3.1"
+  },
+  "environment": "Production React client, SpriteCanvas, AnimationPlayer and PetController in a local HTTP/SSE host fixture; real Chromium and wall clock.",
+  "checks": {
+    "realWallSeconds": 900.000569721,
+    "completedRounds": 100,
+    "characterCount": 15,
+    "reconnects": 11,
+    "mounts": 26,
+    "unmounts": 26,
+    "initialModule503Recovered": true,
+    "moduleRequests": 2,
+    "resizeWithNoStateEvent": true,
+    "audioNodesDisconnectedAfterEnd": true,
+    "rapidTransitionRegression": {
+      "updates": 5000,
+      "maximumLayers": 2,
+      "ordinaryFadeMs": 100,
+      "finalLayers": 1,
+      "dragLandingRestoresLatestWork": true
+    },
+    "frozenResume": {
+      "pauseMs": 800,
+      "drawsAfterResume": 5,
+      "visible": true,
+      "activeRenderTimers": 1
+    },
+    "headlessMinimizeObservation": {
+      "documentHidden": false
+    },
+    "disposed": {
+      "activeRenderTimers": 0,
+      "visibilityListeners": 0,
+      "focusListeners": 0,
+      "resizeListeners": 0,
+      "eventSources": 0,
+      "liveImageObjects": 0,
+      "modelListeners": 0,
+      "audioContexts": 26,
+      "audioClosed": 26,
+      "gainConnects": 226,
+      "gainDisconnects": 226,
+      "oscillatorConnects": 226,
+      "oscillatorDisconnects": 226
+    }
+  },
+  "memory": {
+    "postGcHeapSamplesAfter180Seconds": 12,
+    "postGcHeapRangeBytes": [
+      2596428,
+      2793204
+    ],
+    "disposedFinalHeapBytes": 2744952,
+    "rendererRssSampleCount": 10,
+    "rendererRssRangeKiB": [
+      845856,
+      861796
+    ],
+    "rssScope": "Linux renderer RSS during the latter part of the all-character fixture run, including browser caches. Whole-process sums can count shared pages more than once.",
+    "postGcHeapSeriesBytes": [
+      2596428,
+      2635728,
+      2681240,
+      2680956,
+      2705112,
+      2738748,
+      2773308,
+      2788092,
+      2788468,
+      2767936,
+      2793120,
+      2793204
+    ],
+    "postGcHeapRangeAfter600SecondsBytes": [
+      2767936,
+      2793204
+    ]
+  },
+  "pageErrors": [],
+  "sourceSHA256": {
+    "pet/animation.js": "1ec75792c61bbdaca483e3f98e93197e2bb8488a4a141c208a43512f3b29fd5b",
+    "pet/client.js": "6bd629b0131ed259b3fc9fe4525ed61e5d73305a27a345c11097c703ecd6208f",
+    "pet/sprite-canvas.js": "eedca53a8437815a556deb44ad92eca7fc40eb15cef5ff51f5b86f9200d2b3c2"
+  },
+  "observedBeforeFix": {
+    "initialModule503ThenSseReconnect": {
+      "recovered": false,
+      "moduleRequests": 1
+    },
+    "viewportResize1280To390": {
+      "characterRemainedInsideViewport": false
+    },
+    "soundAfterEnd": {
+      "nodesDisconnected": false
+    },
+    "rapidTransitions": {
+      "updates": 5000,
+      "retainedLayers": 5000
+    }
+  },
+  "cleanup": {
+    "testHostProcessExited": true,
+    "finalRendererDisposed": true,
+    "finalEventSources": 0
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "kujira.packaging-qa.v1",
+  "checkedAt": "2026-10-24T11:48:16.198544+00:00",
+  "passed": true,
+  "artifacts": [
+    {
+      "filename": "Kujira_v2_playable_20261024.zip",
+      "sha256": "670118bf97cfcb921461976653f75888611127e61e52886a5707cfdee38935ad",
+      "bytes": 83567195,
+      "fileCount": 49,
+      "unpackedBytes": 85931472
+    },
+    {
+      "filename": "Kujira_v2_plugin_candidate_20261024.tgz",
+      "sha256": "5f25190394a9534cd00f023e890716fefe0d632a8d0088a52fc0a2fc88a0a5a9",
+      "bytes": 83782115,
+      "fileCount": 137,
+      "unpackedBytes": 86213907
+    }
+  ],
+  "checks": {
+    "playablePngSheets": 40,
+    "playableRelativeDocumentationLinks": 8,
+    "playableRelativeDocumentationLinksResolve": true,
+    "playableZipCrc": true,
+    "playableQaAndDevelopmentFilesExcluded": true,
+    "pluginSourceBytesMatch": true,
+    "pluginPngFiles": 41,
+    "unknownPngIncluded": true,
+    "nativeExeIncluded": true,
+    "nativeExeSha256": "3e329a54141cae0384df1ecfd8b786ad3e641cb0e569599210d3a01b0270ca84",
+    "pluginQaDevelopmentAndNativeSourcesExcluded": true
+  },
+  "playableRelativeDocumentationLinks": [
+    {
+      "source": "NOTICE.md",
+      "target": "world/_资料来源.md"
+    },
+    {
+      "source": "NOTICE.md",
+      "target": "pet/NOTICE.md"
+    },
+    {
+      "source": "NOTICE.md",
+      "target": "LICENSE"
+    },
+    {
+      "source": "NOTICE.md",
+      "target": "pet/dsh-dafeiyu-LICENSE.txt"
+    },
+    {
+      "source": "pet/NOTICE.md",
+      "target": "../NOTICE.md"
+    },
+    {
+      "source": "pet/NOTICE.md",
+      "target": "dsh-dafeiyu-LICENSE.txt"
+    },
+    {
+      "source": "pet/NOTICE.md",
+      "target": "../LICENSE"
+    },
+    {
+      "source": "world/_资料来源.md",
+      "target": "../NOTICE.md"
+    }
+  ]
+}

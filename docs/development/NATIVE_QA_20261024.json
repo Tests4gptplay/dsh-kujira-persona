@@ -1,11 +1,21 @@
 {
-  "sourceCommit": "63c0380f3a89a0b1353ce19a70b9566fe9973292",
+  "schema": "kujira.native-qa.v2",
+  "checkedAt": "2026-10-24T11:35:42.3989047Z",
+  "sourceCommit": "9377775f77eec5814f472cd141e7c283383ce405",
   "hashes": {
-    "sourceSha256": "3d91d62f3cf7be0d0d517f963d0bbf90c83edbfdd5d40b6979639099ef90d3ca",
-    "exeSha256": "0cf2c236a600eeac34bb2d5a0137c5aee8b20c1150111389dc62be7f8924e414",
+    "sourceSha256": "90a5d34e50446bda0cd07ab4ac9971e902d722108bde17200bdea139915a236e",
+    "manifestSha256": "f2b9e22edc2f3ef9ae87f48a1eaf7a56269ae3544a29777b0044a5becb79b052",
+    "exeSha256": "3e329a54141cae0384df1ecfd8b786ad3e641cb0e569599210d3a01b0270ca84",
     "gptCorePngSha256": "4c5fea31c467ff9a702d43107cc6668f8cee1f7d0ca22da9a0a936cc3c0ff248"
   },
+  "build": {
+    "exeBytes": 21504,
+    "compiler": "4.8.9363.0 built by: NET481REL1LAST_25H2_B",
+    "platform": "Windows x64",
+    "embeddedDpiAwareness": "PerMonitorV2,PerMonitor"
+  },
   "checks": {
+    "perMonitorV2": true,
     "frameLayersCropScaleAlpha": true,
     "framePreservesWindowGeometry": true,
     "renderedPixelBGRA": [
@@ -17,10 +27,102 @@
     "legacySingleFrame": true,
     "actualGptRaster": true,
     "actualGptVisiblePixels": 48075,
+    "geometryDpiCases": 12,
+    "negativeMonitorCoordinates": true,
+    "offscreenNearestWorkArea": true,
+    "rememberedOffscreenPositionRecovered": true,
+    "animatedStateRetainsAtlasCache": true,
+    "bubbleResizeKeepsDesktopAnchor": true,
+    "staticPersonaFallback": true,
+    "boundedUiFrameQueue": {
+      "inputFrames": 10000,
+      "postedUiCallbacks": 1
+    },
     "ipc": "ready-frame-eof-pass",
     "singleInstance": true,
     "windowPolicy": true,
     "qaRoutinesShipped": false
   },
-  "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40057043051"
+  "coverage": {
+    "physicalDesktop": {
+      "monitorCount": 1,
+      "resolution": [
+        2560,
+        1440
+      ],
+      "dpi": 96,
+      "processDpiAwareness": "PerMonitorV2"
+    },
+    "syntheticGeometry": {
+      "cases": 12,
+      "dpiScales": [
+        1,
+        1.25,
+        1.5,
+        2
+      ],
+      "workAreas": [
+        [
+          -1920,
+          -120,
+          1920,
+          1040
+        ],
+        [
+          0,
+          0,
+          2560,
+          1400
+        ],
+        [
+          2560,
+          -200,
+          1920,
+          1080
+        ]
+      ],
+      "assertions": [
+        "Visible rectangles remain in place.",
+        "Offscreen rectangles fit inside the selected work area."
+      ]
+    },
+    "osWorkAreaRecovery": "The nearest work area was resolved through the Windows API and an offscreen HWND position was restored into it.",
+    "atlasReuse": {
+      "unchangedStateUpdates": 100,
+      "sameBitmapInstanceRetained": true
+    },
+    "uiQueueBurst": {
+      "inputFrames": 10000,
+      "postedUiCallbacks": 1
+    }
+  },
+  "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40090512927",
+  "jobId": 120862041250,
+  "workflowSourceCommit": "2ca4f1d363609352a04e21eebc760f4f60bd50e2",
+  "previousRun": {
+    "sourceCommit": "63c0380f3a89a0b1353ce19a70b9566fe9973292",
+    "hashes": {
+      "sourceSha256": "3d91d62f3cf7be0d0d517f963d0bbf90c83edbfdd5d40b6979639099ef90d3ca",
+      "exeSha256": "0cf2c236a600eeac34bb2d5a0137c5aee8b20c1150111389dc62be7f8924e414",
+      "gptCorePngSha256": "4c5fea31c467ff9a702d43107cc6668f8cee1f7d0ca22da9a0a936cc3c0ff248"
+    },
+    "checks": {
+      "frameLayersCropScaleAlpha": true,
+      "framePreservesWindowGeometry": true,
+      "renderedPixelBGRA": [
+        191,
+        0,
+        16,
+        207
+      ],
+      "legacySingleFrame": true,
+      "actualGptRaster": true,
+      "actualGptVisiblePixels": 48075,
+      "ipc": "ready-frame-eof-pass",
+      "singleInstance": true,
+      "windowPolicy": true,
+      "qaRoutinesShipped": false
+    },
+    "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40057043051"
+  }
 }

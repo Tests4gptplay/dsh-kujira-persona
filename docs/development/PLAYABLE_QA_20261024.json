@@ -1,6 +1,6 @@
 {
   "kind": "offline-file-playable",
-  "checkedAt": "2026-10-24T08:31:01.693Z",
+  "checkedAt": "2026-10-24T11:47:46.817Z",
   "checks": {
     "openedFromFile": true,
     "availableCharacters": 15,
@@ -37,15 +37,69 @@
   "errors": [],
   "networkRequests": [],
   "sourceSHA256": {
-    "pet/animation.js": "f54498d11bf1652dc5f50ca380d44450a529e5a72653c365b0da00df703b93dd",
+    "pet/animation.js": "1ec75792c61bbdaca483e3f98e93197e2bb8488a4a141c208a43512f3b29fd5b",
     "pet/art.js": "94cb9df825a2bd2013406df517cf61dbfc21f70e7762e521474bd6275454b771",
     "pet/art-secondary.js": "7b6bd6644093a4f014996479ba8b2f2107a60189adafc9a85f073a3fdeb2ea31",
-    "scripts/qa/build-playable.mjs": "88b0749d8b6ebb19e0ff9a57f1298840e1fb0901f5f35a35a72c3155a07ee26d",
+    "scripts/qa/build-playable.mjs": "1c1889980b4165871febc913f2f2fc933c629fe6540be661d4252b0765e39281",
     "scripts/qa/playable-check.mjs": "1a97a6b6d8b4070f8b0893b4004fc036fcba331b53c9c6fa09f85c4ed9be0b82"
   },
   "playable": {
     "pngSheets": 40,
-    "htmlSHA256": "f065a631d9da71a2af299ebd06a4a5e5986dd60ecc138f3b3e2d7b618367fdfb",
-    "externalDependencies": false
+    "htmlSHA256": "1ffe5a035a0d0d4381113bc6d7d5e0b335e3a4ea914847be11e375730441f876",
+    "externalDependencies": false,
+    "relativeDocumentationLinksResolve": true,
+    "chineseUiVisuallyChecked": true,
+    "testFont": "Noto Sans CJK SC"
+  },
+  "previousRun": {
+    "kind": "offline-file-playable",
+    "checkedAt": "2026-10-24T08:31:01.693Z",
+    "checks": {
+      "openedFromFile": true,
+      "availableCharacters": 15,
+      "unavailableCharacters": [],
+      "loadedCharacters": [
+        "gpt",
+        "deepseek",
+        "gemini",
+        "claude",
+        "grok",
+        "glm",
+        "kimi",
+        "qwen",
+        "minimax",
+        "llama",
+        "doubao",
+        "mistral",
+        "hunyuan",
+        "mimo",
+        "unknown"
+      ],
+      "authoredFrameAdvance": true,
+      "pauseAndResume": true,
+      "characterSwitch": true,
+      "headTouch": true,
+      "dragLandingAndPosition": true,
+      "sizeControl": true,
+      "reducedMotion": true,
+      "completeSimulatedRound": true,
+      "lightAndDark": true,
+      "mobileWidth": true,
+      "noExternalRequests": true
+    },
+    "errors": [],
+    "networkRequests": [],
+    "sourceSHA256": {
+      "pet/animation.js": "f54498d11bf1652dc5f50ca380d44450a529e5a72653c365b0da00df703b93dd",
+      "pet/art.js": "94cb9df825a2bd2013406df517cf61dbfc21f70e7762e521474bd6275454b771",
+      "pet/art-secondary.js": "7b6bd6644093a4f014996479ba8b2f2107a60189adafc9a85f073a3fdeb2ea31",
+      "scripts/qa/build-playable.mjs": "88b0749d8b6ebb19e0ff9a57f1298840e1fb0901f5f35a35a72c3155a07ee26d",
+      "scripts/qa/playable-check.mjs": "1a97a6b6d8b4070f8b0893b4004fc036fcba331b53c9c6fa09f85c4ed9be0b82"
+    },
+    "playable": {
+      "pngSheets": 40,
+      "htmlSHA256": "f065a631d9da71a2af299ebd06a4a5e5986dd60ecc138f3b3e2d7b618367fdfb",
+      "externalDependencies": false
+    }
   }
 }

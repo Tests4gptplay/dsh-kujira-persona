@@ -11,7 +11,7 @@ try{previous=JSON.parse(await readFile(marker,'utf8'))}catch(error){if(error.cod
 const existing=await readdir(output).catch(error=>{if(error.code==='ENOENT')return [];throw error})
 if(existing.length&&previous?.kind!=='kujira-offline-action-trial')throw new Error('Output directory is not an existing Kujira trial; choose an empty directory')
 const {ART}=await import(pathToFileURL(join(root,'pet/art.js')).href)
-const characters=[['gpt','GPT'],['deepseek','DeepSeek'],['gemini','Gemini'],['claude','Claude'],['grok','Grok'],['glm','GLM'],['kimi','Kimi'],['qwen','Qwen'],['minimax','MiniMax'],['llama','Llama'],['doubao','豆包'],['mistral','Mistral'],['hunyuan','混元'],['mimo','MiMo'],['unknown','未定义模型']].map(([id,name])=>({id,name,art:id==='unknown'?'stella':id}))
+const characters=[['gpt','GPT'],['deepseek','DeepSeek'],['gemini','Gemini'],['claude','Claude'],['grok','Grok'],['glm','GLM'],['kimi','Kimi'],['qwen','Qwen'],['minimax','MiniMax'],['llama','Llama'],['doubao','豆包'],['mistral','Mistral'],['hunyuan','混元'],['mimo','MiMo'],['unknown','星璃']].map(([id,name])=>({id,name,art:id==='unknown'?'stella':id}))
 const art=Object.fromEntries(characters.filter(c=>ART[c.art]).map(c=>{
   const value=ART[c.art],used=new Set(Object.values(value.clips).flatMap(clip=>clip.frames.map(frame=>frame.sheet)))
   return [c.art,{...value,sheets:Object.fromEntries(Object.entries(value.sheets).filter(([name])=>used.has(name)))}]

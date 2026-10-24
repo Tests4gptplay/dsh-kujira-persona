@@ -52,7 +52,7 @@ try {
 
   await choose('deepseek');await clip('idle')
   await choose('unknown');await clip('idle')
-  assert.equal(await page.locator('#name').textContent(),'未定义模型')
+  assert.equal(await page.locator('#name').textContent(),'星璃')
   await choose('gpt');await clip('idle')
   report.checks.characterSwitch=true
   await page.locator('#canvas').click({position:{x:110,y:65}});await clip('head_pat');await clip('idle')

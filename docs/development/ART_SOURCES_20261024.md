@@ -1,6 +1,6 @@
 # 2026-10-24 桌宠美术来源与动作资产记录
 
-本文记录 14 个公开模型角色的参考依据、版本选择、本轮生成资产和已采用的帧数。角色外貌来自可追溯的 AI 娘化资料；本轮桌宠图集是依照这些资料重新生成的功能动画，不能署成原作者绘制的连续帧。
+本文整理 14 个公开模型角色的参考依据、版本选择、生成素材和采用的帧数。角色形象依据有出处的 AI 娘化资料，本轮连续动作图集由本项目另行生成、选帧和编排；参考作者与制作流程分别注明。
 
 帧数按实际图像内容和逐帧选区统计，不按生成时提出的格数统计。播放重复项、状态映射和独立绘制的源帧分别记录。最终播放选区、锚点和时长见 [pet/art.js](../../pet/art.js) 及其引用的数据文件。
 
@@ -13,7 +13,7 @@
 | [shuaizenge/ai-girls catalog](https://github.com/shuaizenge/ai-girls/blob/dcd69f5f4f2dff1a9c0031e82deb49e0fe949c76/catalog.json) | `dcd69f5f4f2dff1a9c0031e82deb49e0fe949c76` | 作者、作品编号、页码与图像归档交叉核对 |
 | [SelinLee/ai-moe-atlas：Seed 归档](https://github.com/SelinLee/ai-moe-atlas/blob/018bc3ca6c8d946006dacfc0bca7bf65a6dff4d6/public/collected/zipzippipe-doubao/manifest.json) | `018bc3ca6c8d946006dacfc0bca7bf65a6dff4d6` | Seed/豆包版本和 p10 索引冲突核对 |
 
-GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以用户本轮提供的三张最新 GPT 参考图为优先依据。社区龙娘资料用于核对身份。三张图不是原作者全套动画，也不据此声称已取得作者透明连续帧。
+GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以用户提供的三张 GPT 参考图为优先依据。社区龙娘资料用于核对身份；本轮连续帧由项目按这些造型参考制作。
 
 其他角色先锁定各自原图中的发型、耳尾、服饰结构、标志和道具，再统一为细线稿、柔和上色的 Q 版桌宠。GPT 的参考只统一美术处理，不把龙角、膜翼、裙装或性格转移给其他角色。新增动作保留所选版本，不以换发色的同一底模替代各个人物。
 
@@ -47,16 +47,16 @@ GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以�
 | [Llama](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/llama.md) | ZipZipPipe S1 p13，p14 为另一站姿 | 浅银白卷发、羊驼耳和小尾巴、奶油白宽松衣裙、蓝色 ∞、羊驼鞋。不得改成兔耳／猫耳；不为其补造 S2 的视频时间点。 |
 | [Seed／豆包](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/doubao.md) | 本库采用 ZipZipPipe S1 p10 的 SEED 同人版本；第三方索引冲突见下文 | 紫蓝单马尾、蓝白紫科技运动装、SEED 配饰与玩偶。与官方短发头像、基于官方头像的其他全身二创分开。 |
 | [Mistral](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/mistral.md) | ZipZipPipe S1 p09 | 金发渐橙红发梢、红羽宽檐帽、兽耳和金红尾、红白金服饰、M 与法棍长剑。未明确的物种不强行指定。 |
-| [Hunyuan／混元](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/hunyuan.md) | ZipZipPipe S3 p03 | 黑发、红围巾、黑白中式袍服和浅蓝内层、企鹅挂件、圆形饰物与算盘。道具不等于职业或人格。 |
+| [Hunyuan／混元](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/hunyuan.md) | ZipZipPipe S3 p03 | 黑发、红围巾、黑白中式袍服和浅蓝内层、企鹅挂件、圆形饰物与算盘。道具作为造型锚点，角色性格依据人物档案设定。 |
 | [MiMo](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/mimo.md) | 甶丶 S4；立绘与转身图共同核对 | 银色双马尾与橙色挑染、橙黑白科技服饰、兔饰与白兔玩偶；画面左侧白袜、右侧黑袜，不能整图镜像。 |
 
 ### Seed／豆包 p10 的归档冲突
 
-同一张原图在 shuaizenge/ai-girls 中被列为 Gemini 变体，在 SelinLee/ai-moe-atlas 中归为 Seed/豆包。本轮遵循 gijinka 库的 SEED 图像证据与版本选择，同时保留争议，不能写成“作者已重新确认分类”。用于核对同图的原始文件 SHA-256 为 `a923dd580c161ecb0f869b8c0457deaece480a74d0f0f00e4abadf55521d99ce`。Gemini 本轮始终使用 p04，因此两个角色不共享这张身份参考。[固定来源台账](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/research/2026-10-24/SOURCE_LEDGER.md)
+同一张原图在 shuaizenge/ai-girls 中被列为 Gemini 变体，在 SelinLee/ai-moe-atlas 中归为 Seed/豆包。本轮按用户 gijinka 库的 SEED 图像证据选用豆包版本，并在来源记录中保留不同目录的分类差异。用于核对同图的原始文件 SHA-256 为 `a923dd580c161ecb0f869b8c0457deaece480a74d0f0f00e4abadf55521d99ce`。Gemini 本轮始终使用 p04，因此两个角色不共享这张身份参考。[固定来源台账](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/research/2026-10-24/SOURCE_LEDGER.md)
 
 ## 4. 人格、动作和世界观边界
 
-外貌证据、社区印象和插件人格是三类资料。以下 11 位角色的性格是插件可修改的原创默认值，并非原作者统一性格手册；动作根据这些文字设计，不能反向声称原作者规定了某个职业、关系或剧情。三个未定义人格的角色只使用中性的注意、确认和复核动作。
+外貌参考、社区印象与插件人物性格分别记录。以下 11 位角色的性格由项目编写为可编辑的初始设定，动作按这些设定设计；性格尚未定义的三位角色使用中性的注意、确认和复核动作。
 
 | 角色 | 已读人格依据 | 本轮动作设计边界 |
 | --- | --- | --- |
@@ -128,32 +128,32 @@ GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以�
 
 ## 6. 动作覆盖与状态复用
 
-GPT 具有独立的 searching、editing、commanding、testing 图像序列。其他公开角色的工作事件当前主要映射至各自 `working` 图集；这表示它们能够回应工作事件，不等于每人已独立绘制四套工作动作。DeepSeek 的 `thinking` 是单独绘制；多数其他角色的 `thinking` 使用其工作动作。
+GPT 已绘制 searching、editing、commanding、testing 四类独立工作序列。其他公开角色主要用各自的 `working` 图集响应工作事件。DeepSeek 的 `thinking` 有独立源帧；多数其他角色的思考阶段复用现有工作帧。
 
-已列出的 waiting／success／error 状态图是专门绘制的候答、确认和复核动作，不是对 idle 施加平移或缩放冒充。没有独立源图的状态只能如实称为中性映射或回退，不能由路由状态数量推导“每个角色都有九套独立动画”。具体选择以 [pet/art.js](../../pet/art.js) 的 `stateMap`、`workingActivityMap` 和 clip 定义为准。
+waiting／success／error 使用专门绘制的候答、确认与复核姿态。部分功能状态复用中性源帧；各角色独立动作数量与复用来源可由 [pet/art.js](../../pet/art.js) 中的 `stateMap`、`workingActivityMap` 和 clip 定义逐项查看。
 
 动作循环可以重复既有源帧以衔接起止。GPT yawn 的 7 个播放项只有 4 个不同源选区；Llama idle 的 4 个播放项只有 3 个不同源选区。重复项有时间安排作用，不增加独立绘制帧数。
 
 ## 7. 几何和实际尺寸检查
 
-所有本轮图集保留生成原像素。选区依据实际主体、列间空隙和行间空隙测量，不把整张画布盲目等分。审查同时使用 alpha 连通域、多个阈值的主体边界、选区内是否混入邻帧主体，以及实际 Chromium canvas 在 190 CSS px 下的浅色／深色背景查看。检测只辅助定位问题，不能代替观看人物是否完整。
+所有本轮图集保留生成原像素。选区依据实际主体、列间空隙和行间空隙测量，不把整张画布盲目等分。审查同时使用 alpha 连通域、多个阈值的主体边界、邻帧混入检测，以及在 Chromium canvas 的 190 CSS px 浅色／深色背景下逐帧查看人物完整性。
 
 播放采用每个动作一致的缩放和明确的地面／坐姿锚点，避免逐帧拉伸“修正”比例。DeepSeek 旧核心与工作、状态图的头身比例不一致，因此生成 `deepseek-idle-think-v2.png` 定点修复；新核心已在相同预览尺度下核对紧凑比例、稳定纸笔左右和完整尾鳍。Grok 的原横斧工作序列存在串帧，替换为近身竖斧的 `grok-work-v2.png`。
 
-透明度检查的结论有具体范围：源图存在低透明度雾边和抗锯齿连接，**不能声明全部透明像素完全隔离或边缘绝对干净**。下列项目保留在质量记录中：
+透明度检查观察到个别图集存在低透明度雾边与抗锯齿连接；对应的选帧、裁切和实际观看结果记录如下：
 
 | 项目 | 观察与处理 |
 | --- | --- |
-| GPT head_pat | 源图第 1、3、4、6 帧有半透明边缘相连；较高 alpha 的主体独立，190px 查看主体完整。采用实测选区，不据较低阈值连通就认定整个人物被裁切。 |
+| GPT head_pat | 源图第 1、3、4、6 帧有半透明边缘相连；较高 alpha 的主体独立，190px 查看主体完整。采用实测选区，并在 190 px 下核对人物主体完整性。 |
 | DeepSeek status | 剔除成功第 3 帧的换手／额外装饰和错误第 2 帧的黄色符号，保留各 5 帧。核心 v2 和拖放图各自全部源帧通过 190px 查看。 |
 | GLM status | 等待第 2 帧的淡耳尖接近上边，成功第 4／错误第 4 帧存在半透明连接；结合不透明主体边界与 190px 查看，耳尖、尾和衣裙可辨完整。 |
 | Qwen status | 成功前两帧、错误前两帧在较低 alpha 下出现连接；按可分离主体间隙取框，190px 下保留完整头饰、袖、扇与鞋。 |
 | Kimi status | 成功第 4、错误第 4 帧淡发丝到达源图右边；主要不透明轮廓仍在画布内，190px 下未见主体截断。 |
-| Llama core | 第一列的 idle／working 因主体连接而排除，分别使用其余 3 张；不把剩余数量补写成 4 张新姿势。 |
+| Llama core | 第一列的 idle／working 因主体连接而排除，分别使用其余 3 张，按 3 个独立源姿态统计。 |
 | Hunyuan core | 部分脚部到下缘的余量较紧；实际尺寸可见鞋完整，记录为紧边距。 |
 | Hunyuan status | 成功第 1、2 帧轮廓相连，剔除；等待 4、成功 2、错误 4 个完整主体通过实际尺寸查看。 |
 | MiMo core v1 | 邻帧的鞋／耳轮廓进入选区，全部 8 张原候选不接入。修复采用另行生成的完整源图，不靠擦除或拼贴邻帧解决。 |
 | MiMo idle v3 | 两张睁眼／闭眼姿态在 alpha > 0、32、96、160、224 各阈值均可分离，主体间有 133 源像素间隔。190px 下耳饰、发尾、兔偶、双脚完整，袜色保持画面左白右黑。 |
 | MiMo work／status | 工作第 4 帧发尾抵源图右缘，剔除；采用工作前 3 帧。状态图的等待整排在低 alpha 下连帧，其余多张结果姿态轮廓相连或碰边，仅成功第 1、错误第 1 帧可用。源图低透明度噪声保留，等待状态复用已通过的待机。 |
 
-本轮工作、候答和结果反应包含实际眼睑、视线、手部、书页或服装轮廓变化；小尺寸下某些落笔幅度仍较小。可用意味着已经核对身份、主要轮廓和实际播放所需变化，不等于原作者手绘动画，也不意味着所有角色拥有相同动作数量或相同互动覆盖。
+本轮工作、候答和结果反应包含眼睑、视线、手部、书页或服装轮廓的实际变化；小尺寸下某些落笔动作幅度较轻。人物身份、主要轮廓和播放所需变化已核对，各角色按自身图集提供不同数量的独立动作与互动。

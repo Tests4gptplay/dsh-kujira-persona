@@ -96,9 +96,6 @@
       "postedUiCallbacks": 1
     }
   },
-  "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40090512927",
-  "jobId": 120862041250,
-  "workflowSourceCommit": "2ca4f1d363609352a04e21eebc760f4f60bd50e2",
   "previousRun": {
     "sourceCommit": "63c0380f3a89a0b1353ce19a70b9566fe9973292",
     "hashes": {
@@ -122,7 +119,6 @@
       "singleInstance": true,
       "windowPolicy": true,
       "qaRoutinesShipped": false
-    },
-    "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40057043051"
+    }
   }
 }

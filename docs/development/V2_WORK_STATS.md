@@ -13,4 +13,4 @@
 
 依据：官方 deepseek-ai/deepseek-harness 提交 `687f282e8625c6b8d11ff58211a90524be2e4317` 的 StatsPills.tsx、context-occupancy.ts，以及 session-stats / token-meter 投影定义。
 
-与此前的星璃需求同时有效：未知且没有用户明确绑定的模型用星璃做人设与桌宠；用户自定义优先。见 V2_STELLA_FALLBACK.md。本轮不发布、不改市场；模拟数据与测试仍仅在 QA。
+当前前台模型与人物绑定按现有角色目录和用户设置解析；用户明确绑定优先。相关实现见 [catalog.js](../../catalog.js) 和 [pet/controller.js](../../pet/controller.js)。

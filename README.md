@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **2.0.0 功能候选。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
+> **2.0.0-alpha.1 测试版。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
 
 ## 世界观与人物
 
@@ -69,6 +69,16 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 在 DSH **设置 → Kujira · 人设** 中统一调整桌宠，打开共同世界观、基础人设和每个角色的本机档案文件夹（包括星璃）。页面显示各目录的占用大小及档案总计；进入该页或点击“刷新文件夹大小”时统计，不持续扫描磁盘。
 
 修改世界观、人物性格、记忆、角色绑定或档案存放位置，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
+
+## 2.0.0-alpha.1 测试更新地址
+
+在 DSH 的插件管理中添加以下 GitHub 来源即可安装当前测试版本：
+
+```text
+github:Tests4gptplay/dsh-kujira-persona#v2.0.0-alpha.1
+```
+
+开发中的最新版本可使用 `github:Tests4gptplay/dsh-kujira-persona#feat/v2.0.0-single-model-pet`。此处的 `v2.0.0-alpha.1` 是固定测试版本分支，后续改进会使用新的 alpha 版本号。
 
 ## 安装和升级
 

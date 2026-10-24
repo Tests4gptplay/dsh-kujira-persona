@@ -27,7 +27,7 @@ GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以�
 | S4 | 甶丶，[《娘化mimo》](https://www.bilibili.com/opus/1242097128919007239) | MiMo 的立绘和转身参考；固定档案记录作品日期为 2026-08-30。MiMo 不属于 ZipZipPipe 的作品。 |
 | S5 | [本轮来源台账 SOURCE_LEDGER.md](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/research/2026-10-24/SOURCE_LEDGER.md) | 保存作者链、第三方归档、页码、出处冲突及访问限制；不得把归档核对描述成重新完整观看或直接下载了所有作者原页。 |
 
-本轮实际查看了库内参考图及生成原图。部分作者原始页面在资料核验时不可直接访问，因而使用固定来源档案与已有图像归档，不声称新取得原始全分辨率文件、逐帧视频素材或原作者授权。署名和既有使用条件见 [NOTICE.md](../../NOTICE.md) 与 [pet/NOTICE.md](../../pet/NOTICE.md)；本记录不为第三方设计重新授予许可。
+本轮实际查看了库内参考图及生成原图。部分作者原始页面在资料核验时不可直接访问，因而使用固定来源档案与已有图像归档。署名和既有使用条件见 [NOTICE.md](../../NOTICE.md) 与 [pet/NOTICE.md](../../pet/NOTICE.md)。
 
 ## 3. 逐角色身份与版本依据
 

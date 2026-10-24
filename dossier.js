@@ -115,16 +115,16 @@ function today() {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 function frameText(config) {
-  if (config.kind === 'shared') return '## 用户显式共享的偏好（不是角色身份）'
+  if (config.kind === 'shared') return '## 用户显式共享的偏好'
   if (config.kind === 'world') return [
     '## 全局世界观与角色名录',
-    '本节是大家共同知道的背景与公开人物资料，不表示你同时扮演这些角色。自己的身份只由当前角色段决定。',
+    '本节收录共同背景与公开人物资料；当前角色的设定见下方个人档案。',
     `全局世界观目录：${config.personaDir}`,
   ].join('\n')
   return [
     `## 当前角色：${config.label}`,
-    '本段是你自己的设定与个人记忆；全局名录中的其他人不是你。',
-    '非官方同人交流人设，不替换宿主的真实模型身份、工具或权限。按用户要求完成任务与文体。',
+    '本段是你自己的设定与个人记忆。',
+    '按用户要求完成任务与文体。',
     `当前角色档案：${config.personaDir}`,
   ].join('\n')
 }

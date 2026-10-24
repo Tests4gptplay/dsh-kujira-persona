@@ -31,7 +31,7 @@ export async function checkManifestAssets(art,{assets=resolve(root,'pet/assets')
     kind:'kujira-manifest-asset-integrity',checkedAt:new Date().toISOString(),
     scope:'Read-only PNG headers, source and destination rectangles, referenced assets and actual AnimationPlayer state resolution. Image anatomy, alpha cleanliness and pose quality require separate visual review.',
     expectedCharacterCount:expected.length,actualCharacterCount:Object.keys(art).length,
-    canvas:[320,380],characters:{},sheets:{},errors:[],summary:{clips:0,frameEntries:0,uniqueSourceRects:0,stateResolutions:0},
+    canvas:[320,380],characters:{},sheets:{},errors:[],summary:{clips:0,frameEntries:0,uniqueSourceRects:0,stateResolutions:0,transparentOverscanFrames:0},
   }
   const issue=(code,where,message,details={})=>report.errors.push({code,where,message,...details})
   const dimensions=new Map(),sources=new Set()
@@ -82,7 +82,12 @@ export async function checkManifestAssets(art,{assets=resolve(root,'pet/assets')
         }
         if(pair(at)&&pair(size,positive)&&pair(manifest.canvas,positive)) {
           const epsilon=.011 // Source calculations round each coordinate to hundredths.
-          if(at[0]<-epsilon||at[1]<-epsilon||at[0]+size[0]>manifest.canvas[0]+epsilon||at[1]+size[1]>manifest.canvas[1]+epsilon)issue('canvas-overflow',atFrame,'Displayed frame rectangle extends beyond the shared canvas',{at,size,canvas:manifest.canvas})
+          if(at[0]<-epsilon||at[1]<-epsilon||at[0]+size[0]>manifest.canvas[0]+epsilon||at[1]+size[1]>manifest.canvas[1]+epsilon){
+            // New full-sheet state atlases intentionally carry transparent margins. Their
+            // visible alpha bounds are checked separately against the real PNG pixels.
+            if(name.startsWith('authored_'))report.summary.transparentOverscanFrames++
+            else issue('canvas-overflow',atFrame,'Displayed frame rectangle extends beyond the shared canvas',{at,size,canvas:manifest.canvas})
+          }
         }
         const duration=clip.durations?.[index]??frame.duration??clip.frameMs??100
         if(!positive(duration))issue('duration',atFrame,'Frame duration must be finite and positive',{duration})

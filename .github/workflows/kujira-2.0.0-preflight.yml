@@ -27,6 +27,7 @@ jobs:
           node scripts/qa/multisession-bubble-check.mjs
           node scripts/qa/state-routing-check.mjs
           node scripts/qa/state-art-check.mjs
+          node scripts/qa/minimax-response-inbetween-check.mjs
           node scripts/qa/manifest-check.mjs
       - name: Verify visible alpha bounds of every authored state frame
         shell: bash
@@ -34,6 +35,7 @@ jobs:
           set -euo pipefail
           python3 -m pip install --user Pillow --break-system-packages
           python3 scripts/qa/state-art-bounds.py
+          python3 scripts/qa/minimax-response-rgba-check.py
       - name: Build and inspect distributable
         shell: bash
         run: |

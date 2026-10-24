@@ -1,0 +1,45 @@
+name: Kujira 2.0.0 tagged GitHub release
+on:
+  push:
+    branches:
+      - 'release/v2.0.0-ci'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 'fcf7fee07e3507cfe62c331c42aa3cc8bf8a732f'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify main, version and exact release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_MAIN="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$CURRENT_MAIN" = 'fcf7fee07e3507cfe62c331c42aa3cc8bf8a732f'
+          node -e 'const p=require("./package.json");if(p.version!=="2.0.0"||!p.dsh?.bundle?.patch)process.exit(1)'
+          mkdir -p dist
+          npm pack --ignore-scripts --pack-destination dist
+          test "$(sha256sum dist/dsh-kujira-persona-2.0.0.tgz | cut -d ' ' -f1)" = '8438f490ca0b87febc23f17d1d1f0b4eb61ad3bcb33825a22981f3bc2de545c4'
+          tar -tzf dist/dsh-kujira-persona-2.0.0.tgz | grep -q '^package/pet/native/win-x64/KujiraPet.exe$'
+      - name: Publish v2.0.0 tag, notes and tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.0.0 >/dev/null 2>&1; then
+            echo 'Release already exists; keeping existing published version.'
+            exit 0
+          fi
+          gh release create v2.0.0 dist/dsh-kujira-persona-2.0.0.tgz \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target 'fcf7fee07e3507cfe62c331c42aa3cc8bf8a732f' \
+            --title 'Kujira 2.0.0' \
+            --notes-file docs/releases/v2.0.0.md \
+            --latest

@@ -1,0 +1,210 @@
+{
+  "schema": "kujira.remote-dsh-qa.v1",
+  "checkedAt": "2026-10-24T12:01:17.869731+00:00",
+  "passed": true,
+  "sourceCheckpoint": "fa066a8bdf0f46b2d14905d574c36c9e87dbf852",
+  "environment": {
+    "location": "assistant remote temporary workspace",
+    "dshPackage": "@deepseek-ai/dsh",
+    "dshVersion": "0.2.1-rc.2",
+    "nodeVersion": "v24.19.0",
+    "chromiumVersion": "151.0.7922.34",
+    "pluginInstallation": "official DSH CLI, local source link",
+    "isolatedHome": true,
+    "loopbackOnly": true,
+    "externalProviderCredentialsInherited": false
+  },
+  "aiBackend": {
+    "decisionSource": "current assistant",
+    "transport": "local manual OpenAI-compatible relay",
+    "responsesDelivered": 8,
+    "actualDshToolCalls": 6,
+    "tools": {
+      "read": 2,
+      "write": 1,
+      "persona_edit": 3
+    },
+    "prewrittenTaskReplies": false,
+    "externalPaidModelCalls": false,
+    "usageValuesSynthesized": false
+  },
+  "checks": {
+    "realFileReadWriteRead": {
+      "passed": true,
+      "inputAlpha": 17,
+      "inputBeta": 26,
+      "outputTotal": 43,
+      "checkpoint": "remote-20261024-1152",
+      "actualReadBackMatches": true,
+      "resultSha256": "00663b7f26c648b6c67f7235ca5f23d822726d958ff67f97d741e660044270ab"
+    },
+    "realTaskAnimation": {
+      "passed": true,
+      "observedPhases": [
+        "idle",
+        "working",
+        "thinking",
+        "completed"
+      ],
+      "observedActivities": [
+        "idle",
+        "editing",
+        "thinking",
+        "searching"
+      ],
+      "observedTools": [
+        "write",
+        "read"
+      ],
+      "thinkingCanvas": {
+        "clip": "thinking",
+        "frame": "4"
+      },
+      "finalPhase": "completed"
+    },
+    "realHostModelPicker": {
+      "passed": true,
+      "singlePet": true,
+      "selections": [
+        {
+          "model": "deepseek-chat",
+          "persona": "deepseek",
+          "art": "deepseek",
+          "canvasClip": "success",
+          "visiblePixels": 50803
+        },
+        {
+          "model": "qa-unmapped-model",
+          "persona": "stella",
+          "art": "stella",
+          "canvasClip": "success",
+          "visiblePixels": 54314
+        },
+        {
+          "model": "gpt-4.1",
+          "persona": "gpt",
+          "art": "gpt",
+          "canvasClip": "success",
+          "visiblePixels": 47723
+        }
+      ]
+    },
+    "personaMemoryPersistence": {
+      "passed": true,
+      "toolSequence": [
+        "read",
+        "append",
+        "read"
+      ],
+      "scope": "persona/gpt",
+      "originalContentPreserved": true,
+      "markerCount": 1,
+      "nextModelSystemPromptContainsSavedMemory": true
+    },
+    "pageInteractions": {
+      "headPat": true,
+      "headPatObservedAfterResultAnimation": true,
+      "reducedMotionFrame": "0",
+      "resize": {
+        "beforeRevision": 40,
+        "afterRevision": 40,
+        "rect": {
+          "x": 200,
+          "y": 618.375,
+          "width": 190,
+          "height": 225.625
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      }
+    },
+    "samePageHostRestart": {
+      "beforeRevision": 41,
+      "firstNewRevision": 3,
+      "afterRevision": 4,
+      "sameForegroundSession": true,
+      "manifestRequests": [
+        "/api/kujira-pet/art?id=gpt"
+      ],
+      "canvas": {
+        "clip": "idle",
+        "frame": "0"
+      }
+    },
+    "closeButton": {
+      "savedEnabledFalse": true,
+      "renderer": "none",
+      "pagePetRemoved": true
+    }
+  },
+  "pageErrors": [],
+  "consoleMessages": {
+    "counts": {
+      "Failed to load resource: the server responded with a status of 404 (Not Found)": 2,
+      "Failed to load resource: net::ERR_INCOMPLETE_CHUNKED_ENCODING": 3,
+      "WebSocket connection to '<local-url> failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED": 4,
+      "Failed to load resource: net::ERR_CONNECTION_REFUSED": 13
+    },
+    "disconnectMessagesDuringRealRestart": 20,
+    "unattributedHttp404Count": 2,
+    "freshPageProbe": {
+      "startedAt": "2026-10-24T11:59:49.537Z",
+      "kind": "one-fresh-browser-response-probe",
+      "mutations": "none",
+      "httpErrors": [],
+      "consoleErrors": [],
+      "requestFailures": [],
+      "pageErrors": [],
+      "page": {
+        "url": "http://127.0.0.1:43167/",
+        "title": "DeepSeek Harness"
+      },
+      "elapsedMs": 6320,
+      "completedAt": "2026-10-24T11:59:55.857Z",
+      "browserClosed": true
+    },
+    "unattributed404Reproduced": false
+  },
+  "cleanup": {
+    "schema": "kujira.remote-dsh-cleanup.v1",
+    "completedAt": "2026-10-24T12:00:27Z",
+    "processes": [
+      {
+        "pid": 88173,
+        "signal": "SIGTERM",
+        "state": "exited-zombie-awaiting-parent-reap"
+      },
+      {
+        "pid": 86649,
+        "signal": "SIGTERM",
+        "state": "exited"
+      }
+    ],
+    "relayPendingBeforeStop": 0,
+    "relayResponsesDelivered": 8,
+    "browserClosed": true,
+    "filesRetained": true,
+    "usedUserCAH": false
+  },
+  "sourceSHA256": {
+    "index.js": "98d8ce230385773d1b2eac68c5a8d628708465b422d0fd6a0b6c422716726e39",
+    "catalog.js": "7b46b1bbe88c03076b925f889de311d3b96529fb1d6116c764387c28712a8fd9",
+    "dossier.js": "2d7f6d578427b6566de07eb08668f40ae79e8dd007b7772379ca5bd3407736cf",
+    "pet/index.js": "8051970f1d0935de8a31726490f8817fd491dd2b3ee9a69381fcbde980cb07d7",
+    "pet/controller.js": "9aa7c1fcff033f6685c2a16ab8a34d71ba8fe4d44592661850fb1ab12f1de4ce",
+    "pet/client.js": "6bd629b0131ed259b3fc9fe4525ed61e5d73305a27a345c11097c703ecd6208f",
+    "pet/animation.js": "1ec75792c61bbdaca483e3f98e93197e2bb8488a4a141c208a43512f3b29fd5b",
+    "pet/sprite-canvas.js": "eedca53a8437815a556deb44ad92eca7fc40eb15cef5ff51f5b86f9200d2b3c2",
+    "pet/art.js": "94cb9df825a2bd2013406df517cf61dbfc21f70e7762e521474bd6275454b771",
+    "pet/art-secondary.js": "7b6bd6644093a4f014996479ba8b2f2107a60189adafc9a85f073a3fdeb2ea31"
+  },
+  "scope": [
+    "Actual DSH executed tools and saved files. The current assistant supplied each model decision through a local relay.",
+    "The production model picker drove DeepSeek, the undefined-model fallback, and GPT; no pet/select fixture was used for these changes.",
+    "This run exercised the Linux Web host and page renderer. Earlier Windows WPF and browser fixture soak results are recorded separately.",
+    "The first click during the protected success animation was ignored; head-pat was observed after that result animation completed.",
+    "Two initial HTTP 404 console messages did not reproduce in one fresh browser probe; their resources were not identified."
+  ]
+}

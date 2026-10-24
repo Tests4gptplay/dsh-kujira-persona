@@ -45,7 +45,9 @@ export class AnimationPlayer {
   activate(name,now,restart=false) {
     if(!this.clips[name]||(!restart&&name===this.active))return
     const fade=this.active&&!this.reduced&&!DRAG.has(name)&&!DRAG.has(this.active)
-    const layers=fade?this.layersAt(this.frameAt(now).index,now):null
+    const visible=fade?this.layersAt(this.frameAt(now).index,now):null
+    // An interrupted fade starts from the dominant visible pose, keeping two layers.
+    const layers=visible?[{frame:visible.reduce((best,layer)=>layer.opacity>=best.opacity?layer:best).frame,opacity:1}]:null
     this.transition=fade?{id:++this.transitionId,from:this.active,to:name,at:now,fadeMs:100,layers}:null
     this.active=name;this.started=now
   }

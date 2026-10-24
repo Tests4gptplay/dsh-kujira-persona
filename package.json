@@ -47,6 +47,7 @@
     "CHANGELOG.md",
     "pet/*.js",
     "pet/assets/*.svg",
+    "pet/assets/unknown.png",
     "pet/assets/claude-core-work-v1.png",
     "pet/assets/claude-status-v1.png",
     "pet/assets/deepseek-drag-land-v1.png",

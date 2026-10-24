@@ -154,7 +154,7 @@ export function openCatalog(config) {
           const directory = join(config.personasDir, id)
           await mkdir(config.personasDir, { recursive: true })
           await mkdir(directory)
-          await writeFile(join(directory, '00-用户设定.md'), `# ${label}\n\n> 用户自定义角色，不是模型厂商的官方设定。\n\n${body}\n`, 'utf8')
+          await writeFile(join(directory, '00-用户设定.md'), `# ${label}\n\n> 用户自定义角色。\n\n${body}\n`, 'utf8')
           await writeFile(join(directory, '90-记忆.md'), `# ${label}的记忆\n\n`, 'utf8')
           next.personas.push({ id, label })
           if (rule) putBinding(next, rule, id)

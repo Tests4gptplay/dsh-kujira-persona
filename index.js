@@ -187,7 +187,7 @@ export function apply(ctx, rawConfig) {
         action: { type: 'string', enum: ['list', 'models', 'create', 'bind', 'unbind', 'reload'] },
         persona: { type: 'string', description: '稳定角色 ID，例如 gpt / qwen / 已创建的自定义角色；bind 可用 none 表示不启用人设。' },
         name: { type: 'string', description: 'create 的显示名称。' },
-        text: { type: 'string', description: 'create 的基本人设；写明用户自定义，不虚构来源。' },
+        text: { type: 'string', description: 'create 的基本人设，作为用户自定义角色保存。' },
         provider: { type: 'string', description: '实际 provider ID，不是显示名称。models 可按它筛选；绑定时支持用户明确要求的 * 通配符。' },
         model: { type: 'string', description: '实际 model ID；支持用户明确要求的 * 通配符，将多个版本绑定到同一角色。' },
         use_current_model: { type: 'boolean', description: '用户明确说绑定当前模型时使用，自动填本次请求的 provider/model；否则提供具体规则。' },

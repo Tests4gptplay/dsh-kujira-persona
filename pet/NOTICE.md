@@ -1,24 +1,19 @@
 # 桌宠图形、动画与来源
 
-早期透明底 Q 版矢量草图保留为加载失败时的备用图；对应同名 SVG / PNG 为静态联调和备用素材。
+## 图形与播放
 
-`*-v1.png` 等多帧图集是本轮依据用户参考与图鉴制作的 AI 生成候选美术。它们不是原作者的连续帧，也不表示已经取得用户的最终美术验收。GPT 以用户提供的三张 Q 版图为主要造型与画风约束；其他角色分别核对自身参考，不以 GPT 换色代替。
+多帧 PNG 图集依据用户参考与 AI-gijinka 图鉴，通过 AI 生成与整理。GPT 以用户提供的三张 Q 版图为主要造型与画风参考；其他角色分别沿用自身的外形、服饰和配件。早期透明底 Q 版矢量图保留为加载失败时的备用图。
 
-动画通过测量原图中的实际角色区域确定裁切、锚点、尺寸和时间线。图集布局可能与生成提示中的格数不同，实际接入以帧区域检查为准；明显越界或不完整的姿态会排除。部分原图仍有低透明度边缘或透明桥接，接入选区结合正常显示尺寸检查；当前接入不代表最终美术定稿。安装包和离线试玩仅收录当前实际引用的动画图集。
+动画通过原图中的角色区域确定裁切、锚点、尺寸和时间线。Web 与 Windows 共用逐帧播放器，普通动作切换采用约 100 ms 的过渡。安装包和离线试玩收录当前使用中的图集。
 
-Web 与 Windows 共用逐帧时间线，普通动作切换采用约 100 ms 的过渡；帧内姿势变化来自图集中实际存在的画面。功能状态共用中性动作的情况记录在 manifest 的 `fallbackSources` 中。缺少专属工作动作时复用已有工作帧，缺少专属结果动作时可以复用已有中性帧作单次播放；没有相应素材的触摸反应保持不可用。性格尚未明确的角色采用标准功能动作。
+各角色使用待机、工作、等待和结果动作表现任务过程。部分功能阶段共用中性动作；性格尚未明确的角色采用标准功能动作。触摸与拖放反应由各角色的动作片段提供，可在离线试玩中体验。
 
-角色识别母题沿用本项目 AI-gijinka 图鉴的署名链：DeepSeek 原型上善无形，ZipZipPipe 等角色外形整理，MiMo 外形参考甶丶；详见根目录 NOTICE.md。
+离线试玩用于手动预览动作与任务阶段，实际任务联动在 DSH 插件中运行。开发记录和检查结果见 [开发进度](../docs/development/PROGRESS_20261024.md)。
 
-功能交互参考 [QCYTSN/dsh-dafeiyu](https://github.com/QCYTSN/dsh-dafeiyu)；活动分类和问题工具识别的适配代码来自该项目（2026 QCYTSN，MIT），完整许可保留在 dsh-dafeiyu-LICENSE.txt。动作优先级参考其 docs/animation-behavior.md 和 runtime/animation_model.py；没有带入其 Helper 或成品图片。Codex 套餐继续复用 DSH Codex Native 已有只读账户接口。
+## 来源与许可
 
-本轮角色依据固定到 `ai-gijinka-art-world` 的 `d8587770c24ce684427f5b5f9ad4ca09289aba8e`。第三方角色设计的来源与使用条件仍依根目录 NOTICE.md 分别保留；生成新的表现形式不改变原角色的权利条件。
+角色资料固定于 `ai-gijinka-art-world` 的快照 [`d858777`](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/d8587770c24ce684427f5b5f9ad4ca09289aba8e)。角色识别母题沿用图鉴的署名链：DeepSeek 原型上善无形，ZipZipPipe 等角色外形整理，MiMo 外形参考甶丶。各角色的详细出处与使用条件见根目录 [NOTICE.md](../NOTICE.md)。
 
-## 验证范围
+活动分类和问题工具识别的适配代码来自 [QCYTSN/dsh-dafeiyu](https://github.com/QCYTSN/dsh-dafeiyu)（2026 QCYTSN，MIT），动作优先级参考其 `docs/animation-behavior.md` 和 `runtime/animation_model.py`。相关代码保留原 MIT 许可，全文见 [dsh-dafeiyu-LICENSE.txt](dsh-dafeiyu-LICENSE.txt)。
 
-本轮在真实隔离 DSH 中完成了工具读写、失败恢复、前台会话边界和 GPT 浏览器交互检查，并在 Windows x64 完成当前 C# 源码编译、PNG 裁切与透明混合、窗口几何及进程生命周期验证。Windows 源码与打包 EXE 的散列见 [验证摘要](../docs/development/NATIVE_QA_20261024.json)。
-
-离线 HTML 试玩复用同一播放器与已接入图集，显示的是可手动控制的状态模拟；它不连接 DSH 或调用模型。QA 源码保留在仓库的 `scripts/qa` 中，通过安装包白名单与运行文件分开。
-
-当前分支仍是开发候选。功能联调、源图几何检查、实际尺寸视觉检查和最终美术验收分别进行；完整桌面宿主、多屏／不同 DPI、长期运行与真实账户数值不在上述验证结论中。
-
+项目内容适用根目录 [LICENSE](../LICENSE) 的范围，第三方角色设计与参考作品分别保留原作者的署名和使用条件。

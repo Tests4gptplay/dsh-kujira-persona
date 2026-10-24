@@ -8,9 +8,10 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $qaRoot = [IO.Path]::GetFullPath($OutputDirectory)
 $sourceInput = Join-Path $repoRoot 'pet/native/KujiraPet.cs'
+$manifestInput = Join-Path $repoRoot 'pet/native/KujiraPet.manifest'
 $atlasInput = Join-Path $repoRoot 'pet/assets/gpt-core-v1.png'
 $qaInput = Join-Path $PSScriptRoot 'native-protocol-check.cs'
-foreach ($inputFile in @($sourceInput, $atlasInput, $qaInput)) {
+foreach ($inputFile in @($sourceInput, $manifestInput, $atlasInput, $qaInput)) {
   if (!(Test-Path -LiteralPath $inputFile -PathType Leaf)) { throw "Required repository input is missing: $inputFile" }
 }
 if (Test-Path -LiteralPath $qaRoot) {
@@ -34,17 +35,19 @@ $scripts = Join-Path $qaRoot 'scripts'
 New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $sourceDir, $scripts | Out-Null
 $source = Join-Path $sourceDir 'KujiraPet.cs'
+$manifest = Join-Path $sourceDir 'KujiraPet.manifest'
 $atlas = Join-Path $qaRoot 'gpt-core-v1.png'
 $qaSource = Join-Path $scripts 'native-protocol-check.cs'
 Copy-Item -LiteralPath $sourceInput -Destination $source
+Copy-Item -LiteralPath $manifestInput -Destination $manifest
 Copy-Item -LiteralPath $atlasInput -Destination $atlas
 Copy-Item -LiteralPath $qaInput -Destination $qaSource
 
 $exe = Join-Path $qaRoot 'KujiraPet.exe'
-& $csc /nologo /target:winexe /platform:x64 /optimize+ ('/out:' + $exe) @refs $source
+& $csc /nologo /target:winexe /platform:x64 /optimize+ ('/win32manifest:' + $manifest) ('/out:' + $exe) @refs $source
 if ($LASTEXITCODE -ne 0) { throw "Product compile failed with code $LASTEXITCODE" }
 $qaExe = Join-Path $qaRoot 'NativeProtocolQa.exe'
-& $csc /nologo /target:exe /platform:x64 /optimize+ /main:KujiraNativeQa ('/out:' + $qaExe) ('/r:' + $exe) @refs $qaSource
+& $csc /nologo /target:exe /platform:x64 /optimize+ /main:KujiraNativeQa ('/win32manifest:' + $manifest) ('/out:' + $qaExe) ('/r:' + $exe) @refs $qaSource
 if ($LASTEXITCODE -ne 0) { throw "Protocol QA compile failed with code $LASTEXITCODE" }
 & $qaExe $qaRoot
 if ($LASTEXITCODE -ne 0) { throw "Native protocol QA failed with code $LASTEXITCODE" }
@@ -53,6 +56,7 @@ $checks = Get-Content -LiteralPath (Join-Path $qaRoot 'native-result.json') -Raw
 $metadata = [ordered]@{
   checkedAt = [DateTime]::UtcNow.ToString('o')
   sourceSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash.ToLowerInvariant()
+  manifestSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $manifest).Hash.ToLowerInvariant()
   exeSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $exe).Hash.ToLowerInvariant()
   atlasSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $atlas).Hash.ToLowerInvariant()
   exeBytes = (Get-Item -LiteralPath $exe).Length

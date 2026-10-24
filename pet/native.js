@@ -8,7 +8,7 @@ import { artFor } from './art.js'
 export class NativePet {
   constructor(root,onStatus,onAction){
     this.root=root;this.onStatus=onStatus;this.onAction=onAction;this.child=null;this.starting=null;this.wanted=false;this.last=null;this.stopping=Promise.resolve()
-    this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey='';this.frameTimer=null
+    this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey='';this.frameTimer=null;this.pendingState=null;this.pendingFrame=null
   }
   async show(state){
     this.wanted=true;this.last=state
@@ -20,8 +20,9 @@ export class NativePet {
       if(!this.wanted)return
       const p=spawn(exe,[],{stdio:['pipe','pipe','pipe'],windowsHide:true,cwd:this.root})
       this.child=p;p.stderr.on('data',()=>{});p.stdin.on('error',()=>{})
+      p.stdin.on('drain',()=>this.flush(p))
       const lines=createInterface({input:p.stdout})
-      lines.on('line',line=>{try{
+      lines.on('line',line=>{if(this.child!==p)return;try{
         const m=JSON.parse(line)
         if(m.type==='ready'){this.onStatus('desktop','');this.send(this.last);this.frameKey='';this.frame()}
         else if(m.type==='already-open')this.onStatus('none','另一个 DSH 窗口已打开桌宠，请先在那里关闭')
@@ -39,7 +40,17 @@ export class NativePet {
     this.starting=start
     try{await start}catch{this.onStatus('none','未找到 Windows 桌宠程序；请使用完整安装包或选择页面内显示')}finally{if(this.starting===start)this.starting=null}
   }
-  write(value){if(this.child?.stdin.writable)this.child.stdin.write(JSON.stringify(value)+'\n')}
+  write(value){
+    const pipe=this.child?.stdin;if(!pipe?.writable)return
+    if(pipe.writableNeedDrain){if(value.type==='frame')this.pendingFrame=value;else this.pendingState=value;return}
+    pipe.write(JSON.stringify(value)+'\n')
+  }
+  flush(child){
+    if(this.child!==child)return
+    const state=this.pendingState,frame=this.pendingFrame;this.pendingState=null;this.pendingFrame=null
+    if(state)this.write(state)
+    if(frame)this.write(frame)
+  }
   send(state){
     if(!state)return
     this.last=state
@@ -52,7 +63,7 @@ export class NativePet {
       this.sessionId=state.route.sessionId
       this.player=this.art?new AnimationPlayer(this.art,{now:performance.now()}):null;this.frameKey=''
     }
-    this.write({...state,image:join(this.root,'assets',state.route.art+'.png'),animated:!!this.player})
+    this.write({...state,image:this.player?'':join(this.root,'assets',state.route.art+'.png'),animated:!!this.player})
     if(this.player){this.player.update(state.task,state.config,performance.now());this.frame()}
   }
   frame(){
@@ -66,7 +77,7 @@ export class NativePet {
     }
     if(value.nextDelay!==null){this.frameTimer=setTimeout(()=>this.frame(),Math.ceil(value.nextDelay));this.frameTimer.unref?.()}
   }
-  stopFrames(){clearTimeout(this.frameTimer);this.frameTimer=null;this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey=''}
+  stopFrames(){clearTimeout(this.frameTimer);this.frameTimer=null;this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey='';this.pendingState=null;this.pendingFrame=null}
   hide(){
     this.wanted=false;this.stopFrames();const p=this.child;this.child=null
     if(p){this.stopping=new Promise(resolve=>{if(p.exitCode!==null){resolve();return}p.once('exit',resolve);p.once('error',resolve);p.stdin.end();p.kill()})}

@@ -1,34 +1,37 @@
 # 来源、署名与角色资料
 
-本插件为非官方同人项目，不代表模型厂商或角色原作者。
+Kujira 是基于 AI 娘化社区设定制作的同人项目。角色预设、对话扩充和桌宠动画由本项目整理与实现。
 
-DeepSeek 鲸鱼娘保留原有署名链：上善无形的鲸鱼娘原型「溟月」→ ZipZipPipe 的 DeepSeek 女仆二创 → 本插件文字整理和用户私设。原有角色条件及 CC BY-NC-SA 4.0 不变。
+## 角色与文字资料
 
-GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包/Seed 的视觉母题来自 ZipZipPipe《AI娘化》（Pixiv 148186519）。相关角色图号分别为 p03、p04、p02、p07、p06、p05、p12、p15、p13、p10。https://www.pixiv.net/artworks/148186519
+DeepSeek 鲸鱼娘保留原有署名链：上善无形的鲸鱼娘原型「溟月」→ ZipZipPipe 的 DeepSeek 女仆二创 → 本插件文字整理和用户私设。原有角色条件及 CC BY-NC-SA 4.0 保留。
 
-文字资料依据 `Tests4gptplay/ai-gijinka-art-world` 的 CHARACTER_ATLAS.md、WORLDVIEW_AND_FANON.md 和 RIGHTS.md，固定快照 `9ca080de39b79e94e940880b48e2eb057706d501`。
-https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/9ca080de39b79e94e940880b48e2eb057706d501
+GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包／Seed 的视觉母题来自 ZipZipPipe [《AI娘化》](https://www.pixiv.net/artworks/148186519)。相关角色图号分别为 p03、p04、p02、p07、p06、p05、p12、p15、p13、p10。
 
-新增基础设定均为重新撰写的文字。性格、表达和便于区分的角色简称是本插件原创默认值，**不声称存在原作者统一性格手册**。不将特定二创世界、用户私设或模型现实能力冒充全圈正史。
+文字资料依据 `Tests4gptplay/ai-gijinka-art-world` 的 `CHARACTER_ATLAS.md`、`WORLDVIEW_AND_FANON.md` 和 `RIGHTS.md`，固定于[资料快照 `9ca080d`](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/9ca080de39b79e94e940880b48e2eb057706d501)。角色文字、默认表达和称呼依据这些资料重新整理撰写，并可继续按用户设定调整。
 
-本插件没有打包上述第三方插画原图、缩略参考图、视频或音频。v2 新增的动画图集为依据角色参考制作的 AI 生成候选，制作方式与许可说明见下文。第三方角色设计权利与作者使用条件独立保留；本仓库没有替第三方重新许可的权利，不能把 DeepSeek 的许可自动套给所有角色，也不授予下游第三方素材的商业使用权。
+用户创建的角色、故事、个人记忆和模型绑定作为用户自定义档案保存在本机，通过 DSH 对话编辑。
 
-用户通过对话添加的角色属于用户自定义内容，不自动归为上述作者的作品。角色文字、记忆和模型绑定保存在本机；本插件不自动搜索、下载资料或上传这些文件。
+### 1.6.1 补充的外形资料
 
-## 1.6.1 外形资料补漏
+| 角色 | 外形来源 |
+| --- | --- |
+| Mistral | ZipZipPipe《AI娘化》，Pixiv 148186519 p09 |
+| 混元 | ZipZipPipe《一些更新》，Pixiv 150718881 p03 |
+| MiMo | 甶丶《娘化mimo》，2026-08-30 |
 
-Mistral 为 ZipZipPipe《AI娘化》Pixiv 148186519 p09；混元为 ZipZipPipe《一些更新》Pixiv 150718881 p03。MiMo 为甶丶《娘化mimo》（2026-08-30），不是 ZipZipPipe 作品。文字依据固定来源档案并核对参考图，链接见 world/_资料来源.md。新增部分仅含文字，没有转载图像；原作者权益与原来源使用条件分别保留。
+完整出处见 [资料来源](world/_资料来源.md)。
 
-## 2.0.0 候选动画图集
+## 2.0.0 动画图集
 
-v2 的角色图集依据本轮提供的参考图，以及 `ai-gijinka-art-world` 快照 `d8587770c24ce684427f5b5f9ad4ca09289aba8e` 的角色资料制作。GPT 主要参照本轮提供的三张 Q 版角色图；其他角色分别保留自己的外形母题和设定范围。资料入口：[固定图鉴快照](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/d8587770c24ce684427f5b5f9ad4ca09289aba8e)。
+角色图集依据本轮提供的参考图，以及 `ai-gijinka-art-world` [固定快照 `d858777`](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/d8587770c24ce684427f5b5f9ad4ca09289aba8e) 的角色资料，通过 AI 生成与整理。GPT 主要参照用户提供的三张 Q 版角色图；其他角色分别沿用自己的发型、服饰、配件和外形母题。
 
-这些 PNG 图集是 AI 生成的候选素材，接入前逐步进行裁切与播放检查，并非原角色作者绘制的动画连续帧，也尚未取得最终美术验收。部分功能状态复用同一组中性动作，复用不代表新增了独立原画。生成人物的新表现形式不改变原角色设计的权利条件；来源署名和第三方使用条件继续分别保留。
+多帧图集经过选帧、裁切和时间线编排，用于桌宠的待机、工作、等待、结果及交互动作。部分功能阶段共用中性动作。动画素材与播放方式见 [桌宠说明](pet/NOTICE.md)。
 
-图集与项目自有内容适用根目录 [LICENSE](LICENSE) 所述范围；该文件不代替第三方角色或素材的原有授权。具体图形、备用素材与动画行为说明见 [pet/NOTICE.md](pet/NOTICE.md)。
+本项目内容按根目录 [LICENSE](LICENSE) 的范围使用；第三方角色设计和参考作品分别适用各原作者的使用条件与署名要求。
 
 ## 第三方软件参考
 
-桌宠的活动分类和问题工具识别含对 [QCYTSN/dsh-dafeiyu](https://github.com/QCYTSN/dsh-dafeiyu) 代码的适配，原项目署名为 2026 QCYTSN，采用 MIT 许可。动作优先级和时间线行为亦参考其文档与动画模型。完整 MIT 许可保留在 [pet/dsh-dafeiyu-LICENSE.txt](pet/dsh-dafeiyu-LICENSE.txt)，不以本项目内容许可覆盖这些代码的原有许可。本插件未带入该项目的成品图片或 Helper。
+桌宠的活动分类和问题工具识别含对 [QCYTSN/dsh-dafeiyu](https://github.com/QCYTSN/dsh-dafeiyu) 代码的适配，原项目署名为 2026 QCYTSN，采用 MIT 许可。动作优先级和时间线行为亦参考其文档与动画模型。
 
-本分支的功能验证、图集几何检查、实际尺寸视觉检查和最终美术验收分别记录；测试通过不构成原作者背书或角色授权变更。
+相关适配代码保留原 MIT 许可，全文见 [pet/dsh-dafeiyu-LICENSE.txt](pet/dsh-dafeiyu-LICENSE.txt)。

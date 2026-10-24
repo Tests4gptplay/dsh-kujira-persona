@@ -1,6 +1,7 @@
 window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
   const React=require('react'),h=React.createElement
   const {useEffect,useRef,useState,useSyncExternalStore}=React
+  let spriteModule,spriteAttempt=0
   function apply(ctx){
     let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true
     const listeners=new Set()
@@ -62,13 +63,12 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         h('div',{className:'kujira-small'},'DeepSeek 显示当前接入的余额；Codex Native 显示套餐窗口余量。凭据仍在 DSH 原有账户设置中管理。'),
         error?h('div',{role:'alert'},error):null)
     }
-    let spriteModule
     function Sprite({state,controls}){
       const canvas=useRef(null),renderer=useRef(null),current=useRef(state),[ready,setReady]=useState(false)
       current.current=state
       useEffect(()=>{
         let closed=false,view=null;const abort=new AbortController();setReady(false)
-        const module=spriteModule??=import('/api/kujira-pet/sprite-canvas.js')
+        const module=spriteModule??=import('/api/kujira-pet/sprite-canvas.js'+(spriteAttempt?'?retry='+spriteAttempt:'')).catch(error=>{spriteModule=null;spriteAttempt++;throw error})
         void Promise.all([module,fetch('/api/kujira-pet/art?id='+encodeURIComponent(state.route.art),{signal:abort.signal}).then(r=>r.ok?r.json():null)]).then(async([runtime,art])=>{
           if(closed||!art)return
           view=new runtime.SpriteCanvas(canvas.current,art.manifest,art.urls);renderer.current=view;controls.current=view
@@ -84,12 +84,13 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         h('canvas',{ref:canvas,width:320,height:380,'aria-label':state.route.name+' 动画桌宠',style:{visibility:ready?'visible':'hidden'}}))
     }
     function Pet(){
-      const s=usePet(),[position,setPosition]=useState(null),[leader,setLeader]=useState(!navigator.locks)
+      const s=usePet(),[position,setPosition]=useState(null),[leader,setLeader]=useState(!navigator.locks),[viewport,setViewport]=useState(()=>[window.innerWidth,window.innerHeight])
       const drag=useRef(null),controls=useRef(null),previous=useRef('idle'),previousPulse=useRef(null),audio=useRef(null)
       const enabled=!!s?.config.enabled&&s.renderer==='page'
       useEffect(()=>{if(!enabled)return;let release,aborted=false;const abort=new AbortController();if(!navigator.locks){setLeader(true);return()=>setLeader(false)}
       if(navigator.locks)void navigator.locks.request('kujira-one-page-pet',{signal:abort.signal},async()=>{if(aborted)return;setLeader(true);await new Promise(r=>{release=r});setLeader(false)}).catch(()=>{});return()=>{aborted=true;abort.abort();release?.();setLeader(false)}},[enabled])
-      useEffect(()=>{const phase=s?.task.phase,pulse=s?.task.pulse,temporaryError=pulse?.kind==='error'&&pulse.id!==previousPulse.current;if(enabled&&s.config.sound&&((previous.current!==phase&&['completed','error'].includes(phase))||temporaryError)){try{const Audio=window.AudioContext??window.webkitAudioContext;const a=audio.current??=new Audio(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=phase==='completed'?660:330;g.gain.setValueAtTime(.035,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.15);o.start();o.stop(a.currentTime+.16)}catch{}}previous.current=phase??'idle';previousPulse.current=pulse?.id??null},[s?.task.phase,s?.task.pulse?.id,enabled,s?.config.sound])
+      useEffect(()=>{const phase=s?.task.phase,pulse=s?.task.pulse,temporaryError=pulse?.kind==='error'&&pulse.id!==previousPulse.current;if(enabled&&s.config.sound&&((previous.current!==phase&&['completed','error'].includes(phase))||temporaryError)){try{const Audio=window.AudioContext??window.webkitAudioContext;const a=audio.current??=new Audio(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.onended=()=>{o.disconnect();g.disconnect()};o.frequency.value=phase==='completed'?660:330;g.gain.setValueAtTime(.035,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.15);o.start();o.stop(a.currentTime+.16)}catch{}}previous.current=phase??'idle';previousPulse.current=pulse?.id??null},[s?.task.phase,s?.task.pulse?.id,enabled,s?.config.sound])
+      useEffect(()=>{if(!enabled)return;const resize=()=>setViewport([window.innerWidth,window.innerHeight]);resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize)},[enabled])
       useEffect(()=>{if(s?.config.x==null&&s?.config.y==null)setPosition(null)},[s?.config.x,s?.config.y])
       useEffect(()=>()=>{void audio.current?.close()},[])
       if(!enabled||!leader)return null
@@ -98,7 +99,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const down=e=>{if(e.button!==0||drag.current)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);const rect=e.currentTarget.parentElement.getBoundingClientRect();drag.current={pointerId:e.pointerId,x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,moved:false}}
       const move=e=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(!d.moved&&Math.abs(dx)+Math.abs(dy)>3){d.moved=true;controls.current?.startDrag()}if(!d.moved)return;const pos={x:Math.max(0,Math.min(window.innerWidth-width,d.left+dx)),y:Math.max(0,Math.min(window.innerHeight-height,d.top+dy))};d.position=pos;setPosition(pos)}
       const finish=(e,cancel=false)=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;drag.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);if(d.moved){controls.current?.endDrag();if(d.position)void call('config',d.position).catch(()=>{})}else if(!cancel){const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;controls.current?.interact(y<.45?'head_pat':x>.72&&y>.55?'tail':'poke')}}
-      return h('div',{className:'kujira-pet','data-kujira-pet':'single','data-persona':s.route.persona,'data-phase':s.task.phase,style:{position:'fixed',zIndex:900,width,...(pos?{left:Math.max(0,Math.min(pos.x,window.innerWidth-width)),top:Math.max(0,Math.min(pos.y,window.innerHeight-height))}:{right:22,bottom:18}),pointerEvents:'none'}},
+      return h('div',{className:'kujira-pet','data-kujira-pet':'single','data-persona':s.route.persona,'data-phase':s.task.phase,style:{position:'fixed',zIndex:900,width,...(pos?{left:Math.max(0,Math.min(pos.x,viewport[0]-width)),top:Math.max(0,Math.min(pos.y,viewport[1]-height))}:{right:22,bottom:18}),pointerEvents:'none'}},
         bubble?h('div',{className:'kujira-bubble',style:{position:'absolute',bottom:'95%',right:8,fontSize:13*s.config.bubbleScale},'aria-live':'polite'},
           h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'关闭桌宠',onClick:()=>void call('config',{enabled:false}).catch(()=>{})},'×')),
           h('div',null,s.task.text),s.task.progress?h('div',null,`${s.task.progress.done} / ${s.task.progress.total} 项`):null,

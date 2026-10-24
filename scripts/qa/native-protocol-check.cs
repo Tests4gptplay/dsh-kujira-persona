@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+
+[assembly: TargetFramework(".NETFramework,Version=v4.8")]
 
 public static class KujiraNativeQa {
+  [DllImport("user32.dll")] static extern IntPtr GetWindowDpiAwarenessContext(IntPtr window);
+  [DllImport("user32.dll")] static extern bool AreDpiAwarenessContextsEqual(IntPtr first,IntPtr second);
   static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
   static void Require(bool ok,string message) { if(!ok)throw new Exception(message); }
   static IDictionary<string,object> Packet(object value) { return (IDictionary<string,object>)Json.DeserializeObject(Json.Serialize(value)); }
@@ -42,6 +50,8 @@ public static class KujiraNativeQa {
     try {
       Require(window.AllowsTransparency&&window.WindowStyle==WindowStyle.None&&!window.ShowInTaskbar&&!window.ShowActivated,"Unexpected desktop window configuration");
       window.Apply(Packet(new {image=fixture,config=new {scale=1,bubble="hidden",sound=false,showUsage=false},route=new {name="Protocol QA"},task=new {phase="idle",text="QA"}}));
+      Require(AreDpiAwarenessContextsEqual(GetWindowDpiAwarenessContext(new WindowInteropHelper(window).Handle),new IntPtr(-4)),"The native window is not PerMonitorV2 aware");
+      results["perMonitorV2"]=true;
       var geometry=new[]{window.Left,window.Top,window.Width,window.Height};
       var first=new {image=fixture,rect=new[]{0,0,2,2},at=new[]{10,20},size=new[]{20,30},opacity=.25};
       var second=new {image=fixture,rect=new[]{2,0,2,2},at=new[]{10,20},size=new[]{20,30},opacity=.75};
@@ -82,6 +92,53 @@ public static class KujiraNativeQa {
       Require(visible>10000&&artPixels[3]==0,"Actual GPT sprite did not render with expected transparency");
       var artPng=new PngBitmapEncoder();artPng.Frames.Add(BitmapFrame.Create(artRender));using(var file=File.Create(Path.Combine(root,"native-gpt-preview.png")))artPng.Save(file);
       results["actualGptRaster"]=true;results["actualGptVisiblePixels"]=visible;
+      var nativeType=typeof(KujiraPet);
+      var getBounds=nativeType.GetMethod("Bounds",BindingFlags.Instance|BindingFlags.NonPublic);
+      var fit=nativeType.GetMethod("FitBounds",BindingFlags.Static|BindingFlags.NonPublic);
+      var workArea=nativeType.GetMethod("WorkArea",BindingFlags.Static|BindingFlags.NonPublic);
+      var areas=new[]{new Rect(-1920,-120,1920,1040),new Rect(0,0,2560,1400),new Rect(2560,-200,1920,1080)};
+      int geometryCases=0;
+      foreach(var scale in new[]{1.0,1.25,1.5,2.0})foreach(var work in areas){
+        var inside=new Rect(work.Left+100,work.Top+80,290*scale,320*scale);
+        Require((Rect)fit.Invoke(null,new object[]{inside,work})==inside,"A visible secondary-monitor rectangle was moved");
+        var outside=new Rect(work.Right+200,work.Bottom+100,290*scale,320*scale);
+        Require(work.Contains((Rect)fit.Invoke(null,new object[]{outside,work})),"An offscreen rectangle was not recovered into the work area");
+        geometryCases++;
+      }
+      var removedMonitor=new Rect(-100000,-100000,290,320);
+      var nearest=(Rect)workArea.Invoke(null,new object[]{removedMonitor});
+      Require(nearest.Width>0&&nearest.Height>0&&nearest.Contains((Rect)fit.Invoke(null,new object[]{removedMonitor,nearest})),"The OS nearest-monitor fallback did not return a visible work area");
+      results["geometryDpiCases"]=geometryCases;results["negativeMonitorCoordinates"]=true;results["offscreenNearestWorkArea"]=true;
+      window.Apply(Packet(new {image="",animated=true,config=new {scale=1,bubble="hidden",sound=false,showUsage=false,desktopX=-100000,desktopY=-100000},route=new {art="gpt",name="Recovered position"},task=new {phase="idle",text="QA"}}));
+      var recoveredBounds=(Rect)getBounds.Invoke(window,null);
+      Require(((Rect)workArea.Invoke(null,new object[]{recoveredBounds})).Contains(recoveredBounds),"A remembered offscreen HWND position was not recovered");
+      results["rememberedOffscreenPositionRecovered"]=true;
+      var animatedState=Packet(new {image="",animated=true,config=new {scale=1,bubble="hidden",sound=false,showUsage=false},route=new {art="gpt",name="Protocol QA"},task=new {phase="idle",text="QA"}});
+      window.Apply(animatedState);
+      var actualFrame=Packet(new {type="frame",canvas=new[]{320,380},image=sprite,rect=new[]{49,2,301,368},at=new[]{48.87,45.08},size=new[]{252.84,309.12}});
+      window.Apply(actualFrame);
+      var sheets=(System.Collections.IDictionary)nativeType.GetField("sheets",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(window);
+      var cached=sheets[sprite];var displayed=image.Source;
+      for(int i=0;i<100;i++)window.Apply(animatedState);
+      Require(sheets.Count==1&&Object.ReferenceEquals(cached,sheets[sprite])&&Object.ReferenceEquals(displayed,image.Source),"An unchanged animated state cleared or reloaded its atlas");
+      results["animatedStateRetainsAtlasCache"]=true;
+      var beforeBubble=(Rect)getBounds.Invoke(window,null);
+      window.Apply(Packet(new {image="",animated=true,config=new {scale=1,bubble="always",sound=false,showUsage=false},route=new {art="gpt",name="Protocol QA"},task=new {phase="working",text="Line one\nLine two\nLine three\nLine four"}}));
+      var afterBubble=(Rect)getBounds.Invoke(window,null);
+      Require(Math.Abs(afterBubble.Right-beforeBubble.Right)<=1&&Math.Abs(afterBubble.Bottom-beforeBubble.Bottom)<=1,"A bubble resize moved the desktop anchor");
+      results["bubbleResizeKeepsDesktopAnchor"]=true;
+      window.Apply(Packet(new {image=fixture,animated=false,config=new {scale=1,bubble="hidden",sound=false,showUsage=false},route=new {art="unknown",name="Custom persona"},task=new {phase="idle",text="QA"}}));
+      Require(image.Source is BitmapSource&&sheets.Count==1,"Static custom-persona fallback did not load");results["staticPersonaFallback"]=true;
+      var queue=nativeType.GetMethod("Queue",BindingFlags.Instance|BindingFlags.NonPublic);
+      int posted=0;DispatcherHookEventHandler onPosted=(s,e)=>{posted++;};window.Dispatcher.Hooks.OperationPosted+=onPosted;
+      var burstState=Packet(new {image="",animated=true,config=new {scale=1,bubble="hidden",sound=false,showUsage=false},route=new {art="gpt",name="Burst QA"},task=new {phase="idle",text="QA"}});
+      queue.Invoke(window,new object[]{burstState});
+      for(int i=0;i<10000;i++)queue.Invoke(window,new object[]{actualFrame});
+      window.Dispatcher.Hooks.OperationPosted-=onPosted;
+      Require(posted==1,"Input burst queued more than one UI dispatch");
+      var pump=new DispatcherFrame();window.Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle,new Action(()=>pump.Continue=false));Dispatcher.PushFrame(pump);
+      Require(nativeType.GetField("pendingState",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(window)==null&&nativeType.GetField("pendingFrame",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(window)==null,"Input burst did not drain");
+      Require(image.Source is DrawingImage,"Final input frame did not render");results["boundedUiFrameQueue"]=new {inputFrames=10000,postedUiCallbacks=posted};
     } finally {window.Close();app.Shutdown();}
 
     Process process=null,other=null;

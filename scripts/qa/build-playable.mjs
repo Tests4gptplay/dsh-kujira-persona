@@ -33,12 +33,12 @@ const html=String.raw`<!doctype html>
 </style></head><body data-theme="light"><div class="wrap">
 <header><div><div class="eyebrow">A little company</div><h1>Kujira<span>动作试玩</span></h1><p class="intro">挑一个角色，看她进入工作；点一下、拖一拖，试试她的反应。</p></div><div class="offline">离线 · 状态模拟</div></header>
 <main class="layout"><section class="panel" aria-label="试玩控制"><div class="label-row"><h2>选择角色</h2><span class="small">01</span></div><div class="characters" id="characters"></div><p class="helper available-note" id="availability"></p>
-<div class="divider"></div><div class="label-row"><h2>任务阶段</h2><span class="small">02</span></div><div class="states" id="states"></div><button class="primary" id="simulate" aria-pressed="false">▷ 模拟一轮工作</button><p class="helper">这是动作与状态的模拟播放，不会执行 DSH 任务。</p></section>
+<div class="divider"></div><div class="label-row"><h2>任务阶段</h2><span class="small">02</span></div><div class="states" id="states"></div><button class="primary" id="simulate" aria-pressed="false">▷ 模拟一轮工作</button><p class="helper">依次预览思考、工作、等待与完成动作。</p></section>
 <section class="viewer" aria-label="角色动作预览"><div class="viewer-head"><div><div class="name" id="name">GPT</div><div class="status"><span id="status">待机中</span><span class="step-label" id="sequence"></span></div></div><div class="theme" role="group" aria-label="背景颜色"><button data-theme="light" aria-pressed="true">浅色</button><button data-theme="dark" aria-pressed="false">深色</button></div></div>
 <div class="stage" id="stage"><div class="ground"></div><div id="pet"><canvas id="canvas" width="320" height="380" tabindex="0" role="button" aria-label="角色；按空格戳一下，可以拖动摆放"></canvas></div><div class="load-error" id="load-error" hidden></div><div class="stage-message" id="message" aria-live="polite">点击头部摸摸她，拖动可以换个位置。</div></div>
 <div class="playback"><button id="pause" aria-pressed="false">Ⅱ 暂停</button><label class="size" for="size"><span>大小</span><input id="size" type="range" min="160" max="300" value="220" step="10"><output id="size-value">220</output></label><label class="reduced"><input type="checkbox" id="reduced">减少动态</label></div>
 <div class="actions"><button data-action="head_pat">摸摸头</button><button data-action="poke">戳一下</button><button data-action="tail">碰尾巴</button><button id="reset">放回中间</button></div></section></main>
-<footer class="foot"><p>部分任务阶段共用已绘制的中性动作。触摸和拖放反应按当前角色已有的动作开放。</p><p>双击打开 · 无需登录</p></footer></div>
+<footer class="foot"><p>在左侧切换任务阶段，也可以用下方按钮体验当前角色的动作。</p><p>双击打开 · 无需登录</p></footer></div>
 <script>
 'use strict';
 /* PLAYER_SOURCE */
@@ -59,13 +59,13 @@ function cancelSimulation(){simulation=null;$('simulate').setAttribute('aria-pre
 function taskFor(id){if(id==='success')return{phase:'completed',activity:'idle',signal:++signal,pulse:{id:++pulse,kind:'success'}};return{phase:['searching','editing','commanding','testing'].includes(id)?'working':id,activity:id,signal:++signal,pulse:null}}
 function applyState(id){selectedState=id;player.update(taskFor(id),config,now());document.querySelectorAll('[data-state]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.state===id)));$('status').textContent=LABELS[id];updateMessage()}
 function setState(id){if(!player)return;cancelSimulation();applyState(id);render()}
-function updateMessage(){if(!manifest)return;const source=manifest.fallbackSources?.[selectedState];$('message').textContent=source?(source==='idle'?'此状态使用已有的中性待机动作。':'此状态使用已有的通用工作动作。'):(manifest.clips.head_pat?'点击头部摸摸她，拖动可以换个位置。':'可以拖动摆放，也可以切换任务阶段。')}
+function updateMessage(){if(!manifest)return;const source=manifest.fallbackSources?.[selectedState];$('message').textContent=source?(source==='idle'?'她正安静地等候。':'她正专心处理这一步。'):(manifest.clips.head_pat?'点击头部摸摸她，拖动可以换个位置。':'可以拖动摆放，也可以切换任务阶段。')}
 async function selectCharacter(item){
   cancelSimulation();clearTimeout(timer);if(pointer)finishPointer(null,true);const id=++loadId;loaded=false;lastKey='';character=item;manifest=ART[item.art];player=new AnimationPlayer(manifest,{now:now()});images={};
   canvas.width=manifest.canvas[0];canvas.height=manifest.canvas[1];ctx.clearRect(0,0,canvas.width,canvas.height);canvas.dataset.character=item.id;delete canvas.dataset.clip;delete canvas.dataset.frame;
   $('name').textContent=item.name;$('load-error').hidden=false;$('load-error').textContent='正在载入角色…';
   document.querySelectorAll('#characters [data-character]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.character===item.id)));
-  $('availability').textContent=manifest.clips.head_pat?'已有任务动作、触摸反应与拖放动作。':'已有标准任务动作；未完成的触摸反应暂不开放。';
+  $('availability').textContent=manifest.clips.head_pat?'可体验任务动作、触摸反应与拖放。':'可体验待机、工作、等待和结果动作。';
   document.querySelectorAll('[data-action]').forEach(el=>el.disabled=!manifest.clips[el.dataset.action]||config.reducedMotion);
   resetPosition();applyState('idle');
   try{const entries=await Promise.all(Object.entries(manifest.sheets).map(([name,file])=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve([name,image]);image.onerror=()=>reject(new Error('图片没有载入，请将 index.html 和 assets 文件夹保留在一起。'));image.src='assets/'+encodeURIComponent(file)})));if(id!==loadId)return;images=Object.fromEntries(entries);loaded=true;$('load-error').hidden=true;render()}
@@ -104,7 +104,7 @@ await copyFile(join(root,'pet/NOTICE.md'),join(output,'pet/NOTICE.md'))
 await mkdir(join(output,'docs/development'),{recursive:true})
 await copyFile(join(root,'docs/development/NATIVE_QA_20261024.json'),join(output,'docs/development/NATIVE_QA_20261024.json'))
 await copyFile(join(root,'pet/dsh-dafeiyu-LICENSE.txt'),join(output,'dsh-dafeiyu-LICENSE.txt'))
-await writeFile(join(output,'使用说明.txt'),'Kujira 动作试玩\n\n双击 index.html 打开。请保留旁边的 assets 文件夹。无需 npm、服务器、登录或网络。\n\n可以切换角色和任务阶段、模拟一轮工作、暂停、调整大小及背景、点击或拖动角色。触摸反应只在角色已有相应动作时开放。\n\n这是动作试玩与状态模拟，不会调用模型或执行 DSH 任务。正式插件的任务联动在 DSH 内使用。部分功能阶段共用已有中性动作，不代表每一阶段都有独立原画。\n\n图片为候选美术。来源与第三方角色使用条件见 NOTICE.md 和 pet/NOTICE.md；项目许可见 LICENSE，播放器行为参考部分的 MIT 许可见 dsh-dafeiyu-LICENSE.txt。\n','utf8')
+await writeFile(join(output,'使用说明.txt'),"Kujira 动作试玩\n\n双击 index.html 打开。请保留旁边的 assets 文件夹。无需 npm、服务器、登录或网络。\n\n可以切换角色和任务阶段、模拟一轮工作、暂停、调整大小及背景，也可以点击或拖动角色。下方按钮显示当前角色可用的触摸动作。\n\n离线试玩用于手动预览角色动作和任务阶段，实际任务联动在 DSH 插件中运行。部分功能阶段共用中性动作。\n\n来源与角色使用条件见 NOTICE.md 和 pet/NOTICE.md；项目许可见 LICENSE，播放器行为参考部分的 MIT 许可见 dsh-dafeiyu-LICENSE.txt。\n",'utf8')
 const result={kind:'kujira-offline-action-trial',builtAt:new Date().toISOString(),characters:characters.map(c=>({id:c.id,name:c.name,available:!!art[c.art]})),sheets:files,playerSha256:createHash('sha256').update(originalPlayer).digest('hex')}
 await writeFile(marker,JSON.stringify(result,null,2)+'\n','utf8')
 console.log(JSON.stringify({output,characters:result.characters.filter(c=>c.available).length,sheets:files.length,playerSha256:result.playerSha256}))

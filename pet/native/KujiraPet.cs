@@ -3,28 +3,78 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+[assembly: TargetFramework(".NETFramework,Version=v4.8")]
 public class KujiraPet : Window {
+  [StructLayout(LayoutKind.Sequential)] struct NativeRect { public int Left,Top,Right,Bottom; }
+  [StructLayout(LayoutKind.Sequential)] struct MonitorInfo { public int Size;public NativeRect Monitor,Work;public uint Flags; }
+  [DllImport("user32.dll")] static extern IntPtr MonitorFromRect(ref NativeRect rect,uint flags);
+  [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern bool GetMonitorInfo(IntPtr monitor,ref MonitorInfo info);
+  [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr window,out NativeRect rect);
+  [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr window,IntPtr after,int x,int y,int width,int height,uint flags);
+  [DllImport("user32.dll")] static extern uint GetDpiForWindow(IntPtr window);
+  [DllImport("user32.dll")] static extern uint GetDpiForSystem();
   readonly JavaScriptSerializer json=new JavaScriptSerializer();
   readonly Image image=new Image { Stretch=Stretch.Uniform,Width=210,Height=250 };
   readonly TextBlock text=new TextBlock { TextWrapping=TextWrapping.Wrap,Foreground=new SolidColorBrush(Color.FromRgb(42,57,75)),FontSize=14 };
   readonly Border bubble=new Border { Background=new SolidColorBrush(Color.FromRgb(255,253,248)),CornerRadius=new CornerRadius(16),Padding=new Thickness(15),BorderBrush=new SolidColorBrush(Color.FromRgb(218,211,204)),BorderThickness=new Thickness(1),Width=250 };
   readonly Canvas canvas=new Canvas();
   readonly Dictionary<string,BitmapSource> sheets=new Dictionary<string,BitmapSource>();
-  string imagePath="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
+  string assetKey="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
+  IntPtr handle;bool layoutQueued;IDictionary<string,object> lastState;
+  readonly object inputGate=new object();IDictionary<string,object> pendingState,pendingFrame;bool inputQueued;string queuedAssetKey="";
   static IDictionary<string,object> Map(object o){return o as IDictionary<string,object>??new Dictionary<string,object>();}
   static object Get(IDictionary<string,object> m,string k,object fallback=null){object v;return m.TryGetValue(k,out v)?v:fallback;}
   static string Str(IDictionary<string,object> m,string k,string f=""){return Convert.ToString(Get(m,k,f));}
   static bool Bool(IDictionary<string,object> m,string k){var value=Get(m,k,false);return value is bool&&(bool)value;}
   static double Num(IDictionary<string,object> m,string k,double f){try {return Convert.ToDouble(Get(m,k,f));}catch{return f;}}
   static void Emit(string message){try{Console.WriteLine(message);Console.Out.Flush();}catch{}}
+  static string AssetKey(IDictionary<string,object> state){return Str(Map(Get(state,"route")),"art")+"|"+Str(state,"image");}
+  static double SystemScale(){return GetDpiForSystem()/96.0;}
+  double WindowScale(){return handle==IntPtr.Zero?SystemScale():GetDpiForWindow(handle)/96.0;}
+  Rect Bounds(){
+    if(handle==IntPtr.Zero)new WindowInteropHelper(this).EnsureHandle();
+    NativeRect rect;GetWindowRect(handle,out rect);return new Rect(rect.Left,rect.Top,rect.Right-rect.Left,rect.Bottom-rect.Top);
+  }
+  static Rect WorkArea(Rect bounds){
+    var rect=new NativeRect {Left=(int)Math.Floor(bounds.Left),Top=(int)Math.Floor(bounds.Top),Right=(int)Math.Ceiling(bounds.Right),Bottom=(int)Math.Ceiling(bounds.Bottom)};
+    var info=new MonitorInfo {Size=Marshal.SizeOf(typeof(MonitorInfo))};
+    if(GetMonitorInfo(MonitorFromRect(ref rect,2),ref info))return new Rect(info.Work.Left,info.Work.Top,info.Work.Right-info.Work.Left,info.Work.Bottom-info.Work.Top);
+    var work=SystemParameters.WorkArea;double scale=SystemScale();return new Rect(work.Left*scale,work.Top*scale,work.Width*scale,work.Height*scale);
+  }
+  static Rect FitBounds(Rect bounds,Rect work){
+    double width=Math.Min(bounds.Width,work.Width),height=Math.Min(bounds.Height,work.Height);
+    return new Rect(Math.Max(work.Left,Math.Min(work.Right-width,bounds.Left)),Math.Max(work.Top,Math.Min(work.Bottom-height,bounds.Top)),width,height);
+  }
+  void SetBounds(Rect bounds,bool moveOnly=false){SetWindowPos(handle,IntPtr.Zero,(int)Math.Round(bounds.Left),(int)Math.Round(bounds.Top),(int)Math.Round(bounds.Width),(int)Math.Round(bounds.Height),0x14u|(moveOnly?1u:0u));}
+  IntPtr WindowMessage(IntPtr window,int message,IntPtr wParam,IntPtr lParam,ref bool handled){
+    if((message==0x02e0||message==0x007e||message==0x001a)&&lastState!=null&&!layoutQueued){
+      layoutQueued=true;Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,new Action(()=>{layoutQueued=false;if(lastState!=null)Apply(lastState);}));
+    }
+    return IntPtr.Zero;
+  }
+  void Queue(IDictionary<string,object> state){
+    lock(inputGate){
+      if(Str(state,"type")=="frame")pendingFrame=state;
+      else {var key=AssetKey(state);if(key!=queuedAssetKey)pendingFrame=null;queuedAssetKey=key;pendingState=state;}
+      if(inputQueued)return;inputQueued=true;
+    }
+    Dispatcher.BeginInvoke(new Action(()=>{
+      IDictionary<string,object> statePacket,framePacket;
+      lock(inputGate){statePacket=pendingState;framePacket=pendingFrame;pendingState=null;pendingFrame=null;inputQueued=false;}
+      try{if(statePacket!=null)Apply(statePacket);if(framePacket!=null)Apply(framePacket);}catch{}
+    }));
+  }
   KujiraPet(){
     Title="Kujira 桌宠";Width=290;Height=540;AllowsTransparency=true;WindowStyle=WindowStyle.None;Background=Brushes.Transparent;Topmost=true;ShowActivated=false;ShowInTaskbar=false;ResizeMode=ResizeMode.NoResize;
     Content=canvas;bubble.Child=text;canvas.Children.Add(bubble);canvas.Children.Add(image);
@@ -35,7 +85,8 @@ public class KujiraPet : Window {
       if((PointToScreen(e.GetPosition(this))-origin).Length<4)return;
       pressed=false;image.ReleaseMouseCapture();Emit("{\"type\":\"action\",\"action\":\"drag-start\"}");
       try{DragMove();}catch{}
-      Emit(json.Serialize(new {type="action",action="position",x=Left,y=Top}));
+      if(lastState!=null)Apply(lastState);var bounds=Bounds();double scale=SystemScale();
+      Emit(json.Serialize(new {type="action",action="position",x=bounds.Left/scale,y=bounds.Top/scale}));
       Emit("{\"type\":\"action\",\"action\":\"drag-end\"}");
     };
     image.MouseLeftButtonUp+=(s,e)=>{
@@ -45,7 +96,8 @@ public class KujiraPet : Window {
     };
     var menu=new ContextMenu();var refresh=new MenuItem { Header="刷新余额／套餐" };refresh.Click+=(s,e)=>Emit("{\"type\":\"action\",\"action\":\"refresh\"}");
     var close=new MenuItem { Header="关闭桌宠" };close.Click+=(s,e)=>{Emit("{\"type\":\"action\",\"action\":\"close\"}");Close();};menu.Items.Add(refresh);menu.Items.Add(close);image.ContextMenu=menu;
-    Loaded+=(s,e)=>{if(!initialized){Left=Math.Max(0,SystemParameters.WorkArea.Right-Width-24);Top=Math.Max(0,SystemParameters.WorkArea.Bottom-Height-16);}Emit("{\"type\":\"ready\"}");};
+    SourceInitialized+=(s,e)=>{handle=new WindowInteropHelper(this).Handle;HwndSource.FromHwnd(handle).AddHook(WindowMessage);};
+    Loaded+=(s,e)=>{if(!initialized){var work=WorkArea(Bounds());double scale=WindowScale();SetBounds(FitBounds(new Rect(work.Right-(Width+24)*scale,work.Bottom-(Height+16)*scale,Width*scale,Height*scale),work));}Emit("{\"type\":\"ready\"}");};
   }
   static double Item(IList list,int index){return Convert.ToDouble(list[index]);}
   BitmapSource Sheet(string path){
@@ -72,10 +124,20 @@ public class KujiraPet : Window {
   }
   public void Apply(IDictionary<string,object> state){
     if(Str(state,"type")=="frame"){DrawFrame(state);return;}
+    lastState=state;
     var cfg=Map(Get(state,"config"));var route=Map(Get(state,"route"));var task=Map(Get(state,"task"));var usage=Map(Get(state,"usage"));
     string persona=Str(route,"name","Kujira"),phase=Str(task,"phase","idle");Title="Kujira · "+persona+" · "+phase;
-    var path=Str(state,"image");if(path!=imagePath){sheets.Clear();try{image.Source=Sheet(path);imagePath=path;}catch{}}
-    double scale=Num(cfg,"scale",1);image.Width=190*scale;image.Height=image.Width*380/320; double right=Left+Width,bottom=Top+Height; Width=Math.Max(290,image.Width+20);
+    string path=Str(state,"image"),key=AssetKey(state);if(key!=assetKey){sheets.Clear();image.Source=null;assetKey=key;}
+    if(!Bool(state,"animated")&&image.Source==null&&path!="")try{image.Source=Sheet(path);}catch{}
+    var before=Bounds();
+    double nextX=Get(cfg,"desktopX")==null?Double.NaN:Num(cfg,"desktopX",Double.NaN);
+    double nextY=Get(cfg,"desktopY")==null?Double.NaN:Num(cfg,"desktopY",Double.NaN);
+    bool positionChanged=!nextX.Equals(savedX)||!nextY.Equals(savedY),restore=!initialized||positionChanged;
+    double systemScale=SystemScale();
+    // Saved coordinates retain the original system-DPI units. HWND placement is physical.
+    if(restore&&(!Double.IsNaN(nextX)||!Double.IsNaN(nextY)))SetBounds(new Rect(Double.IsNaN(nextX)?before.Left:nextX*systemScale,Double.IsNaN(nextY)?before.Top:nextY*systemScale,before.Width,before.Height),true);
+    var work=WorkArea(Bounds());double dpi=WindowScale();
+    double scale=Num(cfg,"scale",1);image.Width=190*scale;image.Height=image.Width*380/320;Width=Math.Min(work.Width/dpi,Math.Max(290,image.Width+20));
     Canvas.SetLeft(image,(Width-image.Width)/2);Canvas.SetTop(image,Height-image.Height-5);
     bubble.Width=Math.Min(280,245*Num(cfg,"bubbleScale",1));text.FontSize=13*Num(cfg,"bubbleScale",1);
     Canvas.SetLeft(bubble,(Width-bubble.Width)/2);Canvas.SetBottom(bubble,image.Height-5);
@@ -89,15 +151,11 @@ public class KujiraPet : Window {
     if(Bool(cfg,"showUsage")&&usage.Count>0){sb.Append("\n\n"+Str(usage,"title"));var lines=Get(usage,"lines") as IEnumerable;if(lines!=null)foreach(var line in lines)sb.Append("\n"+line);}
     text.Text=sb.ToString();var bm=Str(cfg,"bubble","always");bubble.Visibility=bm=="hidden"||(bm=="tasks"&&phase=="idle")?Visibility.Hidden:Visibility.Visible;
     bubble.Measure(new Size(bubble.Width,Double.PositiveInfinity));
-    var work=SystemParameters.WorkArea;
-    Height=Math.Min(work.Height,Math.Max(image.Height+24,image.Height+(bubble.Visibility==Visibility.Visible?bubble.DesiredSize.Height:0)+20));
+    Height=Math.Min(work.Height/dpi,Math.Max(image.Height+24,image.Height+(bubble.Visibility==Visibility.Visible?bubble.DesiredSize.Height:0)+20));
     Canvas.SetTop(image,Height-image.Height-5);
-    double nextX=Get(cfg,"desktopX")==null?Double.NaN:Num(cfg,"desktopX",Double.NaN);
-    double nextY=Get(cfg,"desktopY")==null?Double.NaN:Num(cfg,"desktopY",Double.NaN);
-    bool positionChanged=!nextX.Equals(savedX)||!nextY.Equals(savedY);
-    if(!initialized||positionChanged){Left=Double.IsNaN(nextX)?work.Right-Width-24:nextX;Top=Double.IsNaN(nextY)?work.Bottom-Height-16:nextY;}
-    else {Left=right-Width;Top=bottom-Height;}
-    Left=Math.Max(work.Left,Math.Min(work.Right-Width,Left));Top=Math.Max(work.Top,Math.Min(work.Bottom-Height,Top));
+    double x=restore?(Double.IsNaN(nextX)?work.Right-(Width+24)*dpi:nextX*systemScale):before.Right-Width*dpi;
+    double y=restore?(Double.IsNaN(nextY)?work.Bottom-(Height+16)*dpi:nextY*systemScale):before.Bottom-Height*dpi;
+    SetBounds(FitBounds(new Rect(Math.Round(x),Math.Round(y),Math.Ceiling(Width*dpi),Math.Ceiling(Height*dpi)),work));
     savedX=nextX;savedY=nextY;
     var pulse=Map(Get(task,"pulse"));string pulseId=Str(pulse,"id");
     if(initialized&&Bool(cfg,"sound")&&((phase!=lastPhase&&(phase=="completed"||phase=="error"))||(pulseId!=""&&pulseId!=lastPulse&&Str(pulse,"kind")=="error")))System.Media.SystemSounds.Asterisk.Play();
@@ -107,7 +165,7 @@ public class KujiraPet : Window {
     bool owned;using(var mutex=new Mutex(true,"Local\\KujiraSinglePet-"+Environment.UserName,out owned)){
       if(!owned){Emit("{\"type\":\"already-open\"}");return;}
       var app=new Application();var w=new KujiraPet();
-      var thread=new Thread(()=>{string line;try{while((line=Console.ReadLine())!=null){var captured=line;app.Dispatcher.BeginInvoke(new Action(()=>{try{w.Apply(Map(w.json.DeserializeObject(captured)));}catch{}}));}}catch{}finally{app.Dispatcher.BeginInvoke(new Action(()=>app.Shutdown()));}});thread.IsBackground=true;thread.Start();app.Run(w);mutex.ReleaseMutex();
+      var thread=new Thread(()=>{var input=new JavaScriptSerializer();string line;try{while((line=Console.ReadLine())!=null)try{w.Queue(Map(input.DeserializeObject(line)));}catch{}}catch{}finally{if(!app.Dispatcher.HasShutdownStarted)app.Dispatcher.BeginInvoke(new Action(()=>app.Shutdown()));}});thread.IsBackground=true;thread.Start();app.Run(w);mutex.ReleaseMutex();
     }
   }
 }

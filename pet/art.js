@@ -32,8 +32,8 @@ const stellaWork=frames('core',[[34,846,267,408,133.5,405],[340,846,273,408,136.
 
 export const ART = {
   gpt:buildStandardManifest({
-    revision:'reviewed-20261024-1',canvas:[320,380],
-    sheets:{core:'gpt-core-v1.png',research:'gpt-research-edit-v1.png',commands:'gpt-command-test-v1.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v1.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png'},
+    revision:'anatomy-fix-20261025-1',canvas:[320,380],
+    sheets:{core:'gpt-core-v2.png',research:'gpt-research-edit-v1.png',commands:'gpt-command-test-v1.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v1.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png'},
     stateMap:{idle:'idle',thinking:'thinking',working:'commanding',waiting:'waiting',success:'success',error:'error'},
     workingActivityMap:{searching:'searching',editing:'editing',commanding:'commanding',testing:'testing'},
     idleMicroClips:['stretch','yawn'],

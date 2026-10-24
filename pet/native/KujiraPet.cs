@@ -22,7 +22,7 @@ public class KujiraPet : Window {
   static IDictionary<string,object> Map(object o){return o as IDictionary<string,object>??new Dictionary<string,object>();}
   static object Get(IDictionary<string,object> m,string k,object fallback=null){object v;return m.TryGetValue(k,out v)?v:fallback;}
   static string Str(IDictionary<string,object> m,string k,string f=""){return Convert.ToString(Get(m,k,f));}
-  static bool Bool(IDictionary<string,object> m,string k){return Get(m,k,false) is bool&&(bool)Get(m,k);}
+  static bool Bool(IDictionary<string,object> m,string k){var value=Get(m,k,false);return value is bool&&(bool)value;}
   static double Num(IDictionary<string,object> m,string k,double f){try {return Convert.ToDouble(Get(m,k,f));}catch{return f;}}
   static void Emit(string message){try{Console.WriteLine(message);Console.Out.Flush();}catch{}}
   KujiraPet(){

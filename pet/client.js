@@ -77,7 +77,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
           if(!closed)setReady(true)
         }).catch(()=>{view?.dispose();if(renderer.current===view)renderer.current=null;if(controls.current===view)controls.current=null})
         return()=>{closed=true;abort.abort();view?.dispose();if(renderer.current===view)renderer.current=null;if(controls.current===view)controls.current=null}
-      },[state.route.art])
+      },[state.route.art,connectionGeneration])
       useEffect(()=>renderer.current?.update(state.task,state.config,state.route.sessionId),[state])
       return h('div',{style:{position:'relative',aspectRatio:'320 / 380'}},
         h('img',{src:'/api/kujira-pet/image?id='+encodeURIComponent(state.route.art),alt:state.route.name+' 桌宠',draggable:false,style:{position:'absolute',inset:0,display:ready?'none':'block'}}),

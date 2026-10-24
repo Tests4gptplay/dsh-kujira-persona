@@ -552,7 +552,7 @@ const ADDITIONS = {
       }
     },
     "responding": {
-      "sheet": "minimax-responding-v001.png",
+      "sheet": "minimax-responding-v002.png",
       "clip": {
         "frames": [
           {
@@ -575,6 +575,23 @@ const ADDITIONS = {
           {
             "sheet": "authored_responding",
             "rect": [
+              1600,
+              0,
+              400,
+              400
+            ],
+            "at": [
+              -40,
+              0
+            ],
+            "size": [
+              400,
+              400
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
               1200,
               0,
               400,
@@ -610,6 +627,23 @@ const ADDITIONS = {
             "sheet": "authored_responding",
             "rect": [
               1200,
+              0,
+              400,
+              400
+            ],
+            "at": [
+              -40,
+              0
+            ],
+            "size": [
+              400,
+              400
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1600,
               0,
               400,
               400
@@ -676,10 +710,12 @@ const ADDITIONS = {
           }
         ],
         "durations": [
-          900,
+          820,
+          80,
           180,
           700,
-          180,
+          100,
+          80,
           700,
           120,
           500
@@ -6769,7 +6805,7 @@ export function applyStateArt(art) {
       delete fallbackSources['using-tool']
     }
     art[id] = buildStandardManifest({...base, sheets, clips, stateMap, workingActivityMap,
-      fallbackSources, revision: ['mistral','stella','grok','doubao'].includes(id) ? 'state-art-20261025-3' : 'state-art-20261025-2'})
+      fallbackSources, revision: id === 'minimax' ? 'state-art-20261025-4' : ['mistral','stella','grok','doubao'].includes(id) ? 'state-art-20261025-3' : 'state-art-20261025-2'})
   }
   return art
 }

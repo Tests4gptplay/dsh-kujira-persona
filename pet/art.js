@@ -1,6 +1,7 @@
 /** Reviewed sprite rectangles with anatomy-corrected production atlases. */
 import {buildStandardManifest} from './standard-manifest.js'
 import {SECONDARY_ART} from './art-secondary.js'
+import {applyStateArt} from './art-state-completion.js'
 
 // One scale for an entire authored action; anchors fix the layout ground, not each frame's height.
 const frames=(sheet,rows,scale=1,lift=[])=>rows.map(([x,y,w,h,ax,ay],i)=>({
@@ -68,4 +69,5 @@ export const ART = {
   }),
   ...SECONDARY_ART
 }
+applyStateArt(ART)
 export const artFor=id=>Object.hasOwn(ART,id)?ART[id]:ART.stella

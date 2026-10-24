@@ -89,7 +89,22 @@
     "pet/assets/stella-status-v2.png",
     "pet/native/win-x64/KujiraPet.exe",
     "pet/NOTICE.md",
-    "pet/dsh-dafeiyu-LICENSE.txt"
+    "pet/dsh-dafeiyu-LICENSE.txt",
+    "pet/assets/deepseek-commanding-v001.png",
+    "pet/assets/deepseek-responding-v002.png",
+    "pet/assets/deepseek-searching-v001.png",
+    "pet/assets/deepseek-testing-v002.png",
+    "pet/assets/minimax-commanding-v001.png",
+    "pet/assets/minimax-editing-v001.png",
+    "pet/assets/minimax-responding-v001.png",
+    "pet/assets/minimax-searching-v001.png",
+    "pet/assets/minimax-testing-v001.png",
+    "pet/assets/minimax-thinking-v001.png",
+    "pet/assets/claude-commanding-v001.png",
+    "pet/assets/claude-responding-v001.png",
+    "pet/assets/claude-searching-v001.png",
+    "pet/assets/claude-testing-v001.png",
+    "pet/assets/claude-thinking-v001.png"
   ],
   "dsh": {
     "bundle": {

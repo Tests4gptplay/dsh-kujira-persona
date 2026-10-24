@@ -64,6 +64,12 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 
 试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)。
 
+### 设置中的人物档案入口（2.0.0）
+
+在 DSH **设置 → Kujira · 人设** 中统一调整桌宠，打开共同世界观、基础人设和每个角色的本机档案文件夹（包括星璃）。页面显示各目录的占用大小及档案总计；进入该页或点击“刷新文件夹大小”时统计，不持续扫描磁盘。
+
+修改世界观、人物性格、记忆或角色绑定，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
+
 ## 安装和升级
 
 以下为正式版本 v1.6.2 的安装方法。

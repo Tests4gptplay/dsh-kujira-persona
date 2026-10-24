@@ -7,10 +7,12 @@ import { PetController } from './controller.js'
 import { createUsageReader } from './usage.js'
 import { NativePet } from './native.js'
 import { artFor } from './art.js'
+import { createFolderBrowser } from './folders.js'
 const HERE=dirname(fileURLToPath(import.meta.url))
-export function applyPet(ctx,{catalog,home}){
+export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personaDir:join(home,'persona'),personasDir:join(home,'personas')},ensureFolder}){
   ctx.inject(['sessions','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
+    const folderBrowser=createFolderBrowser({...folders,catalog,ensureFolder})
     let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{},offCatalog=()=>{}
     const ready=(async()=>{
       let config={}
@@ -45,6 +47,7 @@ export function applyPet(ctx,{catalog,home}){
       offEvent=ctx.on('session/event',(session,event)=>controller.event(session,event),{global:true})
       render(controller.snapshot());return controller
     })().catch(()=>{scope.logger?.warn?.('Kujira 桌宠未启动，人设功能继续可用');return null})
+    const endPointError=(endpoint,e)=>endpoint==='open-folder'?'无法打开文件夹：'+(e?.message??'请检查文件管理器与访问权限'):endpoint==='folders'?'读取文件夹大小失败：'+(e?.message??'请检查目录权限'):'未能完成这次设置，请重试'
     const dispatch=async(endpoint,payload)=>{
       const c=await ready;if(!c||closed)return {ok:false,error:{code:'kujira-pet',message:'桌宠设置暂不可用',details:{issues:[]}}}
       try{
@@ -54,12 +57,14 @@ export function applyPet(ctx,{catalog,home}){
           case 'config':value=await c.configure(payload??{});break
           case 'select':value=await c.select(payload??{});break
           case 'refresh':value=await c.refresh();break
+          case 'folders':value=await folderBrowser.list();break
+          case 'open-folder':value=await folderBrowser.open(payload?.id);break
           default:throw new Error('未知操作')
         }
         return {ok:true,value}
-      }catch{return {ok:false,error:{code:'kujira-pet',message:'未能完成这次设置，请重试',details:{issues:[]}}}}
+      }catch(e){return {ok:false,error:{code:'kujira-pet',message:endPointError(endpoint,e),details:{issues:[]}}}}
     }
-    for(const endpoint of ['state','config','select','refresh'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
+    for(const endpoint of ['state','config','select','refresh','folders','open-folder'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
       let envelope;try{envelope=await request.json()}catch{return new Response('Expected JSON',{status:400})}
       if(envelope.type!=='client-request'||envelope.method!=='kujira-pet/'+endpoint||typeof envelope.rpcId!=='string')return new Response('Invalid request',{status:400})
       return Response.json({type:'server-response',rpcId:envelope.rpcId,result:await dispatch(endpoint,envelope.payload)})

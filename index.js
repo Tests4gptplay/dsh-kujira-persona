@@ -39,7 +39,11 @@ export function apply(ctx, rawConfig) {
   const config = configuration(rawConfig)
   if (!config.enabled) return
   const catalog = openCatalog(config)
-  applyPet(ctx, { catalog, home: HOME })
+  applyPet(ctx, { catalog, home: HOME, folders: {worldDir: config.worldDir,personaDir: config.personaDir,personasDir: config.personasDir,sharedDir: config.sharedDir}, ensureFolder: async id => {
+    if(id==='world')return world.compose()
+    const targetId=id==='persona'?'deepseek':id
+    return dossier(await catalog.get(targetId)).compose()
+  } })
   const world = openDossier({ ...config, id: 'world', kind: 'world', label: '全局世界观',
     personaDir: config.worldDir, memoryFile: null, extraText: '', packagedDir: join(HERE, 'world') })
   const shared = config.sharedDir ? openDossier({ ...config, id: 'shared', kind: 'shared',

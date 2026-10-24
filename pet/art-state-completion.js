@@ -1435,6 +1435,3420 @@ const ADDITIONS = {
         "loop": true
       }
     }
+  },
+  "kimi": {
+    "commanding": {
+      "sheet": "kimi-commanding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -1.58,
+              45.31
+            ],
+            "size": [
+              323.16,
+              323.16
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -1.58,
+              45.31
+            ],
+            "size": [
+              323.16,
+              323.16
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -1.58,
+              45.31
+            ],
+            "size": [
+              323.16,
+              323.16
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -1.58,
+              45.31
+            ],
+            "size": [
+              323.16,
+              323.16
+            ],
+            "sheet": "authored_commanding"
+          }
+        ],
+        "durations": [
+          400,
+          160,
+          300,
+          1600
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "kimi-editing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -0.34,
+              47.65
+            ],
+            "size": [
+              320.68,
+              320.68
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -0.34,
+              47.65
+            ],
+            "size": [
+              320.68,
+              320.68
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -0.34,
+              47.65
+            ],
+            "size": [
+              320.68,
+              320.68
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -0.34,
+              47.65
+            ],
+            "size": [
+              320.68,
+              320.68
+            ],
+            "sheet": "authored_editing"
+          }
+        ],
+        "durations": [
+          600,
+          320,
+          700,
+          500
+        ],
+        "loop": true
+      }
+    },
+    "responding": {
+      "sheet": "kimi-responding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -20.45,
+              9.72
+            ],
+            "size": [
+              360.9,
+              360.9
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -20.45,
+              9.72
+            ],
+            "size": [
+              360.9,
+              360.9
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -20.45,
+              9.72
+            ],
+            "size": [
+              360.9,
+              360.9
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -20.45,
+              9.72
+            ],
+            "size": [
+              360.9,
+              360.9
+            ],
+            "sheet": "authored_responding"
+          }
+        ],
+        "durations": [
+          360,
+          400,
+          620,
+          420
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "kimi-testing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -10.56,
+              28.36
+            ],
+            "size": [
+              341.13,
+              341.13
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -10.56,
+              28.36
+            ],
+            "size": [
+              341.13,
+              341.13
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -10.56,
+              28.36
+            ],
+            "size": [
+              341.13,
+              341.13
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -10.56,
+              28.36
+            ],
+            "size": [
+              341.13,
+              341.13
+            ],
+            "sheet": "authored_testing"
+          }
+        ],
+        "durations": [
+          700,
+          700,
+          700,
+          700
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "kimi-thinking-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -6.35,
+              36.32
+            ],
+            "size": [
+              332.7,
+              332.7
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -6.35,
+              36.32
+            ],
+            "size": [
+              332.7,
+              332.7
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -6.35,
+              36.32
+            ],
+            "size": [
+              332.7,
+              332.7
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -6.35,
+              36.32
+            ],
+            "size": [
+              332.7,
+              332.7
+            ],
+            "sheet": "authored_thinking"
+          }
+        ],
+        "durations": [
+          1800,
+          800,
+          100,
+          900
+        ],
+        "loop": true
+      }
+    }
+  },
+  "gemini": {
+    "commanding": {
+      "sheet": "gemini-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -119.72,
+              -115.33
+            ],
+            "size": [
+              547.45,
+              547.45
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -119.72,
+              -115.33
+            ],
+            "size": [
+              547.45,
+              547.45
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -119.72,
+              -115.33
+            ],
+            "size": [
+              547.45,
+              547.45
+            ]
+          }
+        ],
+        "durations": [
+          450,
+          220,
+          5330
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "gemini-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -91.26,
+              -77.14
+            ],
+            "size": [
+              502.51,
+              502.51
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -91.26,
+              -77.14
+            ],
+            "size": [
+              502.51,
+              502.51
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -91.26,
+              -77.14
+            ],
+            "size": [
+              502.51,
+              502.51
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -91.26,
+              -77.14
+            ],
+            "size": [
+              502.51,
+              502.51
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -91.26,
+              -77.14
+            ],
+            "size": [
+              502.51,
+              502.51
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "gemini-searching-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -98.62,
+              -89.66
+            ],
+            "size": [
+              517.24,
+              517.24
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -98.62,
+              -89.66
+            ],
+            "size": [
+              517.24,
+              517.24
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -98.62,
+              -89.66
+            ],
+            "size": [
+              517.24,
+              517.24
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -98.62,
+              -89.66
+            ],
+            "size": [
+              517.24,
+              517.24
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -98.62,
+              -89.66
+            ],
+            "size": [
+              517.24,
+              517.24
+            ]
+          }
+        ],
+        "durations": [
+          480,
+          380,
+          480,
+          480,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "gemini-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -88.34,
+              -72.19
+            ],
+            "size": [
+              496.69,
+              496.69
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -88.34,
+              -72.19
+            ],
+            "size": [
+              496.69,
+              496.69
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -88.34,
+              -72.19
+            ],
+            "size": [
+              496.69,
+              496.69
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -88.34,
+              -72.19
+            ],
+            "size": [
+              496.69,
+              496.69
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -88.34,
+              -72.19
+            ],
+            "size": [
+              496.69,
+              496.69
+            ]
+          }
+        ],
+        "durations": [
+          520,
+          520,
+          520,
+          520,
+          320
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "gemini-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -82.33,
+              -61.95
+            ],
+            "size": [
+              484.65,
+              484.65
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -82.33,
+              -61.95
+            ],
+            "size": [
+              484.65,
+              484.65
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -82.33,
+              -61.95
+            ],
+            "size": [
+              484.65,
+              484.65
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -82.33,
+              -61.95
+            ],
+            "size": [
+              484.65,
+              484.65
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -82.33,
+              -61.95
+            ],
+            "size": [
+              484.65,
+              484.65
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    }
+  },
+  "qwen": {
+    "commanding": {
+      "sheet": "qwen-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -103.16,
+              -97.37
+            ],
+            "size": [
+              526.32,
+              526.32
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -103.16,
+              -97.37
+            ],
+            "size": [
+              526.32,
+              526.32
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -103.16,
+              -97.37
+            ],
+            "size": [
+              526.32,
+              526.32
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -103.16,
+              -97.37
+            ],
+            "size": [
+              526.32,
+              526.32
+            ]
+          }
+        ],
+        "durations": [
+          450,
+          220,
+          380,
+          4950
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "qwen-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -68.66,
+              -38.72
+            ],
+            "size": [
+              457.32,
+              457.32
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -68.66,
+              -38.72
+            ],
+            "size": [
+              457.32,
+              457.32
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -68.66,
+              -38.72
+            ],
+            "size": [
+              457.32,
+              457.32
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -68.66,
+              -38.72
+            ],
+            "size": [
+              457.32,
+              457.32
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -68.66,
+              -38.72
+            ],
+            "size": [
+              457.32,
+              457.32
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "qwen-searching-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          }
+        ],
+        "durations": [
+          480,
+          380,
+          480,
+          480,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "qwen-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -89.41,
+              -85.9
+            ],
+            "size": [
+              512.82,
+              512.82
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -89.41,
+              -85.9
+            ],
+            "size": [
+              512.82,
+              512.82
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -89.41,
+              -85.9
+            ],
+            "size": [
+              512.82,
+              512.82
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -89.41,
+              -85.9
+            ],
+            "size": [
+              512.82,
+              512.82
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -89.41,
+              -85.9
+            ],
+            "size": [
+              512.82,
+              512.82
+            ]
+          }
+        ],
+        "durations": [
+          520,
+          520,
+          520,
+          520,
+          320
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "qwen-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -100.42,
+              -92.71
+            ],
+            "size": [
+              520.83,
+              520.83
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -100.42,
+              -92.71
+            ],
+            "size": [
+              520.83,
+              520.83
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -100.42,
+              -92.71
+            ],
+            "size": [
+              520.83,
+              520.83
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -100.42,
+              -92.71
+            ],
+            "size": [
+              520.83,
+              520.83
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -100.42,
+              -92.71
+            ],
+            "size": [
+              520.83,
+              520.83
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    }
+  },
+  "glm": {
+    "commanding": {
+      "sheet": "glm-commanding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -24.59,
+              -8.12
+            ],
+            "size": [
+              369.19,
+              369.19
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -24.59,
+              -8.12
+            ],
+            "size": [
+              369.19,
+              369.19
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -24.59,
+              -8.12
+            ],
+            "size": [
+              369.19,
+              369.19
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -24.59,
+              -8.12
+            ],
+            "size": [
+              369.19,
+              369.19
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "glm-editing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -29.13,
+              -16.92
+            ],
+            "size": [
+              378.26,
+              378.26
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -29.13,
+              -16.92
+            ],
+            "size": [
+              378.26,
+              378.26
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -29.13,
+              -16.92
+            ],
+            "size": [
+              378.26,
+              378.26
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -29.13,
+              -16.92
+            ],
+            "size": [
+              378.26,
+              378.26
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "glm-responding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -55.82,
+              31.92
+            ],
+            "size": [
+              431.64,
+              329.38
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              764,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -55.82,
+              31.92
+            ],
+            "size": [
+              431.64,
+              329.38
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1528,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -55.82,
+              31.92
+            ],
+            "size": [
+              431.64,
+              329.38
+            ]
+          }
+        ],
+        "durations": [
+          600,
+          400,
+          400
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "glm-searching-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "glm-testing-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -67.39,
+              -91.14
+            ],
+            "size": [
+              454.77,
+              454.77
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -67.39,
+              -91.14
+            ],
+            "size": [
+              454.77,
+              454.77
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -67.39,
+              -91.14
+            ],
+            "size": [
+              454.77,
+              454.77
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -67.39,
+              -91.14
+            ],
+            "size": [
+              454.77,
+              454.77
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "glm-thinking-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -54.61,
+              33.71
+            ],
+            "size": [
+              429.21,
+              327.53
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              764,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -54.61,
+              33.71
+            ],
+            "size": [
+              429.21,
+              327.53
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1528,
+              0,
+              764,
+              583
+            ],
+            "at": [
+              -54.61,
+              33.71
+            ],
+            "size": [
+              429.21,
+              327.53
+            ]
+          }
+        ],
+        "durations": [
+          600,
+          400,
+          400
+        ],
+        "loop": true
+      }
+    }
+  },
+  "llama": {
+    "commanding": {
+      "sheet": "llama-commanding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -16.46,
+              7.67
+            ],
+            "size": [
+              352.91,
+              352.91
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -16.46,
+              7.67
+            ],
+            "size": [
+              352.91,
+              352.91
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -16.46,
+              7.67
+            ],
+            "size": [
+              352.91,
+              352.91
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -16.46,
+              7.67
+            ],
+            "size": [
+              352.91,
+              352.91
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "llama-editing-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -63.83,
+              -84.23
+            ],
+            "size": [
+              447.65,
+              447.65
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "llama-responding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              671,
+              664
+            ],
+            "at": [
+              -6.36,
+              30.66
+            ],
+            "size": [
+              332.73,
+              329.26
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              671,
+              0,
+              671,
+              664
+            ],
+            "at": [
+              -6.36,
+              30.66
+            ],
+            "size": [
+              332.73,
+              329.26
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1342,
+              0,
+              671,
+              664
+            ],
+            "at": [
+              -6.36,
+              30.66
+            ],
+            "size": [
+              332.73,
+              329.26
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              2013,
+              0,
+              671,
+              664
+            ],
+            "at": [
+              -6.36,
+              30.66
+            ],
+            "size": [
+              332.73,
+              329.26
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "llama-searching-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.03,
+              18.21
+            ],
+            "size": [
+              342.05,
+              342.05
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.03,
+              18.21
+            ],
+            "size": [
+              342.05,
+              342.05
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.03,
+              18.21
+            ],
+            "size": [
+              342.05,
+              342.05
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.03,
+              18.21
+            ],
+            "size": [
+              342.05,
+              342.05
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "llama-testing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.91,
+              16.49
+            ],
+            "size": [
+              343.81,
+              343.81
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              667,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.91,
+              16.49
+            ],
+            "size": [
+              343.81,
+              343.81
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1334,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.91,
+              16.49
+            ],
+            "size": [
+              343.81,
+              343.81
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2001,
+              0,
+              667,
+              667
+            ],
+            "at": [
+              -11.91,
+              16.49
+            ],
+            "size": [
+              343.81,
+              343.81
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "llama-thinking-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              646,
+              690
+            ],
+            "at": [
+              0.1,
+              18.32
+            ],
+            "size": [
+              319.8,
+              341.58
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              646,
+              0,
+              646,
+              690
+            ],
+            "at": [
+              0.1,
+              18.32
+            ],
+            "size": [
+              319.8,
+              341.58
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1292,
+              0,
+              646,
+              690
+            ],
+            "at": [
+              0.1,
+              18.32
+            ],
+            "size": [
+              319.8,
+              341.58
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1938,
+              0,
+              646,
+              690
+            ],
+            "at": [
+              0.1,
+              18.32
+            ],
+            "size": [
+              319.8,
+              341.58
+            ]
+          }
+        ],
+        "durations": [
+          500,
+          300,
+          350,
+          450
+        ],
+        "loop": true
+      }
+    }
+  },
+  "hunyuan": {
+    "commanding": {
+      "sheet": "hunyuan-commanding-v003.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -64.839,
+              -63.619
+            ],
+            "size": [
+              449.679,
+              449.679
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -64.839,
+              -63.619
+            ],
+            "size": [
+              449.679,
+              449.679
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -64.839,
+              -63.619
+            ],
+            "size": [
+              449.679,
+              449.679
+            ],
+            "sheet": "authored_commanding"
+          }
+        ],
+        "durations": [
+          350,
+          300,
+          3000
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "hunyuan-editing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ],
+            "sheet": "authored_editing"
+          }
+        ],
+        "durations": [
+          500,
+          500,
+          600,
+          500
+        ],
+        "loop": true
+      }
+    },
+    "responding": {
+      "sheet": "hunyuan-responding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -21.035,
+              20.862
+            ],
+            "size": [
+              362.069,
+              362.069
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -21.035,
+              20.862
+            ],
+            "size": [
+              362.069,
+              362.069
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -21.035,
+              20.862
+            ],
+            "size": [
+              362.069,
+              362.069
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -21.035,
+              20.862
+            ],
+            "size": [
+              362.069,
+              362.069
+            ],
+            "sheet": "authored_responding"
+          }
+        ],
+        "durations": [
+          700,
+          360,
+          700,
+          360
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "hunyuan-searching-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.288,
+              39.657
+            ],
+            "size": [
+              342.577,
+              342.577
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.288,
+              39.657
+            ],
+            "size": [
+              342.577,
+              342.577
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.288,
+              39.657
+            ],
+            "size": [
+              342.577,
+              342.577
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.288,
+              39.657
+            ],
+            "size": [
+              342.577,
+              342.577
+            ],
+            "sheet": "authored_searching"
+          }
+        ],
+        "durations": [
+          700,
+          600,
+          700,
+          600
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "hunyuan-testing-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_testing"
+          }
+        ],
+        "durations": [
+          900,
+          650,
+          850,
+          650
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "hunyuan-thinking-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -8.54,
+              44.96
+            ],
+            "size": [
+              337.079,
+              337.079
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -8.54,
+              44.96
+            ],
+            "size": [
+              337.079,
+              337.079
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -8.54,
+              44.96
+            ],
+            "size": [
+              337.079,
+              337.079
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -8.54,
+              44.96
+            ],
+            "size": [
+              337.079,
+              337.079
+            ],
+            "sheet": "authored_thinking"
+          }
+        ],
+        "durations": [
+          1800,
+          900,
+          100,
+          1000
+        ],
+        "loop": true
+      }
+    }
+  },
+  "mimo": {
+    "commanding": {
+      "sheet": "mimo-commanding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.927,
+              17.213
+            ],
+            "size": [
+              365.854,
+              365.854
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.927,
+              17.213
+            ],
+            "size": [
+              365.854,
+              365.854
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.927,
+              17.213
+            ],
+            "size": [
+              365.854,
+              365.854
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.927,
+              17.213
+            ],
+            "size": [
+              365.854,
+              365.854
+            ],
+            "sheet": "authored_commanding"
+          }
+        ],
+        "durations": [
+          350,
+          300,
+          450,
+          2500
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "mimo-editing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -27.166,
+              9.037
+            ],
+            "size": [
+              374.332,
+              374.332
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -27.166,
+              9.037
+            ],
+            "size": [
+              374.332,
+              374.332
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -27.166,
+              9.037
+            ],
+            "size": [
+              374.332,
+              374.332
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -27.166,
+              9.037
+            ],
+            "size": [
+              374.332,
+              374.332
+            ],
+            "sheet": "authored_editing"
+          }
+        ],
+        "durations": [
+          650,
+          450,
+          650,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "responding": {
+      "sheet": "mimo-responding-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -12.697,
+              36.941
+            ],
+            "size": [
+              345.395,
+              345.395
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -12.697,
+              36.941
+            ],
+            "size": [
+              345.395,
+              345.395
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -12.697,
+              36.941
+            ],
+            "size": [
+              345.395,
+              345.395
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -12.697,
+              36.941
+            ],
+            "size": [
+              345.395,
+              345.395
+            ],
+            "sheet": "authored_responding"
+          }
+        ],
+        "durations": [
+          700,
+          400,
+          500,
+          700
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "mimo-testing-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.292,
+              18.438
+            ],
+            "size": [
+              364.583,
+              364.583
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.292,
+              18.438
+            ],
+            "size": [
+              364.583,
+              364.583
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.292,
+              18.438
+            ],
+            "size": [
+              364.583,
+              364.583
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.292,
+              18.438
+            ],
+            "size": [
+              364.583,
+              364.583
+            ],
+            "sheet": "authored_testing"
+          }
+        ],
+        "durations": [
+          850,
+          850,
+          500,
+          850
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "mimo-thinking-v002.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -35.895,
+              -7.799
+            ],
+            "size": [
+              391.791,
+              391.791
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -35.895,
+              -7.799
+            ],
+            "size": [
+              391.791,
+              391.791
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -35.895,
+              -7.799
+            ],
+            "size": [
+              391.791,
+              391.791
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -35.895,
+              -7.799
+            ],
+            "size": [
+              391.791,
+              391.791
+            ],
+            "sheet": "authored_thinking"
+          }
+        ],
+        "durations": [
+          1800,
+          900,
+          100,
+          1000
+        ],
+        "loop": true
+      }
+    },
+    "waiting": {
+      "sheet": "mimo-waiting-v001.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_waiting"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_waiting"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_waiting"
+          },
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -18.875,
+              25.026
+            ],
+            "size": [
+              357.751,
+              357.751
+            ],
+            "sheet": "authored_waiting"
+          }
+        ],
+        "durations": [
+          1500,
+          300,
+          1300,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "mimo-searching-v003.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.608,
+              17.826
+            ],
+            "size": [
+              365.217,
+              365.217
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              700,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.608,
+              17.826
+            ],
+            "size": [
+              365.217,
+              365.217
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              1400,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.608,
+              17.826
+            ],
+            "size": [
+              365.217,
+              365.217
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              2100,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -22.608,
+              17.826
+            ],
+            "size": [
+              365.217,
+              365.217
+            ],
+            "sheet": "authored_searching"
+          }
+        ],
+        "durations": [
+          900,
+          650,
+          650,
+          1000
+        ],
+        "loop": true
+      }
+    }
+  },
+  "gpt": {
+    "responding": {
+      "sheet": "gpt-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              600,
+              600
+            ],
+            "at": [
+              8.5,
+              51.04
+            ],
+            "size": [
+              303,
+              303
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              600,
+              0,
+              600,
+              600
+            ],
+            "at": [
+              8.5,
+              50.54
+            ],
+            "size": [
+              303,
+              303
+            ]
+          }
+        ],
+        "durations": [
+          520,
+          420
+        ],
+        "loop": true
+      }
+    }
   }
 }
 export function applyStateArt(art) {
@@ -1447,16 +4861,26 @@ export function applyStateArt(art) {
       const key = 'authored_' + state
       sheets[key] = data.sheet
       clips[key] = data.clip
-      if (['responding','thinking'].includes(state)) stateMap[state] = key
+      if (['responding','thinking','waiting','success','error','idle'].includes(state)) stateMap[state] = key
       else workingActivityMap[state] = key
       delete fallbackSources[state]
     }
-    if (id === 'deepseek' || id === 'claude') {
+    if (['deepseek','claude','gemini','qwen'].includes(id)) {
       workingActivityMap.editing = base.stateMap.working
       delete fallbackSources.editing
     }
+    if (id === 'kimi') {
+      workingActivityMap.searching = base.stateMap.working
+      delete fallbackSources.searching
+    }
+    if (clips.authored_commanding) {
+      const observed = clips.authored_commanding
+      clips.neutral_tool = {frames: [observed.frames.at(-1)], durations: [observed.durations.at(-1)], loop: false}
+      workingActivityMap['using-tool'] = 'neutral_tool'
+      delete fallbackSources['using-tool']
+    }
     art[id] = buildStandardManifest({...base, sheets, clips, stateMap, workingActivityMap,
-      fallbackSources, revision: 'state-art-20261025-1'})
+      fallbackSources, revision: 'state-art-20261025-2'})
   }
   return art
 }

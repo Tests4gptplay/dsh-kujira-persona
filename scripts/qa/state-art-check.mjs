@@ -4,14 +4,24 @@ import {fileURLToPath} from 'node:url'
 import {ART} from '../../pet/art.js'
 import {AnimationPlayer} from '../../pet/animation.js'
 const packageJson=JSON.parse(await readFile(new URL('../../package.json',import.meta.url)))
-const expected={deepseek:['responding','searching','testing','commanding'],minimax:['responding','thinking','editing','searching','testing','commanding'],claude:['responding','thinking','searching','testing','commanding']}
+const expected={deepseek:['responding','searching','testing','commanding'],minimax:['responding','thinking','editing','searching','testing','commanding'],claude:['responding','thinking','searching','testing','commanding'],kimi:['thinking','responding','editing','testing','commanding'],gemini:['thinking','responding','searching','testing','commanding'],qwen:['thinking','responding','searching','testing','commanding'],glm:['thinking','responding','searching','editing','testing','commanding'],llama:['thinking','responding','searching','editing','testing','commanding'],hunyuan:['thinking','responding','searching','editing','testing','commanding'],mimo:['thinking','responding','searching','editing','testing','commanding','waiting'],gpt:['responding']}
 let entries=0
 for(const [role,states] of Object.entries(expected)){
  const a=ART[role], p=new AnimationPlayer(a,{now:0,random:()=>0})
- assert.equal(a.workingActivityMap['using-tool'],a.stateMap.idle)
- assert.equal(a.fallbackSources['using-tool'],a.stateMap.idle)
+ if(role==='gpt'){
+  assert.equal(a.workingActivityMap['using-tool'],a.stateMap.idle)
+  assert.equal(a.fallbackSources['using-tool'],a.stateMap.idle)
+ }else{
+  assert.equal(a.workingActivityMap['using-tool'],'neutral_tool')
+  assert.equal(a.fallbackSources['using-tool'],undefined)
+  assert.equal(a.clips.neutral_tool.loop,false)
+  assert.deepEqual(a.clips.neutral_tool.frames,[a.clips.authored_commanding.frames.at(-1)])
+  p.update({phase:'working',activity:'using-tool',signal:0},{},0)
+  assert.equal(p.tick(60000).clip,'neutral_tool')
+  assert.equal(p.tick(60000).nextDelay,null)
+ }
  for(const state of states){
-  const phase=['responding','thinking'].includes(state)?state:'working'
+  const phase=['responding','thinking','waiting'].includes(state)?state:'working'
   const key=p.clipFor(phase,state)
   assert.equal(key,'authored_'+state)
   assert.equal(a.fallbackSources[state],undefined)
@@ -22,11 +32,20 @@ for(const [role,states] of Object.entries(expected)){
    await access(new URL('../../'+path,import.meta.url)); entries++
   }
  }
+ if (a.clips.authored_commanding) {
  p.update({phase:'working',activity:'commanding',signal:1},{},0)
  const command=a.clips.authored_commanding
  assert.equal(command.loop,false)
  assert.equal(p.tick(60000).index,command.frames.length-1)
  assert.equal(p.tick(60000).nextDelay,null)
- if(role!=='minimax')assert.equal(a.workingActivityMap.editing,'working')
+ }
+ if(['deepseek','claude','gemini','qwen'].includes(role))assert.equal(a.workingActivityMap.editing,'working')
+ if(role==='kimi')assert.equal(a.workingActivityMap.searching,'working')
+ if(['glm','llama'].includes(role)){
+  p.update({phase:'working',activity:'editing',signal:2},{},70000)
+  assert.equal(a.clips.authored_editing.loop,false)
+  assert.equal(p.tick(130000).index,a.clips.authored_editing.frames.length-1)
+  assert.equal(p.tick(130000).nextDelay,null)
+ }
 }
-console.log(`PASS: 15 authored state bindings; ${entries} expanded playback entries; 3 command-once holds; 3 neutral unknown-tool fallbacks; explicit asset whitelist`)
+console.log(`PASS: 56 authored state bindings; ${entries} expanded playback entries; 10 command-once holds; 10 neutral observed-pose reuses and GPT idle fallback; explicit asset whitelist`)

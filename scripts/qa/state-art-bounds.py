@@ -5,7 +5,7 @@ from PIL import Image
 root=Path(__file__).resolve().parents[2]
 art=json.loads(subprocess.check_output(['node','--input-type=module','-e',"import {ART} from './pet/art.js'; console.log(JSON.stringify(ART))"],cwd=root))
 fringe=0;count=0
-for role in ['deepseek','minimax','claude']:
+for role in art:
     for name,clip in art[role]['clips'].items():
         if not name.startswith('authored_'): continue
         for i,f in enumerate(clip['frames']):

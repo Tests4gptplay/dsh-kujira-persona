@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **2.0.0-alpha.1 测试版。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
+> **2.0.0-alpha.2 测试版。** [开发记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/PROGRESS_20261024.md)收录本轮实现与验证结果；当前公开发行版的安装方法见下方。
 
 ## 世界观与人物
 
@@ -14,13 +14,15 @@
 
 预设只是起点。称呼、性格、关系和模型对应的角色都能改；与你的要求不同，就按你的来。
 
+内置角色的基础资料会在插件启动时准备到人物目录，设置页无需逐个点击初始化。DeepSeek 也位于统一的 `personas/deepseek` 目录；从旧版 `persona` 位置迁移时保留原有文件和备份，已保存的人设及记忆优先。角色的默认性格留给用户自行养成，社区称呼和有出处的外形资料放在共同世界观与基础档案中。
+
 ## 2.0.0：可选的模型联动桌宠
 
 只显示一只桌宠：切换当前前台对话的模型，就让这一只换成对应形象；同一家族的不同版本沿用同一人物。用户明确指定的角色优先，通过对话修改模型绑定后，桌宠会跟随更新。其他会话和后台子代理的活动不会接管前台桌宠。
 
 已接入 DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包、Mistral、混元和 MiMo。
 
-桌宠默认关闭，可以在插件详情中打开“启用桌宠”。初次进入、尚未选模型以及未识别到对应角色的模型统一由星璃陪伴；用户明确绑定的角色优先。支持页面内显示与 Windows x64 原生桌面窗口；页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
+桌宠默认关闭，可以在 DSH 设置 → Kujira · 人设中开启“启用桌宠”。初次进入、尚未选模型以及未识别到对应角色的模型统一由星璃陪伴；用户明确绑定的角色优先。支持页面内显示与 Windows x64 原生桌面窗口；页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
 
 ### 任务状态与动作
 
@@ -70,15 +72,15 @@ GPT 当前有 16 个动作片段，DeepSeek 有 8 个，包括独立的思考、
 
 修改世界观、人物性格、记忆、角色绑定或档案存放位置，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
 
-## 2.0.0-alpha.1 测试更新地址
+## 2.0.0-alpha.2 测试更新地址
 
 在 DSH 的插件管理中添加以下 GitHub 来源即可安装当前测试版本：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.0.0-alpha.1
+github:Tests4gptplay/dsh-kujira-persona#v2.0.0-alpha.2
 ```
 
-开发中的最新版本可使用 `github:Tests4gptplay/dsh-kujira-persona#feat/v2.0.0-single-model-pet`。此处的 `v2.0.0-alpha.1` 是固定测试版本分支，后续改进会使用新的 alpha 版本号。
+开发中的最新版本可使用 `github:Tests4gptplay/dsh-kujira-persona#feat/v2.0.0-single-model-pet`。`v2.0.0-alpha.2` 为固定的测试版本分支；后续改进将另建版本。
 
 ## 安装和升级
 

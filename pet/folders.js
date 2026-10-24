@@ -38,9 +38,10 @@ function openInFileManager(path,{platform=process.platform,launch=spawn}={}){
   })
 }
 
-export function createFolderBrowser({worldDir,personaDir,personasDir,sharedDir='',catalog,ensureFolder,platform,launch}){
-  const roots={world:resolve(worldDir),persona:resolve(personaDir),personas:resolve(personasDir),...(sharedDir?{shared:resolve(sharedDir)}:{})}
+export function createFolderBrowser({worldDir,personasDir,sharedDir='',catalog,ensureFolder,ensureSeeded,platform,launch}){
+  const roots={world:resolve(worldDir),personas:resolve(personasDir),...(sharedDir?{shared:resolve(sharedDir)}:{})}
   const resolveFolder=id=>{
+    if(id==='persona')return resolve(roots.personas,'deepseek') // legacy settings action alias
     if(Object.hasOwn(roots,id))return roots[id]
     if(typeof id==='string'&&id.startsWith('role:')&&validId(id.slice(5))){
       const target=resolve(roots.personas,id.slice(5))
@@ -52,26 +53,26 @@ export function createFolderBrowser({worldDir,personaDir,personasDir,sharedDir='
     const listed=(await catalog.list()).personas
     const roles=new Map([...BUILTINS,...listed].map(p=>[p.id,{id:p.id,label:p.label}]))
     const order=[...BUILTINS.map(x=>x.id),...listed.map(x=>x.id)]
-    return [...new Set(order)].filter(id=>id!=='deepseek'&&validId(id)).map(id=>({id:'role:'+id,label:roles.get(id)?.label??id,path:resolveFolder('role:'+id)}))
+    return [...new Set(order)].filter(validId).map(id=>({id:'role:'+id,label:roles.get(id)?.label??id,path:resolveFolder('role:'+id)}))
   }
   async function list(){
+    await ensureSeeded?.()
     const rows=await characterRows()
     const values=await Promise.all([
-      directoryBytes(roots.world),directoryBytes(roots.persona),directoryBytes(roots.personas),
+      directoryBytes(roots.world),directoryBytes(roots.personas),
       ...(roots.shared?[directoryBytes(roots.shared)]:[]),
       ...rows.map(row=>directoryBytes(row.path)),
     ])
-    const [world,persona,personas]=values
-    const shared=roots.shared?values[3]:0
-    const base=roots.shared?4:3
+    const [world,personas]=values
+    const shared=roots.shared?values[2]:0
+    const base=roots.shared?3:2
     const unique=Object.values(roots).filter((folder,i,all)=>!all.some((other,j)=>j!==i&&inside(folder,other)&&(folder!==other||j<i)))
     const overlap=unique.length!==Object.values(roots).length
-    const total=overlap?await Promise.all(unique.map(directoryBytes)).then(x=>x.reduce((a,b)=>a+b,0)):world+persona+personas+shared
+    const total=overlap?await Promise.all(unique.map(directoryBytes)).then(x=>x.reduce((a,b)=>a+b,0)):world+personas+shared
     return {
       groups:[
         {id:'world',label:'共同世界观',path:roots.world,bytes:world},
-        {id:'persona',label:'DeepSeek 基础人设',path:roots.persona,bytes:persona},
-        {id:'personas',label:'其他人物档案',path:roots.personas,bytes:personas},
+        {id:'personas',label:'全部人物档案',path:roots.personas,bytes:personas},
         ...(roots.shared?[{id:'shared',label:'共享偏好',path:roots.shared,bytes:shared}]:[]),
       ],
       characters:rows.map((row,i)=>({...row,bytes:values[base+i]})),
@@ -79,13 +80,13 @@ export function createFolderBrowser({worldDir,personaDir,personasDir,sharedDir='
     }
   }
   async function open(id){
+    await ensureSeeded?.()
     const destination=resolveFolder(id)
     if(!destination)throw new Error('无效的文件夹入口')
     if(id.startsWith('role:')){
       const role=id.slice(5)
       const listed=await characterRows()
       if(!listed.some(r=>r.id===id))throw new Error('当前角色不在角色目录中')
-      if(role==='deepseek')throw new Error('DeepSeek 基础人设请使用对应入口')
       await ensureFolder?.(role)
     }else if(id==='world'||id==='persona')await ensureFolder?.(id)
     await mkdir(destination,{recursive:true})

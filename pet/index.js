@@ -9,10 +9,10 @@ import { NativePet } from './native.js'
 import { artFor } from './art.js'
 import { createFolderBrowser } from './folders.js'
 const HERE=dirname(fileURLToPath(import.meta.url))
-export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personaDir:join(home,'persona'),personasDir:join(home,'personas')},ensureFolder}){
+export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personasDir:join(home,'personas')},ensureFolder,ensureSeeded}){
   ctx.inject(['sessions','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
-    const folderBrowser=createFolderBrowser({...folders,catalog,ensureFolder})
+    const folderBrowser=createFolderBrowser({...folders,catalog,ensureFolder,ensureSeeded})
     let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{},offCatalog=()=>{}
     const ready=(async()=>{
       let config={}

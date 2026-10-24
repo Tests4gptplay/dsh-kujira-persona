@@ -20,6 +20,7 @@ export async function directoryBytes(directory){
     for(const entry of entries){
       const file=join(path,entry.name)
       if(entry.isDirectory()){pending.push(file);continue}
+      if(!entry.isFile())continue // Links and special files are outside persona storage totals.
       try{const st=await lstat(file);sum+=st.size}catch(e){if(!existsError(e))throw e}
     }
   }

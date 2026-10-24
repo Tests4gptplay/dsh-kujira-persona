@@ -65,7 +65,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       return h('div',{className:'kujira-settings','aria-label':'Kujira · 人设与桌宠'},
         h('section',{className:'kujira-card'},
           h('h3',null,'Kujira · 人设与桌宠'),
-          h('div',{className:'kujira-small'},'随当前模型切换 AI 娘形象；未选择或未识别的模型由星璃陪伴。'),
+          h('div',{className:'kujira-small'},'随当前模型切换 AI 角色形象；未选择或未识别的模型由星璃陪伴。'),
           toggle('enabled','启用桌宠'),
           choice('display','显示位置',[['auto','自动（Windows 桌面／其他系统页面内）'],['desktop','桌面窗口（Windows）'],['page','DSH 页面内']]),
           range('scale','角色大小',.55,1.6),range('bubbleScale','整个气泡大小',.8,1.4),

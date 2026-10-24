@@ -1,5 +1,5 @@
 /** Presentation data only. No model calls, file scans, or work execution. */
-export const NAMES = Object.freeze({ deepseek:'DeepSeek',gpt:'GPT',gemini:'Gemini',claude:'Claude',grok:'Grok',glm:'GLM',kimi:'Kimi',qwen:'Qwen',minimax:'MiniMax',llama:'Llama',doubao:'豆包',mistral:'Mistral',hunyuan:'混元',mimo:'MiMo',stella:'星璃' })
+export const NAMES = Object.freeze({ deepseek:'DeepSeek',gpt:'GPT',gemini:'星猫',claude:'Claude',grok:'Grok',glm:'GLM',kimi:'Kimi',qwen:'Qwen',minimax:'MiniMax',llama:'Llama',doubao:'豆包',mistral:'Mistral',hunyuan:'混元',mimo:'MiMo',stella:'星璃' })
 export const DEFAULTS = Object.freeze({ enabled:false, display:'auto', scale:1, bubbleScale:1, activity:'normal', reducedMotion:false, sound:false, bubble:'always', showUsage:true, showStats:true, refreshSeconds:60, x:null, y:null, desktopX:null, desktopY:null })
 export function settings(input={}) {
   const value={...DEFAULTS}

@@ -7,6 +7,7 @@ export class PetController {
   constructor({config={},resolvePersona,queryUsage,readStats=()=>undefined,persist=async()=>{},now=Date.now}){
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.stats=null
     this.route={provider:'',model:'',family:'none',persona:'stella',name:NAMES.stella,art:'stella',sessionId:''}
+    this.assistantStream=null;this.streamTurn=null;this.streamStep=null
     this.task=emptyTask();this.usage=unknownUsage('usage','选择模型后显示对应的用量')
     this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
@@ -17,6 +18,7 @@ export class PetController {
     const work=this.writeTail.then(async()=>{
       const next=settings({...this.config,...patch});await this.persist(next);const was=this.config.enabled&&this.config.showUsage;this.config=next
       if(!next.enabled||!next.showUsage)this.cancelQuery()
+      if(!next.enabled){this.task=emptyTask();this.assistantStream=null;this.streamTurn=null;this.streamStep=null}
       this.updateStats()
       const snapshot=this.publish()
       if(next.enabled&&next.showUsage){if(!was)void this.refresh();else this.schedule()}
@@ -42,7 +44,7 @@ export class PetController {
     const family=modelFamily({provider,model})
     const art=Object.hasOwn(NAMES,family)?family:'stella'
     this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
-    if(!sameSession)this.task=emptyTask()
+    if(!sameSession){this.task=emptyTask();this.assistantStream=null;this.streamTurn=null;this.streamStep=null}
     this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入');this.publish()
     await this.refreshPersona()
     if(id!==this.routeVersion||this.closed)return this.snapshot()
@@ -72,15 +74,46 @@ export class PetController {
     }).finally(()=>{if(version===this.queryVersion){this.pending=null;this.abort=null;this.schedule()}}).then(()=>this.snapshot())
     this.pending=pending;return pending
   }
-  event(session,event){
-    if(!this.config.enabled)return
+  acceptsSession(session){
     const sid=String(session?.header?.id??session?.id??'')
-    if(sid!==this.route.sessionId||session?.header?.origin==='subagent'||Number(session?.header?.delegationDepth??0)>0)return
+    return !this.closed&&this.config.enabled&&!!sid&&sid===this.route.sessionId&&session?.header?.origin!=='subagent'&&!(Number(session?.header?.delegationDepth??0)>0)
+  }
+  assistantFrame({agent,frame}={}){
+    if(!this.acceptsSession(agent?.session)||!this.task.turnActive||!frame)return
+    const revision=frame.revision,attemptId=frame.attemptId
+    if(!Number.isFinite(revision)||typeof attemptId!=='string')return
+    const previous=this.assistantStream
+    if(frame.type==='start'){
+      if((this.streamTurn!==null&&frame.turn!==this.streamTurn)||(this.streamStep!==null&&frame.step!==this.streamStep))return
+      if(previous?.agent===agent&&revision<=previous.revision)return
+      this.assistantStream={agent,attemptId,revision,index:-1}
+      return
+    }
+    if(!previous||previous.agent!==agent||previous.attemptId!==attemptId||revision<=previous.revision||!Number.isFinite(frame.index)||frame.index<=previous.index)return
+    if(frame.type!=='chunk'&&frame.type!=='end')return
+    this.assistantStream={...previous,revision,index:frame.index,attemptId:frame.type==='end'?null:attemptId}
+    // Only discriminants are read. Message text, reasoning, arguments and results stay out of pet state.
+    const kind=frame.type==='chunk'?frame.chunk?.type:null
+    const block=kind==='block-end'?frame.chunk?.block?.type:null
+    const retrying=frame.type==='end'&&(frame.outcome?.kind==='abandoned'||frame.outcome?.eventType==='assistant/attempt')
+    const activity=kind==='text-delta'||block==='text'?'responding':kind==='reasoning-delta'||block==='reasoning'||retrying?'thinking':null
+    if(!activity)return
+    const task=reduceTask(this.task,{type:'assistant/activity',data:{activity}})
+    if(task===this.task)return
+    this.task=task;this.publish()
+  }
+  event(session,event){
+    if(!this.acceptsSession(session))return
+    if(event.type==='turn/start'||event.type==='step/start'||event.type==='turn/end'){
+      if(this.assistantStream)this.assistantStream={...this.assistantStream,attemptId:null}
+      if(event.type==='turn/start'){this.streamTurn=Number.isFinite(event.data?.turn)?event.data.turn:null;this.streamStep=null}
+      if(event.type==='step/start')this.streamStep=Number.isFinite(event.data?.step)?event.data.step:null
+    }
     const task=reduceTask(this.task,event)
     const changed=STATS_EVENTS.has(event.type)||event.surfaceOp?this.updateStats(session):false
     if(task===this.task&&!changed)return
     this.task=task;this.publish()
     if(event.type==='turn/end'&&this.config.showUsage&&(!this.usage.checkedAt||this.now()-this.usage.checkedAt>=5000))void this.refresh()
   }
-  dispose(){this.closed=true;this.routeVersion++;this.cancelQuery();this.listeners.clear()}
+  dispose(){this.closed=true;this.assistantStream=null;this.routeVersion++;this.cancelQuery();this.listeners.clear()}
 }

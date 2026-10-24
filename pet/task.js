@@ -14,6 +14,13 @@ export function reduceTask(previous,event) {
   const signal=()=>{task.signal=(previous.signal??0)+1;task.pulse=null}
   switch(type){
     case 'turn/start':return {...emptyTask(),phase:'thinking',activity:'thinking',text:'正在思考',turnActive:true,signal:(previous.signal??0)+1}
+    // Presentation-only signal from the host's live assistant stream.
+    case 'assistant/activity': {
+      const activity=data.activity
+      if(!['thinking','responding'].includes(activity)||!task.turnActive||task.openTools.length||task.waitingApproval)return previous
+      if(task.phase===activity&&task.activity===activity)return previous
+      signal();task.phase=activity;task.activity=activity;task.tool='';task.text=activity==='responding'?'正在回复':'正在思考';break
+    }
     case 'step/start':
     case 'assistant/chunk':
       if(!task.turnActive||task.openTools.length||task.waitingApproval)return previous

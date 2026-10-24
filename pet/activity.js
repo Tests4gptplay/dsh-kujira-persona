@@ -3,11 +3,13 @@
  * See dsh-dafeiyu-LICENSE.txt. Tool names only; never inspect arguments or output.
  */
 export function toolActivity(name) {
-  const value=String(name||'').toLowerCase()
-  if (/search|grep|find|glob|web|read|fetch|open/.test(value)) return 'searching'
-  if (/test|check|lint|build|verify/.test(value)) return 'testing'
-  if (/write|edit|patch|replace|create|move|delete/.test(value)) return 'editing'
-  if (/shell|bash|exec|command|terminal|powershell|pwsh/.test(value)) return 'commanding'
+  const tokens=String(name||'').replace(/([a-z0-9])([A-Z])/g,'$1 $2').toLowerCase().split(/[^a-z0-9]+/u).filter(Boolean)
+  const has=(...names)=>tokens.some(token=>names.includes(token))
+  if(has('stdin'))return 'commanding'
+  if(has('search','grep','find','glob','web','read','fetch','open','list'))return 'searching'
+  if(has('test','check','lint','build','verify'))return 'testing'
+  if(has('write','edit','patch','replace','create','move','delete','update'))return 'editing'
+  if(has('shell','bash','exec','execute','command','terminal','powershell','pwsh'))return 'commanding'
   return 'using-tool'
 }
 export function toolCallIdOf(event) {

@@ -47,7 +47,7 @@ test('all native routes use atlas frames; unmapped and custom routes use Stella 
   assert.equal(written[0].animated,true)
   assert.equal(written[0].image,'')
   assert.equal(written[1].type,'frame')
-  assert.match(written[1].image,/gpt-core-v1\.png$/)
+  assert.match(written[1].image,/gpt-core-v3\.png$/)
   const before=written.length
   pet.send({...state,route:{art:'unknown',sessionId:'one'}})
   assert.equal(written[before].animated,true)

@@ -4849,6 +4849,1892 @@ const ADDITIONS = {
         "loop": true
       }
     }
+  },
+  "mistral": {
+    "commanding": {
+      "sheet": "mistral-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "mistral-editing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_editing"
+          }
+        ],
+        "durations": [
+          650,
+          500
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "mistral-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "mistral-searching-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": false
+      }
+    },
+    "testing": {
+      "sheet": "mistral-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "mistral-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          }
+        ],
+        "durations": [
+          1200,
+          800,
+          1100
+        ],
+        "loop": true
+      }
+    }
+  },
+  "stella": {
+    "commanding": {
+      "sheet": "stella-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_commanding"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "stella-editing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_editing"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_editing"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": false
+      }
+    },
+    "responding": {
+      "sheet": "stella-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_responding"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "stella-searching-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_searching"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": false
+      }
+    },
+    "testing": {
+      "sheet": "stella-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_testing"
+          }
+        ],
+        "durations": [
+          650,
+          500,
+          900
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "stella-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_thinking"
+          }
+        ],
+        "durations": [
+          1200,
+          800,
+          1100
+        ],
+        "loop": true
+      }
+    },
+    "working": {
+      "sheet": "stella-working-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_working"
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_working"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "authored_working"
+          }
+        ],
+        "durations": [
+          1800,
+          110,
+          1400
+        ],
+        "loop": true
+      }
+    }
+  },
+  "grok": {
+    "commanding": {
+      "sheet": "grok-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          }
+        ],
+        "durations": [
+          450,
+          220,
+          380,
+          4950
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "grok-editing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "responding": {
+      "sheet": "grok-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -105.02,
+              -100.53
+            ],
+            "size": [
+              530.04,
+              530.04
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -105.02,
+              -100.53
+            ],
+            "size": [
+              530.04,
+              530.04
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -105.02,
+              -100.53
+            ],
+            "size": [
+              530.04,
+              530.04
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -105.02,
+              -100.53
+            ],
+            "size": [
+              530.04,
+              530.04
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -105.02,
+              -100.53
+            ],
+            "size": [
+              530.04,
+              530.04
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "grok-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -123.25,
+              -111.12
+            ],
+            "size": [
+              542.5,
+              542.5
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -123.25,
+              -111.12
+            ],
+            "size": [
+              542.5,
+              542.5
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -123.25,
+              -111.12
+            ],
+            "size": [
+              542.5,
+              542.5
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -123.25,
+              -111.12
+            ],
+            "size": [
+              542.5,
+              542.5
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -123.25,
+              -111.12
+            ],
+            "size": [
+              542.5,
+              542.5
+            ]
+          }
+        ],
+        "durations": [
+          520,
+          520,
+          520,
+          520,
+          320
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "grok-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -109.3,
+              -107.81
+            ],
+            "size": [
+              538.6,
+              538.6
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    }
+  },
+  "doubao": {
+    "commanding": {
+      "sheet": "doubao-commanding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -102.7,
+              -96.58
+            ],
+            "size": [
+              525.39,
+              525.39
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -102.7,
+              -96.58
+            ],
+            "size": [
+              525.39,
+              525.39
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -102.7,
+              -96.58
+            ],
+            "size": [
+              525.39,
+              525.39
+            ]
+          },
+          {
+            "sheet": "authored_commanding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -102.7,
+              -96.58
+            ],
+            "size": [
+              525.39,
+              525.39
+            ]
+          }
+        ],
+        "durations": [
+          450,
+          220,
+          380,
+          4950
+        ],
+        "loop": false
+      }
+    },
+    "editing": {
+      "sheet": "doubao-editing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -71.84,
+              -44.13
+            ],
+            "size": [
+              463.68,
+              463.68
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -71.84,
+              -44.13
+            ],
+            "size": [
+              463.68,
+              463.68
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -71.84,
+              -44.13
+            ],
+            "size": [
+              463.68,
+              463.68
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -71.84,
+              -44.13
+            ],
+            "size": [
+              463.68,
+              463.68
+            ]
+          },
+          {
+            "sheet": "authored_editing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -71.84,
+              -44.13
+            ],
+            "size": [
+              463.68,
+              463.68
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "responding": {
+      "sheet": "doubao-responding-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -93.81,
+              -81.47
+            ],
+            "size": [
+              507.61,
+              507.61
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -93.81,
+              -81.47
+            ],
+            "size": [
+              507.61,
+              507.61
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -93.81,
+              -81.47
+            ],
+            "size": [
+              507.61,
+              507.61
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -93.81,
+              -81.47
+            ],
+            "size": [
+              507.61,
+              507.61
+            ]
+          },
+          {
+            "sheet": "authored_responding",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -93.81,
+              -81.47
+            ],
+            "size": [
+              507.61,
+              507.61
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "searching": {
+      "sheet": "doubao-searching-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -127.91,
+              -139.44
+            ],
+            "size": [
+              575.82,
+              575.82
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -127.91,
+              -139.44
+            ],
+            "size": [
+              575.82,
+              575.82
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -127.91,
+              -139.44
+            ],
+            "size": [
+              575.82,
+              575.82
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -127.91,
+              -139.44
+            ],
+            "size": [
+              575.82,
+              575.82
+            ]
+          },
+          {
+            "sheet": "authored_searching",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -127.91,
+              -139.44
+            ],
+            "size": [
+              575.82,
+              575.82
+            ]
+          }
+        ],
+        "durations": [
+          480,
+          380,
+          480,
+          480,
+          380
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "doubao-testing-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          },
+          {
+            "sheet": "authored_testing",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -108.34,
+              -106.17
+            ],
+            "size": [
+              536.67,
+              536.67
+            ]
+          }
+        ],
+        "durations": [
+          520,
+          520,
+          520,
+          520,
+          320
+        ],
+        "loop": true
+      }
+    },
+    "thinking": {
+      "sheet": "doubao-thinking-v1.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -110.27,
+              -109.46
+            ],
+            "size": [
+              540.54,
+              540.54
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              1000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -110.27,
+              -109.46
+            ],
+            "size": [
+              540.54,
+              540.54
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              2000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -110.27,
+              -109.46
+            ],
+            "size": [
+              540.54,
+              540.54
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              3000,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -110.27,
+              -109.46
+            ],
+            "size": [
+              540.54,
+              540.54
+            ]
+          },
+          {
+            "sheet": "authored_thinking",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -110.27,
+              -109.46
+            ],
+            "size": [
+              540.54,
+              540.54
+            ]
+          }
+        ],
+        "durations": [
+          550,
+          500,
+          120,
+          450,
+          380
+        ],
+        "loop": true
+      }
+    }
   }
 }
 export function applyStateArt(art) {
@@ -4861,7 +6747,7 @@ export function applyStateArt(art) {
       const key = 'authored_' + state
       sheets[key] = data.sheet
       clips[key] = data.clip
-      if (['responding','thinking','waiting','success','error','idle'].includes(state)) stateMap[state] = key
+      if (['responding','thinking','waiting','success','error','idle','working'].includes(state)) stateMap[state] = key
       else workingActivityMap[state] = key
       delete fallbackSources[state]
     }
@@ -4869,18 +6755,21 @@ export function applyStateArt(art) {
       workingActivityMap.editing = base.stateMap.working
       delete fallbackSources.editing
     }
-    if (id === 'kimi') {
+    if (['kimi','grok'].includes(id)) {
       workingActivityMap.searching = base.stateMap.working
       delete fallbackSources.searching
     }
-    if (clips.authored_commanding) {
+    if (clips.authored_working) {
+      workingActivityMap['using-tool'] = 'authored_working'
+      delete fallbackSources['using-tool']
+    } else if (clips.authored_commanding) {
       const observed = clips.authored_commanding
       clips.neutral_tool = {frames: [observed.frames.at(-1)], durations: [observed.durations.at(-1)], loop: false}
       workingActivityMap['using-tool'] = 'neutral_tool'
       delete fallbackSources['using-tool']
     }
     art[id] = buildStandardManifest({...base, sheets, clips, stateMap, workingActivityMap,
-      fallbackSources, revision: 'state-art-20261025-2'})
+      fallbackSources, revision: ['mistral','stella','grok','doubao'].includes(id) ? 'state-art-20261025-3' : 'state-art-20261025-2'})
   }
   return art
 }

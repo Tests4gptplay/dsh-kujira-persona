@@ -11,15 +11,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Animation;
 public class KujiraPet : Window {
   readonly JavaScriptSerializer json=new JavaScriptSerializer();
   readonly Image image=new Image { Stretch=Stretch.Uniform,Width=210,Height=250 };
   readonly TextBlock text=new TextBlock { TextWrapping=TextWrapping.Wrap,Foreground=new SolidColorBrush(Color.FromRgb(42,57,75)),FontSize=14 };
   readonly Border bubble=new Border { Background=new SolidColorBrush(Color.FromRgb(255,253,248)),CornerRadius=new CornerRadius(16),Padding=new Thickness(15),BorderBrush=new SolidColorBrush(Color.FromRgb(218,211,204)),BorderThickness=new Thickness(1),Width=250 };
   readonly Canvas canvas=new Canvas();
-  readonly TranslateTransform motion=new TranslateTransform();
-  string imagePath="",lastPhase="idle";bool moved=false;Point origin;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
+  readonly Dictionary<string,BitmapSource> sheets=new Dictionary<string,BitmapSource>();
+  string imagePath="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
   static IDictionary<string,object> Map(object o){return o as IDictionary<string,object>??new Dictionary<string,object>();}
   static object Get(IDictionary<string,object> m,string k,object fallback=null){object v;return m.TryGetValue(k,out v)?v:fallback;}
   static string Str(IDictionary<string,object> m,string k,string f=""){return Convert.ToString(Get(m,k,f));}
@@ -28,25 +27,58 @@ public class KujiraPet : Window {
   static void Emit(string message){try{Console.WriteLine(message);Console.Out.Flush();}catch{}}
   KujiraPet(){
     Title="Kujira 桌宠";Width=290;Height=540;AllowsTransparency=true;WindowStyle=WindowStyle.None;Background=Brushes.Transparent;Topmost=true;ShowActivated=false;ShowInTaskbar=false;ResizeMode=ResizeMode.NoResize;
-    Content=canvas;bubble.Child=text;canvas.Children.Add(bubble);canvas.Children.Add(image);image.RenderTransform=motion;
-    image.MouseLeftButtonDown+=(s,e)=>{origin=PointToScreen(e.GetPosition(this));moved=false;try{DragMove();var end=PointToScreen(e.GetPosition(this));moved=(end-origin).Length>4;}catch{};if(moved)Emit(json.Serialize(new {type="action",action="position",x=Left,y=Top}));else if(GetCurrentMotion())Bounce();};
+    Content=canvas;bubble.Child=text;canvas.Children.Add(bubble);canvas.Children.Add(image);
+    image.MouseLeftButtonDown+=(s,e)=>{origin=PointToScreen(e.GetPosition(this));pressed=true;image.CaptureMouse();};
+    image.LostMouseCapture+=(s,e)=>{pressed=false;};
+    image.MouseMove+=(s,e)=>{
+      if(!pressed||e.LeftButton!=MouseButtonState.Pressed)return;
+      if((PointToScreen(e.GetPosition(this))-origin).Length<4)return;
+      pressed=false;image.ReleaseMouseCapture();Emit("{\"type\":\"action\",\"action\":\"drag-start\"}");
+      try{DragMove();}catch{}
+      Emit(json.Serialize(new {type="action",action="position",x=Left,y=Top}));
+      Emit("{\"type\":\"action\",\"action\":\"drag-end\"}");
+    };
+    image.MouseLeftButtonUp+=(s,e)=>{
+      if(!pressed)return;pressed=false;image.ReleaseMouseCapture();
+      var point=e.GetPosition(image);string clip=point.Y/image.ActualHeight<.45?"head_pat":point.X/image.ActualWidth>.72&&point.Y/image.ActualHeight>.55?"tail":"poke";
+      Emit(json.Serialize(new {type="action",action="interact",clip=clip}));
+    };
     var menu=new ContextMenu();var refresh=new MenuItem { Header="刷新余额／套餐" };refresh.Click+=(s,e)=>Emit("{\"type\":\"action\",\"action\":\"refresh\"}");
     var close=new MenuItem { Header="关闭桌宠" };close.Click+=(s,e)=>{Emit("{\"type\":\"action\",\"action\":\"close\"}");Close();};menu.Items.Add(refresh);menu.Items.Add(close);image.ContextMenu=menu;
     Loaded+=(s,e)=>{if(!initialized){Left=Math.Max(0,SystemParameters.WorkArea.Right-Width-24);Top=Math.Max(0,SystemParameters.WorkArea.Bottom-Height-16);}Emit("{\"type\":\"ready\"}");};
   }
-  bool reduced=false;string activity="normal";
-  bool GetCurrentMotion(){return !reduced;}
-  void Bounce(){var a=new DoubleAnimationUsingKeyFrames();a.Duration=TimeSpan.FromMilliseconds(600);a.KeyFrames.Add(new LinearDoubleKeyFrame(0,KeyTime.FromPercent(0)));a.KeyFrames.Add(new LinearDoubleKeyFrame(-12,KeyTime.FromPercent(.4)));a.KeyFrames.Add(new LinearDoubleKeyFrame(0,KeyTime.FromPercent(1)));a.Completed+=(s,e)=>StartMotion();motion.BeginAnimation(TranslateTransform.YProperty,a);}
-  void StartMotion(){motion.BeginAnimation(TranslateTransform.YProperty,null);if(reduced)return;var a=new DoubleAnimation(0,activity=="quiet"?-2:-5,TimeSpan.FromSeconds(activity=="quiet"?4.5:activity=="lively"?1.4:2.5)){AutoReverse=true,RepeatBehavior=RepeatBehavior.Forever};motion.BeginAnimation(TranslateTransform.YProperty,a);}
+  static double Item(IList list,int index){return Convert.ToDouble(list[index]);}
+  BitmapSource Sheet(string path){
+    BitmapSource value;if(sheets.TryGetValue(path,out value))return value;
+    var bitmap=new BitmapImage();bitmap.BeginInit();bitmap.CacheOption=BitmapCacheOption.OnLoad;bitmap.UriSource=new Uri(path,UriKind.Absolute);bitmap.EndInit();bitmap.Freeze();
+    sheets[path]=bitmap;return bitmap;
+  }
+  Drawing DrawLayer(IDictionary<string,object> layer){
+    var rect=Get(layer,"rect") as IList;var at=Get(layer,"at") as IList;var size=Get(layer,"size") as IList;
+    if(rect==null||at==null)return null;
+    var cropped=new CroppedBitmap(Sheet(Str(layer,"image")),new Int32Rect((int)Item(rect,0),(int)Item(rect,1),(int)Item(rect,2),(int)Item(rect,3)));cropped.Freeze();
+    var drawing=new DrawingGroup();drawing.Opacity=Math.Max(0,Math.Min(1,Num(layer,"opacity",1)));
+    drawing.Children.Add(new ImageDrawing(cropped,new Rect(Item(at,0),Item(at,1),size==null?Item(rect,2):Item(size,0),size==null?Item(rect,3):Item(size,1))));
+    drawing.Freeze();return drawing;
+  }
+  void DrawFrame(IDictionary<string,object> state){
+    var size=Get(state,"canvas") as IList;if(size==null)return;
+    var drawing=new DrawingGroup();
+    drawing.Children.Add(new GeometryDrawing(Brushes.Transparent,null,new RectangleGeometry(new Rect(0,0,Item(size,0),Item(size,1)))));
+    var layers=Get(state,"layers") as IList;
+    if(layers!=null){foreach(var layer in layers){var item=DrawLayer(Map(layer));if(item!=null)drawing.Children.Add(item);}}
+    else {var item=DrawLayer(state);if(item!=null)drawing.Children.Add(item);}
+    drawing.Freeze();var source=new DrawingImage(drawing);source.Freeze();image.Source=source;
+  }
   public void Apply(IDictionary<string,object> state){
+    if(Str(state,"type")=="frame"){DrawFrame(state);return;}
     var cfg=Map(Get(state,"config"));var route=Map(Get(state,"route"));var task=Map(Get(state,"task"));var usage=Map(Get(state,"usage"));
     string persona=Str(route,"name","Kujira"),phase=Str(task,"phase","idle");Title="Kujira · "+persona+" · "+phase;
-    var path=Str(state,"image");if(path!=imagePath){try{var bitmap=new BitmapImage();bitmap.BeginInit();bitmap.CacheOption=BitmapCacheOption.OnLoad;bitmap.UriSource=new Uri(path,UriKind.Absolute);bitmap.EndInit();bitmap.Freeze();image.Source=bitmap;imagePath=path;}catch{}}
+    var path=Str(state,"image");if(path!=imagePath){sheets.Clear();try{image.Source=Sheet(path);imagePath=path;}catch{}}
     double scale=Num(cfg,"scale",1);image.Width=190*scale;image.Height=image.Width*380/320; double right=Left+Width,bottom=Top+Height; Width=Math.Max(290,image.Width+20);
     Canvas.SetLeft(image,(Width-image.Width)/2);Canvas.SetTop(image,Height-image.Height-5);
     bubble.Width=Math.Min(280,245*Num(cfg,"bubbleScale",1));text.FontSize=13*Num(cfg,"bubbleScale",1);
     Canvas.SetLeft(bubble,(Width-bubble.Width)/2);Canvas.SetBottom(bubble,image.Height-5);
-    bool nextReduced=Bool(cfg,"reducedMotion");string nextActivity=Str(cfg,"activity","normal");if(!initialized||reduced!=nextReduced||activity!=nextActivity){reduced=nextReduced;activity=nextActivity;StartMotion();}
     var sb=new StringBuilder(persona+"\n"+Str(task,"text","等你开始"));
     var progress=Map(Get(task,"progress"));if(progress.Count>0)sb.Append("\n"+Get(progress,"done",0)+" / "+Get(progress,"total",0)+" 项");
     var stats=Map(Get(state,"stats"));
@@ -67,8 +99,9 @@ public class KujiraPet : Window {
     else {Left=right-Width;Top=bottom-Height;}
     Left=Math.Max(work.Left,Math.Min(work.Right-Width,Left));Top=Math.Max(work.Top,Math.Min(work.Bottom-Height,Top));
     savedX=nextX;savedY=nextY;
-    if(initialized&&Bool(cfg,"sound")&&phase!=lastPhase&&(phase=="completed"||phase=="error"))System.Media.SystemSounds.Asterisk.Play();
-    lastPhase=phase;initialized=true;
+    var pulse=Map(Get(task,"pulse"));string pulseId=Str(pulse,"id");
+    if(initialized&&Bool(cfg,"sound")&&((phase!=lastPhase&&(phase=="completed"||phase=="error"))||(pulseId!=""&&pulseId!=lastPulse&&Str(pulse,"kind")=="error")))System.Media.SystemSounds.Asterisk.Play();
+    lastPulse=pulseId;lastPhase=phase;initialized=true;
   }
   [STAThread] public static void Main(){ Console.SetIn(new StreamReader(Console.OpenStandardInput(),new UTF8Encoding(false))); Console.SetOut(new StreamWriter(Console.OpenStandardOutput(),new UTF8Encoding(false)){AutoFlush=true});
     bool owned;using(var mutex=new Mutex(true,"Local\\KujiraSinglePet-"+Environment.UserName,out owned)){
@@ -78,3 +111,4 @@ public class KujiraPet : Window {
     }
   }
 }
+

@@ -9,35 +9,7 @@ export function settings(input={}) {
   for(const key of ['x','y','desktopX','desktopY']) if(Number.isFinite(input[key])) value[key]=input[key]
   return value
 }
-export const emptyTask=()=>({phase:'idle',text:'等你开始',tool:'',progress:null,inputTokens:0,outputTokens:0})
-export function reduceTask(previous,event) {
-  const task={...previous},data=event?.data??{}
-  switch(event?.type){
-    case 'turn/start': return {...emptyTask(),phase:'thinking',text:'正在思考'}
-    case 'step/start': task.phase='thinking';task.text='正在思考';break
-    case 'tool/call':
-      task.tool=String(data.name??'工具');
-      task.phase=['ask_user_question','exit_plan_mode'].includes(task.tool)?'waiting':'working';
-      task.text=task.phase==='waiting'?'等你确认':`正在使用 ${task.tool}`;break
-    case 'approval/asked': task.phase='waiting';task.text='等你确认';break
-    case 'approval/decided': task.phase='working';task.text='继续处理';break
-    case 'tool/result': task.phase=data.error?'error':'thinking';task.text=data.error?'这一步遇到了问题':'正在整理结果';break
-    case 'assistant/message':
-      if(data.usage){task.inputTokens+=Number(data.usage.inputTokens)||0;task.outputTokens+=Number(data.usage.outputTokens)||0}
-      break
-    case 'todo/write':{
-      const todos=Array.isArray(data.todos)?data.todos:[];
-      task.progress=todos.length?{done:todos.filter(t=>['completed','done'].includes(t.status)).length,total:todos.length}:null;break
-    }
-    case 'turn/end':{
-      const reason=data.reason?.kind??'completed';
-      task.phase=reason==='completed'?'completed':reason==='aborted'?'idle':reason==='blocked'?'waiting':'error';
-      task.text={completed:'做完啦',idle:'已停止',waiting:'等你确认',error:'这次遇到了问题'}[task.phase];task.tool='';break
-    }
-    default:return previous
-  }
-  return task
-}
+export {emptyTask,reduceTask} from './task.js'
 const numeric=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null
 export function codexQuota(body) {
   const raw=body?.rateLimits??body
@@ -64,3 +36,4 @@ export function apiBalance(body,source='api-key') {
 export function unknownUsage(kind='usage',message='当前接入未提供余额或套餐接口') {
   return {kind,status:'unavailable',title:kind==='codex'?'Codex 套餐':kind==='balance'?'DeepSeek 余额':'用量',lines:[message],windows:[]}
 }
+

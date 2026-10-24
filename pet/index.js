@@ -7,6 +7,7 @@ import { PetController } from './controller.js'
 import { createUsageReader } from './usage.js'
 import { NAMES } from './model.js'
 import { NativePet } from './native.js'
+import { artFor } from './art.js'
 const HERE=dirname(fileURLToPath(import.meta.url))
 export function applyPet(ctx,{catalog,home}){
   ctx.inject(['sessions','connection','webServer'],scope=>{
@@ -71,6 +72,24 @@ export function applyPet(ctx,{catalog,home}){
       request.signal.addEventListener('abort',()=>{streams.delete(stream);try{stream.close()}catch{}},{once:true})
       return new Response(body,{headers:{'content-type':'text/event-stream','cache-control':'no-store'}})
     }})
+    for(const file of ['animation.js','sprite-canvas.js'])scope.connection.fetch.register({path:'/api/kujira-pet/'+file,methods:['GET'],requestBody:'buffered',fetch:async()=>{
+      if(!assets.has(file))assets.set(file,await readFile(join(HERE,file)))
+      return new Response(assets.get(file),{headers:{'content-type':'text/javascript; charset=utf-8'}})
+    }})
+    scope.connection.fetch.register({path:'/api/kujira-pet/art',methods:['GET'],requestBody:'buffered',fetch:async request=>{
+      const id=new URL(request.url).searchParams.get('id'),manifest=artFor(id)
+      if(!manifest)return new Response('not found',{status:404})
+      const urls=Object.fromEntries(Object.keys(manifest.sheets).map(sheet=>[sheet,'/api/kujira-pet/sprite?id='+encodeURIComponent(id)+'&sheet='+encodeURIComponent(sheet)+'&v='+manifest.revision]))
+      return Response.json({manifest,urls})
+    }})
+    scope.connection.fetch.register({path:'/api/kujira-pet/sprite',methods:['GET'],requestBody:'buffered',fetch:async request=>{
+      const query=new URL(request.url).searchParams,manifest=artFor(query.get('id')),file=manifest?.sheets[query.get('sheet')]
+      if(typeof file!=='string')return new Response('not found',{status:404})
+      try{
+        if(!assets.has(file))assets.set(file,await readFile(join(HERE,'assets',file)))
+        return new Response(assets.get(file),{headers:{'content-type':'image/png','cache-control':'private, max-age=86400'}})
+      }catch{return new Response('not found',{status:404})}
+    }})
     scope.connection.fetch.register({path:'/api/kujira-pet/image',methods:['GET'],requestBody:'buffered',fetch:async request=>{
       const id=new URL(request.url).searchParams.get('id')??'unknown'
       if(id!=='unknown'&&!Object.hasOwn(NAMES,id))return new Response('not found',{status:404})
@@ -79,3 +98,4 @@ export function applyPet(ctx,{catalog,home}){
     scope.on('dispose',()=>{closed=true;offEvent();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
   })
 }
+

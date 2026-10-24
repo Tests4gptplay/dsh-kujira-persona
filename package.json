@@ -49,7 +49,8 @@
     "pet/assets/*.svg",
     "pet/assets/*.png",
     "pet/native/win-x64/KujiraPet.exe",
-    "pet/NOTICE.md"
+    "pet/NOTICE.md",
+    "pet/dsh-dafeiyu-LICENSE.txt"
   ],
   "dsh": {
     "bundle": {
@@ -64,3 +65,4 @@
     }
   }
 }
+

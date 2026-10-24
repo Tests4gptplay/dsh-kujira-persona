@@ -134,11 +134,12 @@ export function openCatalog(config) {
     },
     async resolve(route) {
       await ready(); await tail
+      if (!text(route?.model)) return selected(state, 'stella')
       if (config.mode === 'fixed') return selected(state, config.persona)
       const rules = [...state.bindings, ...config.modelRules]
       const match = rules.find(rule => matchesRule(route, rule))
       const family = modelFamily(route)
-      return selected(state, match?.persona ?? (family === 'none' ? (config.unknownPersona ?? 'stella') : family))
+      return selected(state, match?.persona ?? (family === 'none' ? 'stella' : family))
     },
     async change(args, current) {
       await ready()

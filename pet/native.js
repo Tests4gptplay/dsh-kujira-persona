@@ -63,7 +63,7 @@ export class NativePet {
       this.sessionId=state.route.sessionId
       this.player=this.art?new AnimationPlayer(this.art,{now:performance.now()}):null;this.frameKey=''
     }
-    this.write({...state,image:this.player?'':join(this.root,'assets',state.route.art+'.png'),animated:!!this.player})
+    this.write({...state,image:'',animated:!!this.player})
     if(this.player){this.player.update(state.task,state.config,performance.now());this.frame()}
   }
   frame(){

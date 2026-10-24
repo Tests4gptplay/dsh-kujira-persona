@@ -19,7 +19,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       .kujira-row{display:flex;align-items:center;justify-content:space-between;gap:18px}.kujira-row input[type=range]{width:145px}
       .kujira-row select,.kujira-card button{border:1px solid #a2aab755;border-radius:8px;padding:6px 10px;background:var(--surface-color,transparent);color:inherit}
       .kujira-small{font-size:12px;opacity:.7;line-height:1.6}.kujira-bubble{padding:13px 16px;border-radius:18px 18px 4px 18px;background:#fffdf8;color:#293849;box-shadow:0 5px 23px #26344924;border:1px solid #e6ded3;line-height:1.55;font:13px/1.55 system-ui,"Microsoft YaHei",sans-serif;min-width:190px;max-width:245px;pointer-events:auto}
-      .kujira-bubble strong{font-size:15px}.kujira-usage{margin-top:8px;padding-top:7px;border-top:1px solid #e8e1d7;color:#526579;font-size:12px}.kujira-pet img,.kujira-pet canvas{display:block;width:100%;user-select:none;-webkit-user-drag:none;touch-action:none}
+      .kujira-bubble strong{font-size:15px}.kujira-usage{margin-top:8px;padding-top:7px;border-top:1px solid #e8e1d7;color:#526579;font-size:12px}.kujira-pet canvas{display:block;width:100%;user-select:none;-webkit-user-drag:none;touch-action:none}
       .kujira-bubble button{background:none;border:0;color:#64748b;padding:0 2px;cursor:pointer}
     `
     const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)
@@ -29,8 +29,8 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const pet=usePet();const current=state.current
       useEffect(()=>{if(pet?.config.enabled)void directory.load().catch(()=>{})},[directory,pet?.config.enabled])
       useEffect(()=>{
-        if(!pet?.config.enabled||!current)return
-        const update=()=>{if(document.visibilityState!=='hidden')void call('select',{provider:current.provider,model:current.model,sessionId:String(sessionId)}).catch(()=>{})}
+        if(!pet?.config.enabled)return
+        const update=()=>{if(document.visibilityState!=='hidden')void call('select',{provider:current?.provider??'',model:current?.model??'',sessionId:String(sessionId)}).catch(()=>{})}
         update();window.addEventListener('focus',update);document.addEventListener('visibilitychange',update)
         return()=>{window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update)}
       },[current?.provider,current?.model,sessionId,pet?.config.enabled,connectionGeneration])
@@ -80,7 +80,6 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       },[state.route.art,connectionGeneration])
       useEffect(()=>renderer.current?.update(state.task,state.config,state.route.sessionId),[state])
       return h('div',{style:{position:'relative',aspectRatio:'320 / 380'}},
-        h('img',{src:'/api/kujira-pet/image?id='+encodeURIComponent(state.route.art),alt:state.route.name+' 桌宠',draggable:false,style:{position:'absolute',inset:0,display:ready?'none':'block'}}),
         h('canvas',{ref:canvas,width:320,height:380,'aria-label':state.route.name+' 动画桌宠',style:{visibility:ready?'visible':'hidden'}}))
     }
     function Pet(){

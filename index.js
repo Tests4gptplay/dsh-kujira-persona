@@ -22,7 +22,6 @@ function configuration(raw) {
     enabled: c.enabled !== false,
     mode: c.mode === 'fixed' ? 'fixed' : 'auto',
     persona: pathOption(c.persona, 'deepseek'),
-    unknownPersona: pathOption(c.unknownPersona, 'stella'),
     personaDir,
     memoryFile: pathOption(c.memoryFile, join(personaDir, '90-记忆.md')),
     personasDir: pathOption(c.personasDir, join(HOME, 'personas')),

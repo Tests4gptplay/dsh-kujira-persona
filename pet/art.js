@@ -68,4 +68,4 @@ export const ART = {
   }),
   ...SECONDARY_ART
 }
-export const artFor=id=>Object.hasOwn(ART,id)?ART[id]:null
+export const artFor=id=>Object.hasOwn(ART,id)?ART[id]:ART.stella

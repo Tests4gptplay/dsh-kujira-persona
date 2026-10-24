@@ -6,7 +6,7 @@ import { modelFamily } from '../catalog.js'
 export class PetController {
   constructor({config={},resolvePersona,queryUsage,readStats=()=>undefined,persist=async()=>{},now=Date.now}){
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.stats=null
-    this.route={provider:'',model:'',family:'none',persona:'none',name:'Kujira',art:'unknown',sessionId:''}
+    this.route={provider:'',model:'',family:'none',persona:'stella',name:NAMES.stella,art:'stella',sessionId:''}
     this.task=emptyTask();this.usage=unknownUsage('usage','选择模型后显示对应的用量')
     this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
@@ -40,7 +40,8 @@ export class PetController {
     const id=++this.routeVersion
     this.cancelQuery()
     const family=modelFamily({provider,model})
-    this.route={provider,model,sessionId,family,persona:family,art:NAMES[family]?family:'unknown',name:NAMES[family]??(model||'Kujira')}
+    const art=Object.hasOwn(NAMES,family)?family:'stella'
+    this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
     if(!sameSession)this.task=emptyTask()
     this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入');this.publish()
     await this.refreshPersona()
@@ -52,9 +53,10 @@ export class PetController {
     const version=++this.personaVersion,routeVersion=this.routeVersion,route={...this.route}
     const persona=await Promise.resolve().then(()=>this.resolvePersona?.(route)).catch(()=>null)
     if(this.closed||version!==this.personaVersion||routeVersion!==this.routeVersion)return this.snapshot()
-    const id=persona?.id??'none'
-    this.route={...route,persona:id,art:persona?(NAMES[id]?id:'unknown'):(NAMES[route.family]?route.family:'unknown'),
-      name:persona?(persona.builtin===false?persona.label:NAMES[id]??persona.label):(NAMES[route.family]??(route.model||'Kujira'))}
+    const id=persona?.id??(Object.hasOwn(NAMES,route.family)?route.family:'stella')
+    const art=Object.hasOwn(NAMES,id)?id:'stella'
+    this.route={...route,persona:id,art,
+      name:persona?(persona.builtin===false?persona.label:NAMES[id]??persona.label):NAMES[art]}
     return this.publish()
   }
   refresh(){

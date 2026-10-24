@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import { STATS_KEYS } from './stats.js'
 import { PetController } from './controller.js'
 import { createUsageReader } from './usage.js'
-import { NAMES } from './model.js'
 import { NativePet } from './native.js'
 import { artFor } from './art.js'
 const HERE=dirname(fileURLToPath(import.meta.url))
@@ -89,11 +88,6 @@ export function applyPet(ctx,{catalog,home}){
         if(!assets.has(file))assets.set(file,await readFile(join(HERE,'assets',file)))
         return new Response(assets.get(file),{headers:{'content-type':'image/png','cache-control':'private, max-age=86400'}})
       }catch{return new Response('not found',{status:404})}
-    }})
-    scope.connection.fetch.register({path:'/api/kujira-pet/image',methods:['GET'],requestBody:'buffered',fetch:async request=>{
-      const id=new URL(request.url).searchParams.get('id')??'unknown'
-      if(id!=='unknown'&&!Object.hasOwn(NAMES,id))return new Response('not found',{status:404})
-      try{if(!assets.has(id))assets.set(id,await readFile(join(HERE,'assets',id+'.svg')));return new Response(assets.get(id),{headers:{'content-type':'image/svg+xml','cache-control':'private, max-age=86400'}})}catch{return new Response('not found',{status:404})}
     }})
     scope.on('dispose',()=>{closed=true;offEvent();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
   })

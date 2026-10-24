@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "63c0380f3a89a0b1353ce19a70b9566fe9973292",
+  "hashes": {
+    "sourceSha256": "3d91d62f3cf7be0d0d517f963d0bbf90c83edbfdd5d40b6979639099ef90d3ca",
+    "exeSha256": "0cf2c236a600eeac34bb2d5a0137c5aee8b20c1150111389dc62be7f8924e414",
+    "gptCorePngSha256": "4c5fea31c467ff9a702d43107cc6668f8cee1f7d0ca22da9a0a936cc3c0ff248"
+  },
+  "checks": {
+    "frameLayersCropScaleAlpha": true,
+    "framePreservesWindowGeometry": true,
+    "renderedPixelBGRA": [
+      191,
+      0,
+      16,
+      207
+    ],
+    "legacySingleFrame": true,
+    "actualGptRaster": true,
+    "actualGptVisiblePixels": 48075,
+    "ipc": "ready-frame-eof-pass",
+    "singleInstance": true,
+    "windowPolicy": true,
+    "qaRoutinesShipped": false
+  },
+  "runUrl": "https://github.com/Tests4gptplay/git-agent-harness/actions/runs/40057043051"
+}

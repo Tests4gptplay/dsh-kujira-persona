@@ -1,0 +1,71 @@
+{
+  "schema": "kujira.runtime-qa.v1",
+  "checkedAt": "2026-10-24T08:30:48.589Z",
+  "passed": true,
+  "runtime": {
+    "package": "@deepseek-ai/dsh",
+    "version": "0.2.1-rc.2",
+    "node": "v24.19.0",
+    "browser": "isolated Chromium headless test browser"
+  },
+  "checks": {
+    "manifestIntegrity": {
+      "passed": true,
+      "characterCount": 15,
+      "clips": 88,
+      "frameEntries": 406,
+      "uniqueSourceRects": 395,
+      "stateResolutions": 150,
+      "pngSheets": 40,
+      "passedCharacters": 15
+    },
+    "samePageReconnect": {
+      "passed": true,
+      "revisionBefore": 44,
+      "firstNewRevision": 1,
+      "revisionAfterForegroundRecovery": 3,
+      "automaticSessionRecovery": true,
+      "manifestRefetchedByRealClient": true,
+      "lowerRevisionSizeChangeApplied": true
+    },
+    "currentManifestResources": {
+      "passed": true,
+      "manifests": 15,
+      "servedPngs": 40,
+      "browserDecodedPngs": 40,
+      "allBytesMatchSource": true
+    },
+    "realPageCanvas": {
+      "clip": "idle",
+      "frame": 0,
+      "width": 190,
+      "height": 225.625,
+      "sourceCanvas": [
+        320,
+        380
+      ],
+      "visible": true
+    }
+  },
+  "pageErrors": [],
+  "sourceSHA256": {
+    "pet/art.js": "94cb9df825a2bd2013406df517cf61dbfc21f70e7762e521474bd6275454b771",
+    "pet/art-secondary.js": "7b6bd6644093a4f014996479ba8b2f2107a60189adafc9a85f073a3fdeb2ea31",
+    "pet/client.js": "cd26a30acafdde105ea97b10aa979bdaa3694b0fdd8d5a99e0d79403a86c4597",
+    "pet/animation.js": "f54498d11bf1652dc5f50ca380d44450a529e5a72653c365b0da00df703b93dd",
+    "scripts/qa/manifest-check.mjs": "315e55960c566442b9df55b7be8240faa5262be6386fb4a0a45a0d9a308d9e2a"
+  },
+  "assetTotals": {
+    "referencedPngs": 40,
+    "uniqueFiles": 40,
+    "bytes": 85820168
+  },
+  "scope": [
+    "All expected character manifests were fetched from the actual isolated DSH service and matched current product source.",
+    "Every referenced PNG was served by DSH, matched the original source SHA256 and decoded in the real browser session.",
+    "The same page survived a real isolated DSH restart, recovered the foreground session and fetched its animation manifest again.",
+    "The ordinary page UI mounted the foreground GPT companion; other characters were checked through actual manifest and asset delivery.",
+    "This run did not repeat earlier real model tool tasks and did not simulate task events.",
+    "This Linux browser run does not replace the separately recorded Windows WPF validation."
+  ]
+}

@@ -1,0 +1,45 @@
+name: Kujira 2.0.0 release preflight
+on:
+  push:
+    branches:
+      - 'release/v2.0.0-ci'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax and focused regression checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -maxdepth 3 -name '*.js' -o -name '*.mjs' | while read -r f; do node --check "$f"; done
+          node scripts/qa/routing-check.mjs
+          node scripts/qa/persona-defaults-check.mjs
+          node scripts/qa/native-transport-check.mjs
+          node scripts/qa/animation-transition-check.mjs
+          node scripts/qa/settings-rc3-check.mjs
+          node scripts/qa/multisession-bubble-check.mjs
+          node scripts/qa/state-routing-check.mjs
+          node scripts/qa/state-art-check.mjs
+          node scripts/qa/manifest-check.mjs
+      - name: Build and inspect distributable
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          npm pack --ignore-scripts --pack-destination dist
+          test "$(find dist -maxdepth 1 -name '*.tgz' | wc -l)" -eq 1
+          tar -tzf dist/*.tgz | sort > dist/package-files.txt
+          if grep -E '/(scripts/qa|docs/development|\.github)/' dist/package-files.txt; then echo 'Unexpected QA or workflow files in distributable'; exit 1; fi
+          tar -xzOf dist/*.tgz package/package.json | node -e 'let s=""; process.stdin.on("data",x=>s+=x).on("end",()=>{const p=JSON.parse(s); if(p.version!=="2.0.0" || !p.dsh?.bundle?.patch || !p.files?.includes("persona-migration.js"))process.exit(1);})'
+          test "$(grep -Ec '^package/pet/assets/.*\.png$' dist/package-files.txt)" -eq 96
+          grep -q '^package/pet/native/win-x64/KujiraPet.exe$' dist/package-files.txt
+          grep -q '^package/README.md$' dist/package-files.txt
+          grep -q '^package/NOTICE.md$' dist/package-files.txt
+          sha256sum dist/*.tgz

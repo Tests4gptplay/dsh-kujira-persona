@@ -170,7 +170,7 @@ test('plugin binds official live event and disposes it without host polling',asy
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'start',attemptId:'a',revision:1,turn:1,step:1}})
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'chunk',attemptId:'a',revision:2,index:0,chunk:{type:'text-delta'}}})
  assert.equal((await request('state')).task.phase,'responding')
- onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','session/event'])
+ onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','session/disposed','session/event'])
 })
 
 test('all current role manifests resolve every exposed state and activity to real frames',()=>{

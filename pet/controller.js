@@ -2,15 +2,20 @@ import { NAMES,settings,emptyTask,reduceTask,unknownUsage } from './model.js'
 import { workStats,STATS_EVENTS } from './stats.js'
 import { modelFamily } from '../catalog.js'
 
+const sessionIdOf=session=>String(session?.header?.id??session?.id??'')
+const presentation=()=>({task:emptyTask(),assistantStream:null,streamTurn:null,streamStep:null})
+
 /** One presentation state, shared by the settings page and the one pet renderer. */
 export class PetController {
   constructor({config={},resolvePersona,queryUsage,readStats=()=>undefined,persist=async()=>{},now=Date.now}){
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.stats=null
     this.route={provider:'',model:'',family:'none',persona:'stella',name:NAMES.stella,art:'stella',sessionId:''}
-    this.assistantStream=null;this.streamTurn=null;this.streamStep=null
-    this.task=emptyTask();this.usage=unknownUsage('usage','选择模型后显示对应的用量')
+    this.sessionStates=new Map();this.presentation=presentation()
+    this.usage=unknownUsage('usage','选择模型后显示对应的用量')
     this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
+  get task(){return this.presentation.task}
+  get assistantStream(){return this.presentation.assistantStream}
   snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,revision:this.revision}}
   publish(){this.revision++;const state=this.snapshot();for(const fn of this.listeners){try{fn(state)}catch{}}return this.snapshot()}
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
@@ -18,7 +23,7 @@ export class PetController {
     const work=this.writeTail.then(async()=>{
       const next=settings({...this.config,...patch});await this.persist(next);const was=this.config.enabled&&this.config.showUsage;this.config=next
       if(!next.enabled||!next.showUsage)this.cancelQuery()
-      if(!next.enabled){this.task=emptyTask();this.assistantStream=null;this.streamTurn=null;this.streamStep=null}
+      if(!next.enabled){this.sessionStates.clear();this.presentation=presentation()}
       this.updateStats()
       const snapshot=this.publish()
       if(next.enabled&&next.showUsage){if(!was)void this.refresh();else this.schedule()}
@@ -44,7 +49,7 @@ export class PetController {
     const family=modelFamily({provider,model})
     const art=Object.hasOwn(NAMES,family)?family:'stella'
     this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
-    if(!sameSession){this.task=emptyTask();this.assistantStream=null;this.streamTurn=null;this.streamStep=null}
+    if(!sameSession){this.presentation=this.sessionStates.get(sessionId)??presentation();if(sessionId)this.sessionStates.set(sessionId,this.presentation)}
     this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入');this.publish()
     await this.refreshPersona()
     if(id!==this.routeVersion||this.closed)return this.snapshot()
@@ -75,45 +80,59 @@ export class PetController {
     this.pending=pending;return pending
   }
   acceptsSession(session){
-    const sid=String(session?.header?.id??session?.id??'')
-    return !this.closed&&this.config.enabled&&!!sid&&sid===this.route.sessionId&&session?.header?.origin!=='subagent'&&!(Number(session?.header?.delegationDepth??0)>0)
+    const sid=sessionIdOf(session)
+    return !this.closed&&this.config.enabled&&!!sid&&session?.header?.origin!=='subagent'&&!(Number(session?.header?.delegationDepth??0)>0)
+  }
+  stateFor(session){
+    if(!this.acceptsSession(session))return null
+    const id=sessionIdOf(session)
+    if(!this.sessionStates.has(id))this.sessionStates.set(id,id===this.route.sessionId?this.presentation:presentation())
+    return this.sessionStates.get(id)
+  }
+  forgetSession(session){
+    const id=sessionIdOf(session)
+    this.sessionStates.delete(id)
+    if(id===this.route.sessionId){this.presentation=presentation();this.publish()}
   }
   assistantFrame({agent,frame}={}){
-    if(!this.acceptsSession(agent?.session)||!this.task.turnActive||!frame)return
+    const state=this.stateFor(agent?.session)
+    if(!state?.task.turnActive||!frame)return
     const revision=frame.revision,attemptId=frame.attemptId
     if(!Number.isFinite(revision)||typeof attemptId!=='string')return
-    const previous=this.assistantStream
+    const previous=state.assistantStream
     if(frame.type==='start'){
-      if((this.streamTurn!==null&&frame.turn!==this.streamTurn)||(this.streamStep!==null&&frame.step!==this.streamStep))return
+      if((state.streamTurn!==null&&frame.turn!==state.streamTurn)||(state.streamStep!==null&&frame.step!==state.streamStep))return
       if(previous?.agent===agent&&revision<=previous.revision)return
-      this.assistantStream={agent,attemptId,revision,index:-1}
+      state.assistantStream={agent,attemptId,revision,index:-1}
       return
     }
     if(!previous||previous.agent!==agent||previous.attemptId!==attemptId||revision<=previous.revision||!Number.isFinite(frame.index)||frame.index<=previous.index)return
     if(frame.type!=='chunk'&&frame.type!=='end')return
-    this.assistantStream={...previous,revision,index:frame.index,attemptId:frame.type==='end'?null:attemptId}
+    state.assistantStream={...previous,revision,index:frame.index,attemptId:frame.type==='end'?null:attemptId}
     // Only discriminants are read. Message text, reasoning, arguments and results stay out of pet state.
     const kind=frame.type==='chunk'?frame.chunk?.type:null
     const block=kind==='block-end'?frame.chunk?.block?.type:null
     const retrying=frame.type==='end'&&(frame.outcome?.kind==='abandoned'||frame.outcome?.eventType==='assistant/attempt')
     const activity=kind==='text-delta'||block==='text'?'responding':kind==='reasoning-delta'||block==='reasoning'||retrying?'thinking':null
     if(!activity)return
-    const task=reduceTask(this.task,{type:'assistant/activity',data:{activity}})
-    if(task===this.task)return
-    this.task=task;this.publish()
+    const task=reduceTask(state.task,{type:'assistant/activity',data:{activity}})
+    if(task===state.task)return
+    state.task=task;if(state===this.presentation)this.publish()
   }
   event(session,event){
-    if(!this.acceptsSession(session))return
+    const state=this.stateFor(session)
+    if(!state)return
     if(event.type==='turn/start'||event.type==='step/start'||event.type==='turn/end'){
-      if(this.assistantStream)this.assistantStream={...this.assistantStream,attemptId:null}
-      if(event.type==='turn/start'){this.streamTurn=Number.isFinite(event.data?.turn)?event.data.turn:null;this.streamStep=null}
-      if(event.type==='step/start')this.streamStep=Number.isFinite(event.data?.step)?event.data.step:null
+      if(state.assistantStream)state.assistantStream={...state.assistantStream,attemptId:null}
+      if(event.type==='turn/start'){state.streamTurn=Number.isFinite(event.data?.turn)?event.data.turn:null;state.streamStep=null}
+      if(event.type==='step/start')state.streamStep=Number.isFinite(event.data?.step)?event.data.step:null
     }
-    const task=reduceTask(this.task,event)
-    const changed=STATS_EVENTS.has(event.type)||event.surfaceOp?this.updateStats(session):false
-    if(task===this.task&&!changed)return
-    this.task=task;this.publish()
-    if(event.type==='turn/end'&&this.config.showUsage&&(!this.usage.checkedAt||this.now()-this.usage.checkedAt>=5000))void this.refresh()
+    const task=reduceTask(state.task,event)
+    const selected=state===this.presentation
+    const changed=selected&&(STATS_EVENTS.has(event.type)||event.surfaceOp)?this.updateStats(session):false
+    if(task===state.task&&!changed)return
+    state.task=task;if(state===this.presentation)this.publish()
+    if(selected&&event.type==='turn/end'&&this.config.showUsage&&(!this.usage.checkedAt||this.now()-this.usage.checkedAt>=5000))void this.refresh()
   }
-  dispose(){this.closed=true;this.assistantStream=null;this.routeVersion++;this.cancelQuery();this.listeners.clear()}
+  dispose(){this.closed=true;this.sessionStates.clear();this.presentation.assistantStream=null;this.routeVersion++;this.cancelQuery();this.listeners.clear()}
 }

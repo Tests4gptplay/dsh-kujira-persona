@@ -13,7 +13,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
   ctx.inject(['sessions','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
     const folderBrowser=createFolderBrowser({...folders,catalog,ensureFolder,ensureSeeded})
-    let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{},offAssistant=()=>{},offCatalog=()=>{}
+    let closed=false,controller=null,native=null,rendererChoice='',offState=()=>{},offEvent=()=>{},offAssistant=()=>{},offSession=()=>{},offCatalog=()=>{}
     const ready=(async()=>{
       let config={}
       try{config=JSON.parse(await readFile(path,'utf8'))}catch(e){if(e.code!=='ENOENT')scope.logger?.warn?.('Kujira 桌宠设置暂时无法读取，保持关闭')}
@@ -45,6 +45,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
       })
       offCatalog=catalog.subscribe(()=>{if(!closed)void controller.refreshPersona()})
       offEvent=ctx.on('session/event',(session,event)=>controller.event(session,event),{global:true})
+      offSession=ctx.on('session/disposed',session=>controller.forgetSession(session),{global:true})
       offAssistant=ctx.on('agent/assistant-stream',event=>controller.assistantFrame(event),{global:true})
       render(controller.snapshot());return controller
     })().catch(()=>{scope.logger?.warn?.('Kujira 桌宠未启动，人设功能继续可用');return null})
@@ -95,7 +96,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         return new Response(assets.get(file),{headers:{'content-type':'image/png','cache-control':'private, max-age=86400'}})
       }catch{return new Response('not found',{status:404})}
     }})
-    scope.on('dispose',()=>{closed=true;offEvent();offAssistant();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
+    scope.on('dispose',()=>{closed=true;offEvent();offAssistant();offSession();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
   })
 }
 

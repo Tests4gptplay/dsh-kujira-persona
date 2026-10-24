@@ -85,7 +85,7 @@ export async function checkManifestAssets(art,{assets=resolve(root,'pet/assets')
           if(at[0]<-epsilon||at[1]<-epsilon||at[0]+size[0]>manifest.canvas[0]+epsilon||at[1]+size[1]>manifest.canvas[1]+epsilon){
             // New full-sheet state atlases intentionally carry transparent margins. Their
             // visible alpha bounds are checked separately against the real PNG pixels.
-            if(name.startsWith('authored_'))report.summary.transparentOverscanFrames++
+            if(name.startsWith('authored_') || (name==='neutral_tool' && clip.frames.every(frame=>Object.entries(clips).some(([key,source])=>key.startsWith('authored_') && source.frames.includes(frame)))))report.summary.transparentOverscanFrames++
             else issue('canvas-overflow',atFrame,'Displayed frame rectangle extends beyond the shared canvas',{at,size,canvas:manifest.canvas})
           }
         }

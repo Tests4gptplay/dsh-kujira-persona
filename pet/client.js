@@ -87,7 +87,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
           folders?h('div',null,...folders.groups.map(folderRow)):h('div',{className:'kujira-small'},'正在读取档案目录…'),
           folders?h('details',null,h('summary',null,'所有角色档案（'+folders.characters.length+'）'),h('div',{className:'kujira-folder-list'},...folders.characters.map(folderRow))):null,
           folderError?h('div',{role:'alert'},folderError):null,
-          h('div',{className:'kujira-small'},'修改世界观、人物性格、记忆或模型对应关系，请直接在 DSH 对话中告诉 AI；这里用于查看文件位置和占用空间。')))
+          h('div',{className:'kujira-small'},'修改世界观、人物性格、记忆、模型绑定或档案存放位置，请在 DSH 对话中告诉 AI；这里用于查看与打开目录。')))
     }
     function Sprite({state,controls}){
       const canvas=useRef(null),renderer=useRef(null),current=useRef(state),[ready,setReady]=useState(false)

@@ -28,10 +28,12 @@ public class KujiraPet : Window {
   readonly Image image=new Image { Stretch=Stretch.Uniform,Width=210,Height=250 };
   readonly TextBlock text=new TextBlock { TextWrapping=TextWrapping.Wrap,Foreground=new SolidColorBrush(Color.FromRgb(42,57,75)),FontSize=14 };
   readonly Border bubble=new Border { Background=new SolidColorBrush(Color.FromRgb(255,253,248)),CornerRadius=new CornerRadius(16),Padding=new Thickness(15),BorderBrush=new SolidColorBrush(Color.FromRgb(218,211,204)),BorderThickness=new Thickness(1),Width=250 };
+  readonly ScrollViewer bubbleScroll=new ScrollViewer { VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled };
   readonly Canvas canvas=new Canvas();
+  readonly ContextMenu menu=new ContextMenu();
   readonly Dictionary<string,BitmapSource> sheets=new Dictionary<string,BitmapSource>();
-  string assetKey="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
-  IntPtr handle;bool layoutQueued;IDictionary<string,object> lastState;
+  string assetKey="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;FrameworkElement pressedElement;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
+  IntPtr handle;bool layoutQueued,lastShowPet=true,lastAnyVisible=true,readySent;IDictionary<string,object> lastState;
   readonly object inputGate=new object();IDictionary<string,object> pendingState,pendingFrame;bool inputQueued;string queuedAssetKey="";
   static IDictionary<string,object> Map(object o){return o as IDictionary<string,object>??new Dictionary<string,object>();}
   static object Get(IDictionary<string,object> m,string k,object fallback=null){object v;return m.TryGetValue(k,out v)?v:fallback;}
@@ -77,27 +79,64 @@ public class KujiraPet : Window {
   }
   KujiraPet(){
     Title="Kujira 桌宠";Width=290;Height=540;AllowsTransparency=true;WindowStyle=WindowStyle.None;Background=Brushes.Transparent;Topmost=true;ShowActivated=false;ShowInTaskbar=false;ResizeMode=ResizeMode.NoResize;
-    Content=canvas;bubble.Child=text;canvas.Children.Add(bubble);canvas.Children.Add(image);
-    image.MouseLeftButtonDown+=(s,e)=>{origin=PointToScreen(e.GetPosition(this));pressed=true;image.CaptureMouse();};
-    image.LostMouseCapture+=(s,e)=>{pressed=false;};
-    image.MouseMove+=(s,e)=>{
-      if(!pressed||e.LeftButton!=MouseButtonState.Pressed)return;
+    Content=canvas;bubbleScroll.Content=text;bubble.Child=bubbleScroll;canvas.Children.Add(bubble);canvas.Children.Add(image);
+    BindDrag(image,true);BindDrag(bubble,false);
+    // Keep WPF's menu templates; the browser can supply DSH's resolved theme colors.
+    var petItem=new MenuItem();var bubbleItem=new MenuItem();var close=new MenuItem { Header="全部关闭" };
+    petItem.Click+=(s,e)=>Emit(json.Serialize(new {type="action",action="toggle-pet"}));
+    bubbleItem.Click+=(s,e)=>Emit(json.Serialize(new {type="action",action="toggle-bubble"}));
+    close.Click+=(s,e)=>Emit(json.Serialize(new {type="action",action="close"}));
+    menu.Items.Add(petItem);menu.Items.Add(bubbleItem);menu.Items.Add(close);
+    menu.Opened+=(s,e)=>{
+      var cfg=Map(Get(lastState??new Dictionary<string,object>(),"config"));
+      petItem.Header=ShowPet(cfg)?"隐藏桌宠":"显示桌宠";
+      bubbleItem.Header=Str(cfg,"bubble","always")=="hidden"?"显示气泡":"隐藏气泡";
+    };
+    image.ContextMenu=menu;bubble.ContextMenu=menu;
+    SourceInitialized+=(s,e)=>{handle=new WindowInteropHelper(this).Handle;HwndSource.FromHwnd(handle).AddHook(WindowMessage);};
+    Loaded+=(s,e)=>{if(!initialized){var work=WorkArea(Bounds());double scale=WindowScale();SetBounds(FitBounds(new Rect(work.Right-(Width+24)*scale,work.Bottom-(Height+16)*scale,Width*scale,Height*scale),work));}if(!readySent){readySent=true;Emit("{\"type\":\"ready\"}");}};
+  }
+  static Brush ThemeBrush(IDictionary<string,object> theme,string key){
+    string value=Str(theme,key);
+    if(value.Length!=7||value[0]!='#')return null;
+    try{var brush=new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));brush.Freeze();return brush;}catch{return null;}
+  }
+  void ApplyMenuTheme(IDictionary<string,object> state){
+    var theme=Map(Get(state,"menuTheme"));
+    var background=ThemeBrush(theme,"background");var foreground=ThemeBrush(theme,"foreground");
+    var border=ThemeBrush(theme,"border");var hover=ThemeBrush(theme,"hover");var hoverForeground=ThemeBrush(theme,"hoverForeground");
+    if(background==null||foreground==null||border==null||hover==null||hoverForeground==null)return;
+    menu.Background=background;menu.Foreground=foreground;menu.BorderBrush=border;
+    menu.Resources[SystemColors.MenuBrushKey]=background;menu.Resources[SystemColors.MenuTextBrushKey]=foreground;
+    menu.Resources[SystemColors.HighlightBrushKey]=hover;menu.Resources[SystemColors.HighlightTextBrushKey]=hoverForeground;
+    var itemStyle=new Style(typeof(MenuItem));
+    itemStyle.Setters.Add(new Setter(Control.BackgroundProperty,Brushes.Transparent));
+    itemStyle.Setters.Add(new Setter(Control.ForegroundProperty,foreground));
+    var highlighted=new Trigger { Property=MenuItem.IsHighlightedProperty,Value=true };
+    highlighted.Setters.Add(new Setter(Control.BackgroundProperty,hover));
+    highlighted.Setters.Add(new Setter(Control.ForegroundProperty,hoverForeground));
+    itemStyle.Triggers.Add(highlighted);menu.Resources[typeof(MenuItem)]=itemStyle;
+  }
+  static bool ShowPet(IDictionary<string,object> cfg){return !cfg.ContainsKey("showPet")||Bool(cfg,"showPet");}
+  void BindDrag(FrameworkElement target,bool interact){
+    target.MouseLeftButtonDown+=(s,e)=>{origin=PointToScreen(e.GetPosition(this));pressed=true;pressedElement=target;target.CaptureMouse();e.Handled=true;};
+    target.LostMouseCapture+=(s,e)=>{if(pressedElement==target){pressed=false;pressedElement=null;}};
+    target.MouseMove+=(s,e)=>{
+      if(!pressed||pressedElement!=target||e.LeftButton!=MouseButtonState.Pressed)return;
       if((PointToScreen(e.GetPosition(this))-origin).Length<4)return;
-      pressed=false;image.ReleaseMouseCapture();Emit("{\"type\":\"action\",\"action\":\"drag-start\"}");
+      pressed=false;target.ReleaseMouseCapture();
+      if(interact)Emit(json.Serialize(new {type="action",action="drag-start"}));
       try{DragMove();}catch{}
       if(lastState!=null)Apply(lastState);var bounds=Bounds();double scale=SystemScale();
       Emit(json.Serialize(new {type="action",action="position",x=bounds.Left/scale,y=bounds.Top/scale}));
-      Emit("{\"type\":\"action\",\"action\":\"drag-end\"}");
+      if(interact)Emit(json.Serialize(new {type="action",action="drag-end"}));
     };
-    image.MouseLeftButtonUp+=(s,e)=>{
-      if(!pressed)return;pressed=false;image.ReleaseMouseCapture();
+    target.MouseLeftButtonUp+=(s,e)=>{
+      if(!pressed||pressedElement!=target)return;pressed=false;target.ReleaseMouseCapture();
+      if(!interact)return;
       var point=e.GetPosition(image);string clip=point.Y/image.ActualHeight<.45?"head_pat":point.X/image.ActualWidth>.72&&point.Y/image.ActualHeight>.55?"tail":"poke";
       Emit(json.Serialize(new {type="action",action="interact",clip=clip}));
     };
-    var menu=new ContextMenu();var refresh=new MenuItem { Header="刷新余额／套餐" };refresh.Click+=(s,e)=>Emit("{\"type\":\"action\",\"action\":\"refresh\"}");
-    var close=new MenuItem { Header="关闭桌宠" };close.Click+=(s,e)=>{Emit("{\"type\":\"action\",\"action\":\"close\"}");Close();};menu.Items.Add(refresh);menu.Items.Add(close);image.ContextMenu=menu;
-    SourceInitialized+=(s,e)=>{handle=new WindowInteropHelper(this).Handle;HwndSource.FromHwnd(handle).AddHook(WindowMessage);};
-    Loaded+=(s,e)=>{if(!initialized){var work=WorkArea(Bounds());double scale=WindowScale();SetBounds(FitBounds(new Rect(work.Right-(Width+24)*scale,work.Bottom-(Height+16)*scale,Width*scale,Height*scale),work));}Emit("{\"type\":\"ready\"}");};
   }
   static double Item(IList list,int index){return Convert.ToDouble(list[index]);}
   BitmapSource Sheet(string path){
@@ -124,7 +163,7 @@ public class KujiraPet : Window {
   }
   public void Apply(IDictionary<string,object> state){
     if(Str(state,"type")=="frame"){DrawFrame(state);return;}
-    lastState=state;
+    lastState=state;ApplyMenuTheme(state);
     var cfg=Map(Get(state,"config"));var route=Map(Get(state,"route"));var task=Map(Get(state,"task"));var usage=Map(Get(state,"usage"));
     string persona=Str(route,"name","Kujira"),phase=Str(task,"phase","idle");Title="Kujira · "+persona+" · "+phase;
     string path=Str(state,"image"),key=AssetKey(state);if(key!=assetKey){sheets.Clear();image.Source=null;assetKey=key;}
@@ -137,10 +176,8 @@ public class KujiraPet : Window {
     // Saved coordinates retain the original system-DPI units. HWND placement is physical.
     if(restore&&(!Double.IsNaN(nextX)||!Double.IsNaN(nextY)))SetBounds(new Rect(Double.IsNaN(nextX)?before.Left:nextX*systemScale,Double.IsNaN(nextY)?before.Top:nextY*systemScale,before.Width,before.Height),true);
     var work=WorkArea(Bounds());double dpi=WindowScale();
-    double scale=Num(cfg,"scale",1);image.Width=190*scale;image.Height=image.Width*380/320;Width=Math.Min(work.Width/dpi,Math.Max(290,image.Width+20));
-    Canvas.SetLeft(image,(Width-image.Width)/2);Canvas.SetTop(image,Height-image.Height-5);
-    bubble.Width=Math.Min(280,245*Num(cfg,"bubbleScale",1));text.FontSize=13*Num(cfg,"bubbleScale",1);
-    Canvas.SetLeft(bubble,(Width-bubble.Width)/2);Canvas.SetBottom(bubble,image.Height-5);
+    double scale=Num(cfg,"scale",1);image.Width=190*scale;image.Height=image.Width*380/320;
+    bubble.Width=Math.Min(work.Width/dpi,Math.Min(280,245*Num(cfg,"bubbleScale",1)));text.FontSize=13*Num(cfg,"bubbleScale",1);
     var sb=new StringBuilder(persona+"\n"+Str(task,"text","等你开始"));
     var progress=Map(Get(task,"progress"));if(progress.Count>0)sb.Append("\n"+Get(progress,"done",0)+" / "+Get(progress,"total",0)+" 项");
     var stats=Map(Get(state,"stats"));
@@ -149,17 +186,30 @@ public class KujiraPet : Window {
       if(readings!=null){sb.Append("\n");foreach(var line in readings)sb.Append("\n"+line);}
     }
     if(Bool(cfg,"showUsage")&&usage.Count>0){sb.Append("\n\n"+Str(usage,"title"));var lines=Get(usage,"lines") as IEnumerable;if(lines!=null)foreach(var line in lines)sb.Append("\n"+line);}
-    text.Text=sb.ToString();var bm=Str(cfg,"bubble","always");bubble.Visibility=bm=="hidden"||(bm=="tasks"&&phase=="idle")?Visibility.Hidden:Visibility.Visible;
-    bubble.Measure(new Size(bubble.Width,Double.PositiveInfinity));
-    Height=Math.Min(work.Height/dpi,Math.Max(image.Height+24,image.Height+(bubble.Visibility==Visibility.Visible?bubble.DesiredSize.Height:0)+20));
-    Canvas.SetTop(image,Height-image.Height-5);
-    double x=restore?(Double.IsNaN(nextX)?work.Right-(Width+24)*dpi:nextX*systemScale):before.Right-Width*dpi;
-    double y=restore?(Double.IsNaN(nextY)?work.Bottom-(Height+16)*dpi:nextY*systemScale):before.Bottom-Height*dpi;
+    text.Text=sb.ToString();var bm=Str(cfg,"bubble","always");
+    bool showPet=ShowPet(cfg),showBubble=bm!="hidden"&&(bm!="tasks"||phase!="idle");
+    image.Visibility=showPet?Visibility.Visible:Visibility.Collapsed;
+    image.IsHitTestVisible=showPet;
+    bubble.Visibility=showBubble?Visibility.Visible:Visibility.Collapsed;
+    bubble.IsHitTestVisible=showBubble;
+    double petHeight=showPet?image.Height:0;
+    bubble.MaxHeight=Math.Max(1,work.Height/dpi-petHeight);
+    if(showBubble)bubble.Measure(new Size(bubble.Width,bubble.MaxHeight));
+    double bubbleHeight=showBubble?bubble.DesiredSize.Height:0;
+    Width=Math.Min(work.Width/dpi,Math.Max(1,Math.Max(showPet?image.Width:0,showBubble?bubble.Width:0)));
+    Height=Math.Min(work.Height/dpi,Math.Max(1,petHeight+bubbleHeight));
+    Canvas.SetLeft(image,(Width-image.Width)/2);Canvas.SetTop(image,bubbleHeight);
+    Canvas.SetLeft(bubble,(Width-bubble.Width)/2);Canvas.SetTop(bubble,0);
+    bool keepPosition=showPet!=lastShowPet||!lastAnyVisible||(!showPet&&!showBubble);
+    // Visibility toggles retain the user position; ordinary bubble updates retain the desktop bottom-right anchor.
+    double x=restore?(Double.IsNaN(nextX)?work.Right-(Width+24)*dpi:nextX*systemScale):(keepPosition?before.Left:before.Right-Width*dpi);
+    double y=restore?(Double.IsNaN(nextY)?work.Bottom-(Height+16)*dpi:nextY*systemScale):(keepPosition?before.Top:before.Bottom-Height*dpi);
     SetBounds(FitBounds(new Rect(Math.Round(x),Math.Round(y),Math.Ceiling(Width*dpi),Math.Ceiling(Height*dpi)),work));
-    savedX=nextX;savedY=nextY;
+    savedX=nextX;savedY=nextY;lastShowPet=showPet;lastAnyVisible=showPet||showBubble;
     var pulse=Map(Get(task,"pulse"));string pulseId=Str(pulse,"id");
     if(initialized&&Bool(cfg,"sound")&&((phase!=lastPhase&&(phase=="completed"||phase=="error"))||(pulseId!=""&&pulseId!=lastPulse&&Str(pulse,"kind")=="error")))System.Media.SystemSounds.Asterisk.Play();
     lastPulse=pulseId;lastPhase=phase;initialized=true;
+    if(showPet||showBubble){if(!IsVisible)Show();}else Hide();
   }
   [STAThread] public static void Main(){ Console.SetIn(new StreamReader(Console.OpenStandardInput(),new UTF8Encoding(false))); Console.SetOut(new StreamWriter(Console.OpenStandardOutput(),new UTF8Encoding(false)){AutoFlush=true});
     bool owned;using(var mutex=new Mutex(true,"Local\\KujiraSinglePet-"+Environment.UserName,out owned)){

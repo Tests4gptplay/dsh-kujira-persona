@@ -82,7 +82,7 @@ public static class KujiraNativeQa {
       Require(drawing.Children.Count==2,"Legacy frame packet failed");
       Require(((ImageDrawing)((DrawingGroup)drawing.Children[1]).Children[0]).Rect==new Rect(0,0,2,2),"Legacy intrinsic size failed");
       results["legacySingleFrame"]=true;
-      var sprite=Path.Combine(root,"gpt-core-v1.png");
+      var sprite=Path.Combine(root,"gpt-core-v3.png");
       window.Apply(Packet(new {type="frame",canvas=new[]{320,380},image=sprite,rect=new[]{49,2,301,368},at=new[]{48.87,45.08},size=new[]{252.84,309.12}}));
       drawing=(DrawingGroup)((DrawingImage)image.Source).Drawing;
       var artVisual=new DrawingVisual();using(var dc=artVisual.RenderOpen())dc.DrawDrawing(drawing);

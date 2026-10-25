@@ -1,0 +1,56 @@
+name: Pet context menu development checks
+on:
+  push:
+    branches:
+      - 'feature/pet-context-menu-20261025'
+permissions:
+  contents: read
+jobs:
+  regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Source and selected-session regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -maxdepth 3 \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          SDK="$RUNNER_TEMP/kujira-session-sdk"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry https://registry.npmjs.org \
+            @deepseek-ai/dsh-session@0.2.1-rc.2 @deepseek-ai/dsh-session-query@0.2.1-rc.2 \
+            @deepseek-ai/dsh-session-projection@0.2.1-rc.2 @deepseek-ai/dsh-session-stats@0.2.1-rc.2 \
+            @deepseek-ai/cordis@4.0.5
+          DSH_TEST_ROOT="$SDK" node --test $(find scripts/qa -name '*check.mjs' ! -name 'playable-check.mjs' ! -name 'pet-menu-browser-check.mjs' | sort)
+      - name: Confirm development-only files remain outside runtime package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/package-audit"
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/package-audit"
+          tar -tzf "$RUNNER_TEMP"/package-audit/*.tgz > "$RUNNER_TEMP/package-audit/files.txt"
+          if grep -E '/(scripts/qa|docs/development|\.github)/' "$RUNNER_TEMP/package-audit/files.txt"; then exit 1; fi
+  windows-native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build clean product and run separate WPF protocol and visibility harnesses
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
+          if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+          git rev-parse HEAD | Set-Content "$env:RUNNER_TEMP/kujira-native/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-native-context-menu
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/kujira-native/KujiraPet.exe
+            ${{ runner.temp }}/kujira-native/build-result.json
+            ${{ runner.temp }}/kujira-native/native-result.json
+            ${{ runner.temp }}/kujira-native/source-commit.txt

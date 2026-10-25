@@ -1,9 +1,10 @@
 window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
   const React=require('react'),h=React.createElement
+  const {Menu}=require('@deepseek-ai/dsh-client-ui-primitives')
   const {useEffect,useRef,useState,useSyncExternalStore}=React
   let spriteModule,spriteAttempt=0
   function apply(ctx){
-    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true,clearSelection=()=>{}
+    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true,clearSelection=()=>{},syncMenuTheme=()=>{}
     const listeners=new Set()
     const adopt=next=>{if(!disposed&&(!snapshot||next.revision>=snapshot.revision)){snapshot=next;for(const fn of listeners)fn()}}
     const subscribe=fn=>{listeners.add(fn);return()=>listeners.delete(fn)}
@@ -13,7 +14,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     void call('state').catch(()=>{})
     stream=new EventSource('/api/kujira-pet/events')
     stream.onopen=()=>{connectionGeneration++;firstStreamState=true}
-    stream.onmessage=event=>{try{const state=JSON.parse(event.data),first=firstStreamState;if(first){snapshot=null;firstStreamState=false}adopt(state);if(first)clearSelection()}catch{}}
+    stream.onmessage=event=>{try{const state=JSON.parse(event.data),first=firstStreamState;if(first){snapshot=null;firstStreamState=false}adopt(state);if(first){clearSelection();syncMenuTheme()}}catch{}}
     const css=`
       .kujira-card{border:1px solid #b8c7d344;border-radius:14px;padding:18px;display:grid;gap:14px;background:var(--surface-color,transparent);font-size:14px}
       .kujira-row{display:flex;align-items:center;justify-content:space-between;gap:18px}.kujira-row input[type=range]{width:145px}
@@ -69,7 +70,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         h('section',{className:'kujira-card'},
           h('h3',null,'Kujira · 人设与桌宠'),
           h('div',{className:'kujira-small'},'随当前模型切换 AI 角色形象；未选择或未识别的模型由星璃陪伴。'),
-          toggle('enabled','启用桌宠'),
+          toggle('enabled','启用桌宠'),toggle('showPet','显示桌宠形象'),
           choice('display','显示位置',[['auto','自动（Windows 桌面／其他系统页面内）'],['desktop','桌面窗口（Windows）'],['page','DSH 页面内']]),
           range('scale','角色大小',.55,1.6),range('bubbleScale','整个气泡大小',.8,1.4),
           choice('activity','活动程度',[['quiet','安静'],['normal','标准'],['lively','活泼']]),
@@ -113,6 +114,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     }
     function Pet(){
       const s=usePet(),[position,setPosition]=useState(null),[leader,setLeader]=useState(!navigator.locks),[viewport,setViewport]=useState(()=>[window.innerWidth,window.innerHeight])
+      const root=useRef(null),bubbleElement=useRef(null),[extent,setExtent]=useState({width:190,height:226}),[bubbleSize,setBubbleSize]=useState({width:277,height:100}),[menu,setMenu]=useState(null)
       const drag=useRef(null),controls=useRef(null),previous=useRef('idle'),previousPulse=useRef(null),audio=useRef(null)
       const enabled=!!s?.config.enabled&&s.renderer==='page'
       useEffect(()=>{if(!enabled)return;let release,aborted=false;const abort=new AbortController();if(!navigator.locks){setLeader(true);return()=>setLeader(false)}
@@ -121,19 +123,60 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       useEffect(()=>{if(!enabled)return;const resize=()=>setViewport([window.innerWidth,window.innerHeight]);resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize)},[enabled])
       useEffect(()=>{if(s?.config.x==null&&s?.config.y==null)setPosition(null)},[s?.config.x,s?.config.y])
       useEffect(()=>()=>{void audio.current?.close()},[])
+      const showPet=s?.config.showPet!==false,bubble=!!s&&s.config.bubble!=='hidden'&&(s.config.bubble==='always'||s.task.phase!=='idle')
+      useEffect(()=>{
+        if(!enabled||!leader)return
+        const measure=()=>{
+          if(bubbleElement.current){const el=bubbleElement.current;setBubbleSize(old=>old.width===el.offsetWidth&&old.height===el.offsetHeight?old:{width:el.offsetWidth,height:el.offsetHeight})}
+          if(root.current){const rect=root.current.getBoundingClientRect();setExtent(old=>old.width===rect.width&&old.height===rect.height?old:{width:rect.width,height:rect.height})}
+        }
+        measure();const observer=new ResizeObserver(measure)
+        if(root.current)observer.observe(root.current)
+        if(bubbleElement.current)observer.observe(bubbleElement.current)
+        return()=>observer.disconnect()
+      },[enabled,leader,showPet,bubble,s?.config.scale,s?.config.bubbleScale,viewport[0],viewport[1]])
+      useEffect(()=>{const d=drag.current;drag.current=null;if(d?.moved&&d.sprite)controls.current?.endDrag();if(!enabled||!leader)setMenu(null)},[enabled,leader,showPet,bubble])
       if(!enabled||!leader)return null
-      const width=190*s.config.scale,height=width*380/320,bubble=s.config.bubble!=='hidden'&&(s.config.bubble==='always'||s.task.phase!=='idle')
+      const width=Math.min(190*s.config.scale,viewport[0],viewport[1]*320/380)
+      const clamp=p=>({x:Math.max(0,Math.min(p.x,viewport[0]-extent.width)),y:Math.max(0,Math.min(p.y,viewport[1]-extent.height))})
       const pos=position??(s.config.x!=null?{x:s.config.x,y:s.config.y??20}:null)
-      const down=e=>{if(e.button!==0||drag.current)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);const rect=e.currentTarget.parentElement.getBoundingClientRect();drag.current={pointerId:e.pointerId,x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,moved:false}}
-      const move=e=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(!d.moved&&Math.abs(dx)+Math.abs(dy)>3){d.moved=true;controls.current?.startDrag()}if(!d.moved)return;const pos={x:Math.max(0,Math.min(window.innerWidth-width,d.left+dx)),y:Math.max(0,Math.min(window.innerHeight-height,d.top+dy))};d.position=pos;setPosition(pos)}
-      const finish=(e,cancel=false)=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;drag.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);if(d.moved){controls.current?.endDrag();if(d.position)void call('config',d.position).catch(()=>{})}else if(!cancel){const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;controls.current?.interact(y<.45?'head_pat':x>.72&&y>.55?'tail':'poke')}}
-      return h('div',{className:'kujira-pet','data-kujira-pet':'single','data-persona':s.route.persona,'data-phase':s.task.phase,style:{position:'fixed',zIndex:900,width,...(pos?{left:Math.max(0,Math.min(pos.x,viewport[0]-width)),top:Math.max(0,Math.min(pos.y,viewport[1]-height))}:{right:22,bottom:18}),pointerEvents:'none'}},
-        bubble?h('div',{className:'kujira-bubble',style:{position:'absolute',bottom:'95%',right:8,transform:'scale('+s.config.bubbleScale+')',transformOrigin:'bottom right'},'aria-live':'polite'},
-          h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'关闭桌宠',onClick:()=>void call('config',{enabled:false}).catch(()=>{})},'×')),
-          h('div',null,s.task.text),s.task.progress?h('div',null,`${s.task.progress.done} / ${s.task.progress.total} 项`):null,
-          s.config.showStats&&s.task.phase!=='idle'?h(WorkStats,{value:s.stats}):null,h(Usage,{value:s.usage})):null,
-        h('div',{style:{pointerEvents:'auto',cursor:drag.current?'grabbing':'grab',touchAction:'none'},onPointerDown:down,onPointerMove:move,onPointerUp:e=>finish(e),onPointerCancel:e=>finish(e,true),onLostPointerCapture:e=>finish(e,true)},h(Sprite,{state:s,controls})))
+      const down=e=>{if(e.button!==0||drag.current||e.target.closest?.('button'))return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);const rect=root.current.getBoundingClientRect();drag.current={pointerId:e.pointerId,x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,moved:false,sprite:e.currentTarget.dataset.kujiraDrag==='sprite'}}
+      const move=e=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(!d.moved&&Math.abs(dx)+Math.abs(dy)>3){d.moved=true;if(d.sprite)controls.current?.startDrag()}if(!d.moved)return;const pos=clamp({x:d.left+dx,y:d.top+dy});d.position=pos;setPosition(pos)}
+      const finish=(e,cancel=false)=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;drag.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);if(d.moved){if(d.sprite)controls.current?.endDrag();if(d.position)void call('config',d.position).catch(()=>{})}else if(!cancel&&d.sprite){const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;controls.current?.interact(y<.45?'head_pat':x>.72&&y>.55?'tail':'poke')}}
+      const handlers={onPointerDown:down,onPointerMove:move,onPointerUp:e=>finish(e),onPointerCancel:e=>finish(e,true),onLostPointerCapture:e=>finish(e,true)}
+      const select=id=>{setMenu(null);const patch=id==='pet'?{showPet:!showPet}:id==='bubble'?{bubble:s.config.bubble==='hidden'?s.config.bubbleBeforeHidden:'hidden'}:{enabled:false};void call('config',patch).catch(()=>{})}
+      return h(React.Fragment,null,
+        showPet||bubble?h('div',{ref:root,className:'kujira-pet','data-kujira-pet':'single','data-persona':s.route.persona,'data-phase':s.task.phase,onContextMenu:e=>{e.preventDefault();e.stopPropagation();setMenu({x:e.clientX,y:e.clientY})},style:{position:'fixed',zIndex:900,display:'flex',flexDirection:'column',alignItems:'flex-end',...(pos?{left:clamp(pos).x,top:clamp(pos).y}:{right:Math.min(22,Math.max(0,viewport[0]-extent.width)),bottom:Math.min(18,Math.max(0,viewport[1]-extent.height))}),pointerEvents:'none'}},
+          bubble?h('div',{style:{position:'relative',width:bubbleSize.width*s.config.bubbleScale,height:bubbleSize.height*s.config.bubbleScale}},
+            h('div',{ref:bubbleElement,className:'kujira-bubble','data-kujira-drag':'bubble',...handlers,style:{position:'absolute',bottom:0,right:0,transform:'scale('+s.config.bubbleScale+')',transformOrigin:'bottom right',boxSizing:'border-box',minWidth:0,width:277,maxWidth:viewport[0]/s.config.bubbleScale,maxHeight:Math.max(0,(viewport[1]-(showPet?width*380/320:0))/s.config.bubbleScale),overflowY:'auto',overflowWrap:'anywhere',cursor:'grab',touchAction:'none'},'aria-live':'polite'},
+              h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'全部关闭',onClick:()=>void call('config',{enabled:false}).catch(()=>{})},'×')),
+              h('div',null,s.task.text),s.task.progress?h('div',null,`${s.task.progress.done} / ${s.task.progress.total} 项`):null,
+              s.config.showStats&&s.task.phase!=='idle'?h(WorkStats,{value:s.stats}):null,h(Usage,{value:s.usage}))):null,
+          showPet?h('div',{'data-kujira-drag':'sprite',...handlers,style:{width,pointerEvents:'auto',cursor:drag.current?'grabbing':'grab',touchAction:'none'}},h(Sprite,{state:s,controls})):null):null,
+        h(Menu,{open:!!menu,anchor:null,portal:true,getAnchorRect:()=>new DOMRect(menu?.x??0,menu?.y??0,0,0),items:[{id:'pet',label:showPet?'隐藏桌宠':'显示桌宠'},{id:'bubble',label:s.config.bubble==='hidden'?'显示气泡':'隐藏气泡'},{id:'close',label:'全部关闭'}],onSelect:select,onClose:()=>setMenu(null)}))
     }
+
+    // Read the host's resolved public menu tokens after ThemePresenter updates body.
+    // WPF cannot share the React Menu; only its palette crosses the existing bridge.
+    ctx.inject(['theme'],scope=>{
+      let frame,queued=null,sending=false,closed=false
+      const send=async theme=>{queued=theme;if(sending)return;sending=true;try{while(queued&&!closed){const next=queued;queued=null;await call('menu-theme',next).catch(()=>{})}}finally{sending=false}}
+      const sync=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{
+        const probe=document.createElement('span'),canvas=document.createElement('canvas');canvas.width=canvas.height=1
+        const paint=canvas.getContext('2d');if(!paint)return
+        probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none';document.body.appendChild(probe)
+        const color=token=>{probe.style.color='var('+token+')';return getComputedStyle(probe).color}
+        const solid=(base,overlay)=>{paint.clearRect(0,0,1,1);paint.fillStyle=base;paint.fillRect(0,0,1,1);if(overlay){paint.fillStyle=overlay;paint.fillRect(0,0,1,1)}return '#'+Array.from(paint.getImageData(0,0,1,1).data).slice(0,3).map(v=>v.toString(16).padStart(2,'0')).join('')}
+        try{
+          const background=solid(color('--dsw-alias-bg-base'),color('--dsw-menu-surface-fill')),foreground=solid(background,color('--dsw-alias-label-primary'))
+          void send({background,foreground,border:solid(background,color('--dsw-alias-border-l1')),hover:solid(background,color('--dsw-alias-interactive-bg-hover')),hoverForeground:foreground})
+        }catch{}finally{probe.remove()}
+      })}
+      const observer=new MutationObserver(sync);observer.observe(document.body,{attributes:true,attributeFilter:['style','data-ds-dark-theme']})
+      const visible=()=>{if(document.visibilityState!=='hidden')sync()}
+      syncMenuTheme=sync;sync();scope.on('theme/change',sync);document.addEventListener('visibilitychange',visible)
+      scope.on('dispose',()=>{closed=true;queued=null;observer.disconnect();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visible);if(syncMenuTheme===sync)syncMenuTheme=()=>{}})
+    })
     ctx.slots.inject('settings.section',()=>ctx.slots.register({name:'settings.section',id:'kujira-persona',order:85,label:'Kujira · 人设',inject:()=>({})},Settings))
     ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'kujira-one-pet',order:900},Pet))
     ctx.inject(['modelDirectories','sessions','remote','remote.session','uiSession'],scope=>{

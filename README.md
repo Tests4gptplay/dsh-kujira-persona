@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **2.0.0-alpha.3 候选版。** [验收记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/ALPHA3_ACCEPTANCE_20261025.md)收录状态动作、宿主运行与安装包检查；候选安装来源见下方。
+> **2.0.1 开发分支候选版。** [验收记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/feat/v2.0.0-single-model-pet/docs/development/ALPHA3_ACCEPTANCE_20261025.md)收录状态动作、宿主运行与安装包检查；候选安装来源见下方。
 
 ## 世界观与人物
 
@@ -74,7 +74,7 @@
 
 修改世界观、人物性格、记忆、角色绑定或档案存放位置，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
 
-## 2.0.0-alpha.3 候选安装来源
+## 2.0.1 候选安装来源
 
 在 DSH 的插件管理中添加当前开发分支：
 
@@ -82,11 +82,11 @@
 github:Tests4gptplay/dsh-kujira-persona#feat/v2.0.0-single-model-pet
 ```
 
-本轮候选安装包为 `dsh-kujira-persona-2.0.0-alpha.3.tgz`，随验收记录提供对应提交和 SHA256。此前的固定测试快照保留在 `v2.0.0-alpha.2` 分支。
+本轮候选安装包为 `dsh-kujira-persona-2.0.1.tgz`，随交付记录提供对应提交和 SHA256。2.0.1 承接 alpha.3 已验收的状态与动画内容，本次统一版本标识，运行代码、角色素材和动作时序保持一致。此前的固定测试快照保留在 `v2.0.0-alpha.2` 分支。
 
-## 安装和升级
+## 历史版本安装和升级
 
-以下为正式版本 v1.6.2 的安装方法。
+以下保留 v1.6.2 的固定版本安装方法；本轮 2.0.1 使用上方开发分支或随附安装包。
 
 DSH Desktop：打开 **插件 → 添加插件**，输入：
 

@@ -90,9 +90,9 @@ test('live frame observer never reads text, reasoning or arguments',async()=>{
  assert.equal(c.task.phase,'responding');assert.ok(!JSON.stringify(c.snapshot()).includes('private'))
  c.dispose()
 })
-test('other sessions and delegated agents never affect selected pet',async()=>{
+test('other sessions and unselected delegated agents never affect selected pet',async()=>{
  const c=await controller(),s=session();begin(c,s)
- for(const other of [session('other'),session('main',{origin:'subagent'}),session('main',{delegationDepth:1})]){
+ for(const other of [session('other'),session('child',{origin:'subagent'}),session('nested-child',{delegationDepth:1})]){
   const a={session:other},before=c.revision;open(c,a);chunk(c,a,'text-delta');assert.equal(c.revision,before)
  }
  assert.equal(c.task.phase,'thinking');c.dispose()
@@ -170,7 +170,7 @@ test('plugin binds official live event and disposes it without host polling',asy
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'start',attemptId:'a',revision:1,turn:1,step:1}})
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'chunk',attemptId:'a',revision:2,index:0,chunk:{type:'text-delta'}}})
  assert.equal((await request('state')).task.phase,'responding')
- onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','session/disposed','session/event'])
+ onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','agent/status','session/disposed','session/event'])
 })
 
 test('all current role manifests resolve every exposed state and activity to real frames',()=>{

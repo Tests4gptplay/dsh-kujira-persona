@@ -3,7 +3,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
   const {useEffect,useRef,useState,useSyncExternalStore}=React
   let spriteModule,spriteAttempt=0
   function apply(ctx){
-    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true
+    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true,clearSelection=()=>{}
     const listeners=new Set()
     const adopt=next=>{if(!disposed&&(!snapshot||next.revision>=snapshot.revision)){snapshot=next;for(const fn of listeners)fn()}}
     const subscribe=fn=>{listeners.add(fn);return()=>listeners.delete(fn)}
@@ -13,7 +13,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     void call('state').catch(()=>{})
     stream=new EventSource('/api/kujira-pet/events')
     stream.onopen=()=>{connectionGeneration++;firstStreamState=true}
-    stream.onmessage=event=>{try{const state=JSON.parse(event.data);if(firstStreamState){snapshot=null;firstStreamState=false}adopt(state)}catch{}}
+    stream.onmessage=event=>{try{const state=JSON.parse(event.data),first=firstStreamState;if(first){snapshot=null;firstStreamState=false}adopt(state);if(first)clearSelection()}catch{}}
     const css=`
       .kujira-card{border:1px solid #b8c7d344;border-radius:14px;padding:18px;display:grid;gap:14px;background:var(--surface-color,transparent);font-size:14px}
       .kujira-row{display:flex;align-items:center;justify-content:space-between;gap:18px}.kujira-row input[type=range]{width:145px}
@@ -30,17 +30,20 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       .kujira-folder-summary{font-size:13px;font-variant-numeric:tabular-nums}.kujira-muted{opacity:.7}
     `
     const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)
-    function RouteBinder({getDirectory,sessionId}){const pet=usePet();return pet?.config.enabled?h(ModelFollower,{directory:getDirectory(),sessionId}):null}
-    function ModelFollower({directory,sessionId}){
+    function RouteBinder({getDirectory,sessionId,selection}){
+      const pet=usePet(),selected=useSyncExternalStore(selection.subscribe,selection.getSnapshot,selection.getSnapshot)
+      return pet?.config.enabled&&selected.key===sessionId?h(ModelFollower,{directory:getDirectory(),sessionId,selection}):null
+    }
+    function ModelFollower({directory,sessionId,selection}){
       const state=useSyncExternalStore(directory.store.subscribe,directory.store.getSnapshot,directory.store.getSnapshot)
       const pet=usePet();const current=state.current
       useEffect(()=>{if(pet?.config.enabled)void directory.load().catch(()=>{})},[directory,pet?.config.enabled])
       useEffect(()=>{
         if(!pet?.config.enabled)return
-        const update=()=>{if(document.visibilityState!=='hidden')void call('select',{provider:current?.provider??'',model:current?.model??'',sessionId:String(sessionId)}).catch(()=>{})}
+        const update=()=>{if(document.visibilityState!=='hidden'&&selection.getSnapshot().key===sessionId)void call('select',{provider:current?.provider??'',model:current?.model??'',sessionId:String(sessionId)}).catch(()=>{})}
         update();window.addEventListener('focus',update);document.addEventListener('visibilitychange',update)
         return()=>{window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update)}
-      },[current?.provider,current?.model,sessionId,pet?.config.enabled,connectionGeneration])
+      },[current?.provider,current?.model,sessionId,selection,pet?.config.enabled,connectionGeneration])
       return null
     }
     function Usage({value}){return value?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...value.lines.map((t,i)=>h('div',{key:i},t)),...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},`${w.label}重置：${new Date(w.resetAt).toLocaleString()}`))):null}
@@ -133,7 +136,13 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     }
     ctx.slots.inject('settings.section',()=>ctx.slots.register({name:'settings.section',id:'kujira-persona',order:85,label:'Kujira · 人设',inject:()=>({})},Settings))
     ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'kujira-one-pet',order:900},Pet))
-    ctx.inject(['modelDirectories','sessions','remote','remote.session'],scope=>scope.slots.inject('conversation.input.overlay',()=>scope.slots.register({name:'conversation.input.overlay',id:'kujira-model-follow',order:990,inject:sessionId=>({sessionId,getDirectory:()=>scope.modelDirectories.directoryFor(sessionId)})},RouteBinder)))
+    ctx.inject(['modelDirectories','sessions','remote','remote.session','uiSession'],scope=>{
+      const selection=scope.uiSession.adapter.current
+      const clear=()=>{if(selection.getSnapshot().key===undefined&&document.visibilityState!=='hidden')void call('select',{provider:'',model:'',sessionId:''}).catch(()=>{})}
+      clearSelection=clear;const off=selection.subscribe(clear);clear();window.addEventListener('focus',clear);document.addEventListener('visibilitychange',clear)
+      scope.on('dispose',()=>{if(clearSelection===clear)clearSelection=()=>{};off();window.removeEventListener('focus',clear);document.removeEventListener('visibilitychange',clear)})
+      return scope.slots.inject('conversation.input.overlay',()=>scope.slots.register({name:'conversation.input.overlay',id:'kujira-model-follow',order:990,inject:sessionId=>({sessionId,selection,getDirectory:()=>scope.modelDirectories.directoryFor(sessionId)})},RouteBinder))
+    })
     ctx.on('dispose',()=>{disposed=true;stream?.close();listeners.clear();style.remove()})
   }
   return {name:'kujira-pet-client',inject:['slots','connection','sessions','remote','remote.session'],apply}

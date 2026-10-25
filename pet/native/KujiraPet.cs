@@ -32,7 +32,7 @@ public class KujiraPet : Window {
   readonly Canvas canvas=new Canvas();
   readonly ContextMenu menu=new ContextMenu();
   readonly Dictionary<string,BitmapSource> sheets=new Dictionary<string,BitmapSource>();
-  string assetKey="",lastPhase="idle",lastPulse="";bool pressed=false;Point origin;FrameworkElement pressedElement;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
+  string assetKey="",lastPhase="idle",lastPulse="",menuThemeKey="";bool pressed=false;Point origin;FrameworkElement pressedElement;bool initialized=false;double savedX=Double.NaN,savedY=Double.NaN;
   IntPtr handle;bool layoutQueued,lastShowPet=true,lastAnyVisible=true,readySent;IDictionary<string,object> lastState;
   readonly object inputGate=new object();IDictionary<string,object> pendingState,pendingFrame;bool inputQueued;string queuedAssetKey="";
   static IDictionary<string,object> Map(object o){return o as IDictionary<string,object>??new Dictionary<string,object>();}
@@ -103,19 +103,34 @@ public class KujiraPet : Window {
   }
   void ApplyMenuTheme(IDictionary<string,object> state){
     var theme=Map(Get(state,"menuTheme"));
+    string key=Str(theme,"background")+"|"+Str(theme,"foreground")+"|"+Str(theme,"border")+"|"+Str(theme,"hover")+"|"+Str(theme,"hoverForeground");
+    if(key==menuThemeKey)return;
     var background=ThemeBrush(theme,"background");var foreground=ThemeBrush(theme,"foreground");
     var border=ThemeBrush(theme,"border");var hover=ThemeBrush(theme,"hover");var hoverForeground=ThemeBrush(theme,"hoverForeground");
     if(background==null||foreground==null||border==null||hover==null||hoverForeground==null)return;
     menu.Background=background;menu.Foreground=foreground;menu.BorderBrush=border;
     menu.Resources[SystemColors.MenuBrushKey]=background;menu.Resources[SystemColors.MenuTextBrushKey]=foreground;
     menu.Resources[SystemColors.HighlightBrushKey]=hover;menu.Resources[SystemColors.HighlightTextBrushKey]=hoverForeground;
+    // Aero's built-in item template paints its own fixed hover brush. Keep MenuItem behavior,
+    // replacing only that visual with a header and a border bound to the supplied DSH colors.
+    var template=new ControlTemplate(typeof(MenuItem));
+    var itemBorder=new FrameworkElementFactory(typeof(Border),"DshMenuBorder");
+    itemBorder.SetValue(Border.BackgroundProperty,new TemplateBindingExtension(Control.BackgroundProperty));
+    itemBorder.SetValue(Border.PaddingProperty,new Thickness(12,6,12,6));
+    var header=new FrameworkElementFactory(typeof(ContentPresenter));
+    header.SetValue(ContentPresenter.ContentSourceProperty,"Header");
+    header.SetValue(ContentPresenter.RecognizesAccessKeyProperty,true);
+    header.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Left);
+    header.SetValue(FrameworkElement.VerticalAlignmentProperty,VerticalAlignment.Center);
+    itemBorder.AppendChild(header);template.VisualTree=itemBorder;
     var itemStyle=new Style(typeof(MenuItem));
+    itemStyle.Setters.Add(new Setter(Control.TemplateProperty,template));
     itemStyle.Setters.Add(new Setter(Control.BackgroundProperty,Brushes.Transparent));
     itemStyle.Setters.Add(new Setter(Control.ForegroundProperty,foreground));
     var highlighted=new Trigger { Property=MenuItem.IsHighlightedProperty,Value=true };
     highlighted.Setters.Add(new Setter(Control.BackgroundProperty,hover));
     highlighted.Setters.Add(new Setter(Control.ForegroundProperty,hoverForeground));
-    itemStyle.Triggers.Add(highlighted);menu.Resources[typeof(MenuItem)]=itemStyle;
+    itemStyle.Triggers.Add(highlighted);menu.Resources[typeof(MenuItem)]=itemStyle;menuThemeKey=key;
   }
   static bool ShowPet(IDictionary<string,object> cfg){return !cfg.ContainsKey("showPet")||Bool(cfg,"showPet");}
   void BindDrag(FrameworkElement target,bool interact){

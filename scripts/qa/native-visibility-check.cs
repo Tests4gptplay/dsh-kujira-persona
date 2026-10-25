@@ -60,7 +60,23 @@ public static class KujiraNativeVisibilityQa {
       Require(((SolidColorBrush)image.ContextMenu.Background).Color==Color.FromRgb(0x12,0x34,0x56),"DSH background bridge was not applied");
       var style=(Style)image.ContextMenu.Resources[typeof(MenuItem)];
       Require(style.Triggers.Count==1&&((Trigger)style.Triggers[0]).Property==MenuItem.IsHighlightedProperty,"DSH hover colors lack a WPF highlight trigger");
+      var themedBackground=image.ContextMenu.Background;
+      for(int i=0;i<20;i++)w.Apply(themed);
+      Require(Object.ReferenceEquals(style,image.ContextMenu.Resources[typeof(MenuItem)])&&Object.ReferenceEquals(themedBackground,image.ContextMenu.Background),"Unchanged palette rebuilt WPF brushes or style");
+      var palette=(IDictionary<string,object>)themed["menuTheme"];palette["hover"]="#6789AB";
+      w.Apply(themed);var changed=(Style)image.ContextMenu.Resources[typeof(MenuItem)];
+      Require(!Object.ReferenceEquals(style,changed),"Changed palette did not replace menu style");
+      var changedBrush=(SolidColorBrush)((Setter)((Trigger)changed.Triggers[0]).Setters[0]).Value;
+      Require(changedBrush.Color==Color.FromRgb(0x67,0x89,0xAB),"Changed palette did not update hover brush");
+      palette["hover"]="invalid";w.Apply(themed);
+      Require(Object.ReferenceEquals(changed,image.ContextMenu.Resources[typeof(MenuItem)]),"Invalid palette replaced last valid menu style");
+      palette["hover"]="#56789A";w.Apply(themed);
       RequireThemedHover(image);
+      var savedOutput=Console.Out;var actions=new System.IO.StringWriter();Console.SetOut(actions);
+      try{foreach(MenuItem action in image.ContextMenu.Items){Require(action.Focusable&&action.IsEnabled,"MenuItem lost native keyboard focus or enabled behavior");action.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));}}finally{Console.SetOut(savedOutput);}
+      var actionLines=actions.ToString().Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries);
+      Require(actionLines.Length==3&&actionLines[0].Contains("toggle-pet")&&actionLines[1].Contains("toggle-bubble")&&actionLines[2].Contains("close"),"The themed MenuItem click events lost their three actions");
+
       Apply(w,true,"always");
       var full=Bounds(w);
       Apply(w,false,"always");

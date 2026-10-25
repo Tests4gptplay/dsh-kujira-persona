@@ -28,7 +28,9 @@ The Menu owns portal placement, viewport fit, Escape and outside dismissal; its 
 The existing menu styling inherits the host's `--dsw-*` variables.
 These APIs were checked in DSH rc.2 and rc.3 source, without adding a host-version gate.
 
-Windows is WPF, not React: the native menu retains standard WPF ContextMenu/MenuItem templates.
+Windows is WPF, not React: the native menu retains WPF ContextMenu/MenuItem controls. A minimal token-bound MenuItem visual
+(Border plus header presenter) avoids the default Aero template's hard-coded blue hover fill;
+keyboard/click behavior remains with MenuItem.
 A small palette bridge reads the resolved public DSH menu tokens after theme application and sends opaque
 colors through the existing connection and native stdin transport. This is theme synchronization,
 not cross-platform reuse of the React component. Alpha colors are composited over DSH's base background.
@@ -45,5 +47,8 @@ The five-color payload is presentation-only and not persisted to user settings.
   update main, invoke a user machine, or install the plugin.
 - Browser fixture checks, if run, validate actual React/DSH Menu with controlled host interfaces, not a complete DSH installation.
 
-See the exact commit's CI results for executed checks. Human desktop interaction and a full DSH host session are separate
+The real React/DSH Menu rc.2 browser fixture passed at commit `1c884a81a8431f9f6ba0f7da04ae4f1e2e8ba870`,
+including 150px-tall viewport restoration and palette re-send after reconnect.
+Windows CI exposed stale multiline measurement and the Aero hover override; regression assertions
+were retained while addressing these findings. See the exact commit's CI results for final executed checks. Human desktop interaction and a full DSH host session are separate
 from the automated component/WPF harness coverage and must not be represented as verified by source checks alone.

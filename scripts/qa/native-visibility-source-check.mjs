@@ -25,12 +25,14 @@ test('native source contract: both surfaces drag and restored geometry clamps',(
   assert.ok(source.includes('lastShowPet=showPet'))
 })
 
-test('native source contract: DSH colors bridge into standard WPF styles, without custom templates',()=>{
+test('native source contract: DSH colors bridge into WPF MenuItem without Aero fixed hover paint',()=>{
   assert.ok(source.includes('Map(Get(state,"menuTheme"))'))
   for(const key of ['background','foreground','border','hover','hoverForeground'])assert.ok(source.includes(`ThemeBrush(theme,"${key}")`))
   assert.ok(source.includes('Property=MenuItem.IsHighlightedProperty'))
   assert.ok(source.includes('menu.Resources[SystemColors.HighlightBrushKey]=hover'))
-  assert.ok(!source.includes('ControlTemplate'))
+  assert.ok(source.includes('new ControlTemplate(typeof(MenuItem))'))
+  assert.ok(source.includes('new TemplateBindingExtension(Control.BackgroundProperty)'))
+  assert.ok(source.includes('ContentPresenter.ContentSourceProperty,"Header"'))
 })
 test('native source contract: ready is once-only and initialized precedes showing',()=>{
   assert.ok(source.includes('if(!readySent){readySent=true;Emit('))
@@ -41,4 +43,9 @@ test('native source contract: long bubbles scroll within available work area',()
   assert.ok(source.includes('VerticalScrollBarVisibility=ScrollBarVisibility.Auto'))
   assert.ok(source.includes('bubble.MaxHeight=Math.Max(1,work.Height/dpi-petHeight)'))
   assert.ok(source.includes('bubble.Measure(new Size(bubble.Width,bubble.MaxHeight))'))
+})
+
+test('native source contract: unchanged palette reuses brushes and styles',()=>{
+  assert.ok(source.indexOf('if(key==menuThemeKey)return')<source.indexOf('var background=ThemeBrush'))
+  assert.ok(source.indexOf('if(background==null')<source.indexOf('menuThemeKey=key'))
 })

@@ -52,3 +52,11 @@ including 150px-tall viewport restoration and palette re-send after reconnect.
 Windows CI exposed stale multiline measurement and the Aero hover override; regression assertions
 were retained while addressing these findings. See the exact commit's CI results for final executed checks. Human desktop interaction and a full DSH host session are separate
 from the automated component/WPF harness coverage and must not be represented as verified by source checks alone.
+
+## Native build receipt
+
+`PET_CONTEXT_MENU_NATIVE_BUILD.json` binds the shipped development EXE to its passing Windows run,
+Git source blob, exact compiled-source hash (Windows CRLF checkout), executable hash and artifact.
+At source commit `6a29df4717279c84f6930e441b5ba02bff964679`, the actual WPF highlighted Border was
+verified as the supplied DSH color, and multiline/scaled/long-scrollable bubble geometry passed.
+A later binary-only commit does not require replacing this verified EXE with a compiler timestamp variant.

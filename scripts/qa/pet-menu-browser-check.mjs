@@ -27,10 +27,10 @@ const server=createServer(async(req,res)=>{try{
  }catch(error){res.writeHead(500);res.end(String(error))}})
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve))
 const report={kind:'real-react-public-dsh-menu',packageVersion:require('@deepseek-ai/dsh-client-ui-primitives/package.json').version,checks:[],pageErrors:[],limits:['A standalone host fixture, not a running full DSH application','Windows WPF not exercised by this browser check']}
-let browser
+let browser,page
 try{
  browser=await chromium.launch({headless:true,executablePath:process.env.KUJIRA_CHROMIUM_PATH||undefined,args:['--no-sandbox']})
- const page=await browser.newPage({viewport:{width:900,height:720},locale:'zh-CN'});page.setDefaultTimeout(6000);page.on('pageerror',e=>report.pageErrors.push(e.message))
+ page=await browser.newPage({viewport:{width:900,height:720},locale:'zh-CN'});page.setDefaultTimeout(6000);page.on('pageerror',e=>report.pageErrors.push(e.message))
  await page.goto('http://127.0.0.1:'+server.address().port)
  const pet=page.locator('[data-kujira-pet]'),bubble=page.locator('[data-kujira-drag=bubble]'),sprite=page.locator('[data-kujira-drag=sprite]'),menu=page.getByRole('menu')
  const settle=async()=>{await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
@@ -61,8 +61,23 @@ try{
  const light=await textColor();await page.evaluate(()=>QA.theme(true));await settle();const dark=await textColor();assert.notEqual(light,dark);assert.equal(dark,'rgb(240, 242, 245)')
  await page.waitForFunction(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').at(-1)?.payload.foreground==='#f0f2f5');const themeCount=await page.evaluate(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').length);await page.evaluate(()=>QA.reconnect());await page.waitForFunction(count=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').length>count,themeCount);
  await page.evaluate(()=>document.body.style.setProperty('--dsw-alias-label-primary','#ddeeff'));await page.waitForFunction(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').at(-1)?.payload.foreground==='#ddeeff');await page.evaluate(()=>document.body.style.removeProperty('--dsw-alias-label-primary'));await page.waitForFunction(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').at(-1)?.payload.foreground==='#f0f2f5');
+ // Color 4 alpha must remain translucent in the public Menu, but composite to opaque RGB for WPF.
+ const beforeAlphaTheme=await page.evaluate(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').length)
+ await page.evaluate(()=>{document.body.style.setProperty('--dsw-alias-bg-base','#102030');document.body.style.setProperty('--dsw-menu-surface-fill','color-mix(in srgb, white 25%, transparent)')})
+ await page.waitForFunction(count=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').length>count,beforeAlphaTheme)
+ const alphaBackground=await page.evaluate(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').at(-1).payload.background)
+ assert.match(alphaBackground,/^#[0-9a-f]{6}$/i)
+ const channels=alphaBackground.slice(1).match(/../g).map(hex=>parseInt(hex,16))
+ assert(channels.every((channel,i)=>Math.abs(channel-[76,88,100][i])<=1),'Color 4 alpha composite: '+alphaBackground)
+ assert(await menu.evaluate(el=>{
+   const canvas=document.createElement('canvas');canvas.width=canvas.height=1;const context=canvas.getContext('2d')
+   return Array.from(el.querySelectorAll('*')).some(node=>{context.clearRect(0,0,1,1);context.fillStyle=getComputedStyle(node).backgroundColor;context.fillRect(0,0,1,1);const rgba=context.getImageData(0,0,1,1).data;return rgba[0]===255&&rgba[1]===255&&rgba[2]===255&&Math.abs(rgba[3]-64)<=1})
+ }),'Public Menu must retain the same 25%-alpha white surface token')
+ await page.evaluate(()=>{document.body.style.removeProperty('--dsw-alias-bg-base');document.body.style.removeProperty('--dsw-menu-surface-fill')})
+ await page.waitForFunction(()=>QA.calls.filter(x=>x.method==='kujira-pet/menu-theme').at(-1)?.payload.background==='#43454a')
+ report.checks.push('Color 4 color-mix alpha stays translucent in Menu and composites correctly to opaque native palette')
  await page.screenshot({path:join(output,'dark-menu.png')});await page.keyboard.press('Escape');await open();await menu.getByRole('menuitem',{name:'全部关闭',exact:true}).click();await pet.waitFor({state:'detached'});assert.equal(await page.evaluate(()=>QA.state.config.enabled),false)
  await patch({enabled:true,showPet:true});await pet.waitFor();await settle();await fits()
  report.checks.push('public Menu inherits light/dark host tokens; native palette re-sent after reconnect; close all disables only companion; settings restore')
  assert.deepEqual(report.pageErrors,[]);report.passed=true
-}catch(error){report.passed=false;report.error=error.stack;throw error}finally{await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');await browser?.close();await new Promise(resolve=>server.close(resolve));console.log(JSON.stringify(report,null,2))}
+}catch(error){report.passed=false;report.error=error.stack;if(page)try{await page.screenshot({path:join(output,'failure.png')});await writeFile(join(output,'failure.html'),await page.content())}catch{}throw error}finally{await writeFile(join(output,'report.json'),JSON.stringify(report,null,2)+'\n');await browser?.close();await new Promise(resolve=>server.close(resolve));console.log(JSON.stringify(report,null,2))}

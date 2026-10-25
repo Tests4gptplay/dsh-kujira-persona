@@ -1,0 +1,16 @@
+{
+  "sourceCommit": "6a29df4717279c84f6930e441b5ba02bff964679",
+  "workflowRun": 40182625637,
+  "workflowUrl": "https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40182625637",
+  "artifactId": 12594164227,
+  "artifactZipSha256": "5813370fa3b554e70e834d7a8b664d2a5a9f833973f7ac24e2a6212a81e0570d",
+  "gitSourceBlob": "fa3cd90234f128f6b79a15100c7e64dd8f2133d9",
+  "gitSourceLfSha256": "54f6c02c6b64e757091279ff9743b401636b092d342a9b86e4e3f9c184cc3886",
+  "compiledSourceCrlfSha256": "c945c2e0cd69ee7887e92b62524afa384214ba6e81e59d610614e02ce6eb5b54",
+  "lineEndingNote": "GitHub Windows checkout uses CRLF. Replacing each repository LF with CRLF exactly reproduces the compiled-source SHA256; no source content differences.",
+  "exeSha256": "3276250225c201d64b96c32094b6cbe167a1bc5348597f0f668ca89dffd3c19d",
+  "exeBytes": 26112,
+  "manifestSha256": "9a7d0dee185bd66f41425f99f50b87ba488f288abe4f94113bb72e4ad5769c29",
+  "compiler": "4.8.9221.0 built by: NET481REL1LAST_25H2",
+  "verification": "Product compiled alone; separate protocol and visibility/menu WPF harnesses passed. The actual highlighted visual tree uses the supplied DSH hover color. Human full-host desktop interaction not claimed."
+}

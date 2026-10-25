@@ -9,7 +9,16 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     const adopt=next=>{if(!disposed&&(!snapshot||next.revision>=snapshot.revision)){snapshot=next;for(const fn of listeners)fn()}}
     const subscribe=fn=>{listeners.add(fn);return()=>listeners.delete(fn)}
     const get=()=>snapshot
-    const call=async(endpoint,payload={})=>{const generation=connectionGeneration,r=await ctx.connection.rpc.call('/api','kujira-pet/'+endpoint,payload);if(!r.ok)throw new Error(r.error?.message??'暂不可用');if(generation===connectionGeneration&&typeof r.value?.revision==='number')adopt(r.value);return r.value}
+    const call=async(endpoint,payload={})=>{
+      const generation=connectionGeneration;let r
+      try{r=await ctx.connection.rpc.call('/api','kujira-pet/'+endpoint,payload)}catch(error){
+        const status=/HTTP (\d{3})/.exec(error?.message??'')?.[1]
+        const next=status==='401'||status==='403'?'宿主拒绝了请求（HTTP '+status+'），请重新连接 DSH。':status==='404'?'宿主菜单接口不可用（HTTP 404），请重启 DSH 以加载插件。':status?'宿主请求失败（HTTP '+status+'），请查看 DSH 日志。':'无法连接 DSH 宿主，请确认 DSH 仍在运行。'
+        throw new Error(next)
+      }
+      if(!r.ok)throw new Error(r.error?.message??'宿主未能完成这次设置，请查看 DSH 日志。')
+      if(generation===connectionGeneration&&typeof r.value?.revision==='number')adopt(r.value);return r.value
+    }
     const usePet=()=>useSyncExternalStore(subscribe,get,get)
     void call('state').catch(()=>{})
     stream=new EventSource('/api/kujira-pet/events')
@@ -114,7 +123,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     }
     function Pet(){
       const s=usePet(),[position,setPosition]=useState(null),[leader,setLeader]=useState(!navigator.locks),[viewport,setViewport]=useState(()=>[window.innerWidth,window.innerHeight])
-      const root=useRef(null),bubbleElement=useRef(null),[extent,setExtent]=useState({width:190,height:226}),[bubbleSize,setBubbleSize]=useState({width:277,height:100}),[menu,setMenu]=useState(null)
+      const root=useRef(null),bubbleElement=useRef(null),[extent,setExtent]=useState({width:190,height:226}),[bubbleSize,setBubbleSize]=useState({width:277,height:100}),[menu,setMenu]=useState(null),[menuError,setMenuError]=useState('')
       const drag=useRef(null),controls=useRef(null),previous=useRef('idle'),previousPulse=useRef(null),audio=useRef(null)
       const enabled=!!s?.config.enabled&&s.renderer==='page'
       useEffect(()=>{if(!enabled)return;let release,aborted=false;const abort=new AbortController();if(!navigator.locks){setLeader(true);return()=>setLeader(false)}
@@ -135,7 +144,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         if(bubbleElement.current)observer.observe(bubbleElement.current)
         return()=>observer.disconnect()
       },[enabled,leader,showPet,bubble,s?.config.scale,s?.config.bubbleScale,viewport[0],viewport[1]])
-      useEffect(()=>{const d=drag.current;drag.current=null;if(d?.moved&&d.sprite)controls.current?.endDrag();if(!enabled||!leader)setMenu(null)},[enabled,leader,showPet,bubble])
+      useEffect(()=>{const d=drag.current;drag.current=null;if(d?.moved&&d.sprite)controls.current?.endDrag();if(!enabled||!leader){setMenu(null);setMenuError('')}},[enabled,leader,showPet,bubble])
       if(!enabled||!leader)return null
       const bubbleFloor=bubble?Math.min(80*s.config.bubbleScale,viewport[1]/2):0
       const width=Math.min(190*s.config.scale,viewport[0],Math.max(0,viewport[1]-bubbleFloor)*320/380)
@@ -145,15 +154,17 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const move=e=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(!d.moved&&Math.abs(dx)+Math.abs(dy)>3){d.moved=true;if(d.sprite)controls.current?.startDrag()}if(!d.moved)return;const pos=clamp({x:d.left+dx,y:d.top+dy});d.position=pos;setPosition(pos)}
       const finish=(e,cancel=false)=>{const d=drag.current;if(!d||d.pointerId!==e.pointerId)return;drag.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);if(d.moved){if(d.sprite)controls.current?.endDrag();if(d.position)void call('config',d.position).catch(()=>{})}else if(!cancel&&d.sprite){const rect=e.currentTarget.getBoundingClientRect(),x=(e.clientX-rect.left)/rect.width,y=(e.clientY-rect.top)/rect.height;controls.current?.interact(y<.45?'head_pat':x>.72&&y>.55?'tail':'poke')}}
       const handlers={onPointerDown:down,onPointerMove:move,onPointerUp:e=>finish(e),onPointerCancel:e=>finish(e,true),onLostPointerCapture:e=>finish(e,true)}
-      const select=id=>{setMenu(null);const patch=id==='pet'?{showPet:!showPet}:id==='bubble'?{bubble:s.config.bubble==='hidden'?s.config.bubbleBeforeHidden:'hidden'}:{enabled:false};void call('config',patch).catch(()=>{})}
+      const writeMenu=async patch=>{setMenu(null);setMenuError('');try{await call('config',patch)}catch(error){setMenuError(error.message)}}
+      const select=id=>{const patch=id==='pet'?{showPet:!showPet}:id==='bubble'?{bubble:s.config.bubble==='hidden'?s.config.bubbleBeforeHidden:'hidden'}:{enabled:false};void writeMenu(patch)}
       return h(React.Fragment,null,
         showPet||bubble?h('div',{ref:root,className:'kujira-pet','data-kujira-pet':'single','data-persona':s.route.persona,'data-phase':s.task.phase,onContextMenu:e=>{e.preventDefault();e.stopPropagation();setMenu({x:e.clientX,y:e.clientY})},style:{position:'fixed',zIndex:900,display:'flex',flexDirection:'column',alignItems:'flex-end',...(pos?{left:clamp(pos).x,top:clamp(pos).y}:{right:Math.min(22,Math.max(0,viewport[0]-extent.width)),bottom:Math.min(18,Math.max(0,viewport[1]-extent.height))}),pointerEvents:'none'}},
           bubble?h('div',{style:{position:'relative',width:bubbleSize.width*s.config.bubbleScale,height:bubbleSize.height*s.config.bubbleScale}},
             h('div',{ref:bubbleElement,className:'kujira-bubble','data-kujira-drag':'bubble',...handlers,style:{position:'absolute',bottom:0,right:0,transform:'scale('+s.config.bubbleScale+')',transformOrigin:'bottom right',boxSizing:'border-box',minWidth:0,width:277,maxWidth:viewport[0]/s.config.bubbleScale,maxHeight:Math.max(0,(viewport[1]-(showPet?width*380/320:0))/s.config.bubbleScale),overflowY:'auto',overflowWrap:'anywhere',cursor:'grab',touchAction:'none'},'aria-live':'polite'},
-              h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'全部关闭',onClick:()=>void call('config',{enabled:false}).catch(()=>{})},'×')),
+              h('div',{style:{display:'flex',justifyContent:'space-between',gap:8}},h('strong',null,s.route.name),h('button',{'aria-label':'全部关闭',onClick:()=>void writeMenu({enabled:false})},'×')),
               h('div',null,s.task.text),s.task.progress?h('div',null,`${s.task.progress.done} / ${s.task.progress.total} 项`):null,
               s.config.showStats&&s.task.phase!=='idle'?h(WorkStats,{value:s.stats}):null,h(Usage,{value:s.usage}))):null,
           showPet?h('div',{'data-kujira-drag':'sprite',...handlers,style:{width,pointerEvents:'auto',cursor:drag.current?'grabbing':'grab',touchAction:'none'}},h(Sprite,{state:s,controls})):null):null,
+        menuError?h('div',{role:'alert','data-kujira-menu-error':'',style:{position:'fixed',left:16,bottom:16,zIndex:1200,maxWidth:'min(420px, calc(100vw - 32px))',padding:'12px 16px',borderRadius:12,background:'var(--dsw-alias-bg-base)',color:'var(--dsw-alias-label-primary)',border:'1px solid var(--dsw-alias-border-l1)',pointerEvents:'auto'}},menuError,h('button',{type:'button',onClick:()=>setMenuError(''),style:{marginLeft:10},'aria-label':'关闭提示'},'关闭提示')):null,
         h(Menu,{open:!!menu,anchor:null,portal:true,getAnchorRect:()=>new DOMRect(menu?.x??0,menu?.y??0,0,0),items:[{id:'pet',label:showPet?'隐藏桌宠':'显示桌宠'},{id:'bubble',label:s.config.bubble==='hidden'?'显示气泡':'隐藏气泡'},{id:'close',label:'全部关闭'}],onSelect:select,onClose:()=>setMenu(null)}))
     }
 

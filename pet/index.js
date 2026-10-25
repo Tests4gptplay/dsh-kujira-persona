@@ -9,6 +9,20 @@ import { NativePet } from './native.js'
 import { artFor } from './art.js'
 import { createFolderBrowser } from './folders.js'
 const HERE=dirname(fileURLToPath(import.meta.url))
+export async function applyNativeAction(controller,message){
+  try{
+    if(message.action==='close')await controller.configure({enabled:false})
+    else if(message.action==='toggle-pet')await controller.configure({showPet:!controller.config.showPet})
+    else if(message.action==='toggle-bubble')await controller.configure({bubble:controller.config.bubble==='hidden'?controller.config.bubbleBeforeHidden:'hidden'})
+    else if(message.action==='refresh')await controller.refresh()
+    else if(message.action==='position')await controller.configure({desktopX:message.x,desktopY:message.y})
+    else return
+    if(controller.nativeError){controller.nativeError='';controller.publish()}
+  }catch(error){
+    controller.nativeError=error?.code==='kujira-config-save'?error.message:'桌宠操作未能完成，请查看 DSH 日志。'
+    controller.publish()
+  }
+}
 export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personasDir:join(home,'personas')},ensureFolder,ensureSeeded}){
   ctx.inject(['sessions','agents','sessionQuery','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
@@ -30,13 +44,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         await mkdir(home,{recursive:true});const temp=path+`.${process.pid}.tmp`;await writeFile(temp,JSON.stringify(value,null,2)+'\n');await rename(temp,path)
       }})
       function nativeStatus(renderer,error){if(closed)return;if(controller.renderer!==renderer||controller.nativeError!==error){controller.renderer=renderer;controller.nativeError=error;controller.publish()}}
-      native=new NativePet(HERE,nativeStatus,message=>{
-        if(message.action==='close')void controller.configure({enabled:false})
-        if(message.action==='toggle-pet')void controller.configure({showPet:!controller.config.showPet})
-        if(message.action==='toggle-bubble')void controller.configure({bubble:controller.config.bubble==='hidden'?controller.config.bubbleBeforeHidden:'hidden'})
-        if(message.action==='refresh')void controller.refresh()
-        if(message.action==='position')void controller.configure({desktopX:message.x,desktopY:message.y})
-      })
+      native=new NativePet(HERE,nativeStatus,message=>{void applyNativeAction(controller,message)})
       function render(state){
         const target=!state.config.enabled?'none':state.config.display==='page'?'page':process.platform==='win32'?'desktop':state.config.display==='desktop'?'unsupported':'page'
         if(target!==rendererChoice){rendererChoice=target
@@ -57,7 +65,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
       offAssistant=ctx.on('agent/assistant-stream',event=>controller.assistantFrame(event),{global:true})
       render(controller.snapshot());return controller
     })().catch(()=>{scope.logger?.warn?.('Kujira 桌宠未启动，人设功能继续可用');return null})
-    const endPointError=(endpoint,e)=>endpoint==='open-folder'?'无法打开文件夹：'+(e?.message??'请检查文件管理器与访问权限'):endpoint==='folders'?'读取文件夹大小失败：'+(e?.message??'请检查目录权限'):'未能完成这次设置，请重试'
+    const endPointError=(endpoint,e)=>endpoint==='config'&&e?.code==='kujira-config-save'?e.message:endpoint==='open-folder'?'无法打开文件夹：'+(e?.message??'请检查文件管理器与访问权限'):endpoint==='folders'?'读取文件夹大小失败：'+(e?.message??'请检查目录权限'):'未能完成这次设置，请重试'
     const dispatch=async(endpoint,payload)=>{
       const c=await ready;if(!c||closed)return {ok:false,error:{code:'kujira-pet',message:'桌宠设置暂不可用',details:{issues:[]}}}
       try{
@@ -75,7 +83,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
           default:throw new Error('未知操作')
         }
         return {ok:true,value}
-      }catch(e){return {ok:false,error:{code:'kujira-pet',message:endPointError(endpoint,e),details:{issues:[]}}}}
+      }catch(e){return {ok:false,error:{code:e?.code==='kujira-config-save'?'kujira-config-save':'kujira-pet',message:endPointError(endpoint,e),details:{issues:[]}}}}
     }
     for(const endpoint of ['state','config','select','refresh','folders','open-folder','menu-theme'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
       let envelope;try{envelope=await request.json()}catch{return new Response('Expected JSON',{status:400})}

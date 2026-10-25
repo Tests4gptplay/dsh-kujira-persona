@@ -42,7 +42,13 @@ export class PetController {
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
   async configure(patch){
     const work=this.writeTail.then(async()=>{
-      const next=settings({...this.config,...patch});await this.persist(next);const wasEnabled=this.config.enabled;const was=this.config.enabled&&this.config.showUsage;this.config=next
+      const next=settings({...this.config,...patch});
+      try{await this.persist(next)}catch(error){
+        const reason=typeof error?.code==='string'&&/^[A-Z0-9_]+$/.test(error.code)?error.code:''
+        const message=['EACCES','EPERM','EROFS'].includes(reason)?'设置文件无法保存：请检查 DSH 配置目录的写入权限。':reason==='ENOSPC'?'设置文件无法保存：磁盘空间不足，请释放空间。':reason==='EBUSY'?'设置文件正在被占用，请关闭占用它的程序后再操作。':'设置文件无法保存'+(reason?'（'+reason+'）':'')+'，请检查配置目录与磁盘状态。'
+        const failure=new Error(message);failure.code='kujira-config-save';throw failure
+      }
+      const wasEnabled=this.config.enabled;const was=this.config.enabled&&this.config.showUsage;this.config=next
       if(!next.enabled||!next.showUsage)this.cancelQuery()
       if(!next.enabled){this.sessionStates.clear();this.presentation=presentation()}
       if(next.enabled&&!wasEnabled&&this.route.sessionId){this.sessionStates.set(this.route.sessionId,this.presentation);await this.hydrate(this.route.sessionId)}

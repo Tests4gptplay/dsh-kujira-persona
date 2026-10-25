@@ -7,14 +7,14 @@ import {PetController} from '../../pet/controller.js'
 const code=await readFile(new URL('../../pet/client.js',import.meta.url),'utf8')
 const tick=async()=>{for(let i=0;i<10;i++)await Promise.resolve()}
 // Component/geometry harness, not a browser paint or Windows desktop test.
-function harness(config={}){
+function harness(config={},backend=null){
  const slots=new Map(),calls=[],hooks=[],pending=[],events=new Map(),observers=new Set();let cursor=0,dirty=true,tree,plugin,source,bubbleHeight=120
  let state={revision:1,renderer:'page',config:settings({enabled:true,...config}),route:{name:'GPT',persona:'gpt',art:'gpt'},task:{phase:'working',text:'Work'}}
  const Menu=()=>null,Fragment=Symbol('Fragment')
  const React={Fragment,createElement:(type,props,...children)=>({type,props:props??{},children}),useSyncExternalStore:(_s,get)=>get(),useRef:value=>{const i=cursor++;return hooks[i]??=( {current:value})},useState:value=>{const i=cursor++;hooks[i]??={value:typeof value==='function'?value():value};return[hooks[i].value,next=>{const v=typeof next==='function'?next(hooks[i].value):next;if(v!==hooks[i].value){hooks[i].value=v;dirty=true}}]},useEffect:(fn,deps)=>{const i=cursor++,old=hooks[i];if(!old||!deps||deps.some((v,j)=>!Object.is(v,old.deps?.[j]))){hooks[i]={deps};pending.push(()=>{old?.cleanup?.();hooks[i].cleanup=fn()})}}}
  const window={innerWidth:900,innerHeight:700,addEventListener:(k,fn)=>events.set(k,fn),removeEventListener:k=>events.delete(k)}
  const document={visibilityState:'visible',head:{appendChild(){}},createElement:()=>({remove(){}}),addEventListener(){},removeEventListener(){}}
- const ctx={slots:{inject:(_n,fn)=>fn(),register:(spec,component)=>slots.set(spec.id,component)},connection:{rpc:{call:async(_a,endpoint,payload)=>{calls.push({endpoint,payload});if(endpoint==='kujira-pet/config'){state={...state,revision:state.revision+1,config:settings({...state.config,...payload})};dirty=true}return{ok:true,value:state}}}},inject:()=>{},on:()=>{}}
+ const ctx={slots:{inject:(_n,fn)=>fn(),register:(spec,component)=>slots.set(spec.id,component)},connection:{rpc:{call:async(_a,endpoint,payload)=>{calls.push({endpoint,payload});if(endpoint==='kujira-pet/config'&&backend){const result=await backend(payload);if(!result.ok)return result;state={...state,config:result.value.config,revision:result.value.revision};dirty=true;return{ok:true,value:state}}if(endpoint==='kujira-pet/config'){state={...state,revision:state.revision+1,config:settings({...state.config,...payload})};dirty=true}return{ok:true,value:state}}}},inject:()=>{},on:()=>{}}
  class EventSource{constructor(){source=this}close(){}}
  class ResizeObserver{constructor(fn){this.fn=fn;observers.add(this)}observe(){}disconnect(){observers.delete(this)}}
  window.__ModuleLoader__={load:e=>{plugin=e.factory(name=>name==='react'?React:{Menu})}}
@@ -73,4 +73,16 @@ test('task visibility interruption clears stale pointer drag before the bubble r
  const h=harness({showPet:false,bubble:'tasks'});await h.ready();h.drag('bubble',20,20,0,false)
  h.update({task:{phase:'idle',text:'Idle'}});h.update({task:{phase:'working',text:'Back'}})
  h.drag('bubble',0,1000);await tick();assert.equal(h.state().config.y,580)
+})
+
+test('actual controller save failure is visible beside the three-item menu; success clears it',async()=>{
+ const c=new PetController({config:{enabled:true,showUsage:false},resolvePersona:()=>({}),queryUsage:async()=>null,persist:async()=>{const e=new Error('private filesystem path');e.code='ENOSPC';throw e}})
+ const backend=async patch=>{try{return{ok:true,value:await c.configure(patch)}}catch(e){return{ok:false,error:{code:e.code,message:e.message}}}}
+ const h=harness({},backend);await h.ready()
+ for(const id of ['pet','bubble','close']){await h.select(id);const alert=h.find('role','alert');assert(alert);assert.match(alert.children[0],/磁盘空间不足/);assert.equal(h.menu().props.items.length,3);assert.equal(h.state().config.enabled,true)}
+ c.persist=async()=>{};await h.select('pet');assert.equal(h.find('role','alert'),undefined);assert.equal(h.state().config.showPet,false);c.dispose()
+})
+test('host transport failures show a safe actionable classification without request secrets',async()=>{
+ const h=harness({},async()=>{throw new Error('transport failure for /api/kujira-pet/config?token=private-secret: HTTP 403')});await h.ready();await h.select('close')
+ const message=h.find('role','alert').children[0];assert.match(message,/HTTP 403/);assert.match(message,/重新连接 DSH/);assert(!message.includes('private-secret'))
 })

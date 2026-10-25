@@ -194,7 +194,11 @@ public class KujiraPet : Window {
     bubble.IsHitTestVisible=showBubble;
     double petHeight=showPet?image.Height:0;
     bubble.MaxHeight=Math.Max(1,work.Height/dpi-petHeight);
-    if(showBubble)bubble.Measure(new Size(bubble.Width,bubble.MaxHeight));
+    if(showBubble){
+      // Text changes invalidate the child first; measure both ancestors now, before sizing the HWND.
+      bubbleScroll.InvalidateMeasure();bubble.InvalidateMeasure();bubble.UpdateLayout();
+      bubble.Measure(new Size(bubble.Width,bubble.MaxHeight));
+    }
     double bubbleHeight=showBubble?bubble.DesiredSize.Height:0;
     Width=Math.Min(work.Width/dpi,Math.Max(1,Math.Max(showPet?image.Width:0,showBubble?bubble.Width:0)));
     Height=Math.Min(work.Height/dpi,Math.Max(1,petHeight+bubbleHeight));

@@ -33,6 +33,32 @@ jobs:
           npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/package-audit"
           tar -tzf "$RUNNER_TEMP"/package-audit/*.tgz > "$RUNNER_TEMP/package-audit/files.txt"
           if grep -E '/(scripts/qa|docs/development|\.github)/' "$RUNNER_TEMP/package-audit/files.txt"; then exit 1; fi
+  browser-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Install isolated real React and public DSH Menu fixture dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="$RUNNER_TEMP/kujira-browser"
+          mkdir -p "$SDK"
+          cp scripts/qa/pet-menu-browser-deps.json "$SDK/package.json"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          "$SDK/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise real DOM menu, skin, drag and visibility geometry
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-browser-report" node scripts/qa/pet-menu-browser-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-browser-menu-check
+          path: ${{ runner.temp }}/kujira-browser-report/
   windows-native:
     runs-on: windows-latest
     timeout-minutes: 15

@@ -16,6 +16,39 @@ public static class KujiraNativeVisibilityQa {
     w.Apply((IDictionary<string,object>)Json.DeserializeObject(Json.Serialize(new {animated=true,image="",config=new {showPet=pet,bubble=bubble,scale=1,bubbleScale=bubbleScale,showUsage=false,sound=false,desktopX=x,desktopY=y},route=new {name="Visibility QA",art="gpt"},task=new {phase="idle",text=text}})));
     w.UpdateLayout();
   }
+  static void RequireBubbleHeight(KujiraPet w,Border bubble,string message){
+    var scroll=(ScrollViewer)Field(w,"bubbleScroll");var text=(TextBlock)Field(w,"text");
+    Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,message+"; window="+w.Width+"x"+w.Height+
+      ", bubble desired="+bubble.DesiredSize+", actual="+bubble.ActualWidth+"x"+bubble.ActualHeight+
+      ", maxHeight="+bubble.MaxHeight+", scroll desired="+scroll.DesiredSize+
+      ", viewport="+scroll.ViewportWidth+"x"+scroll.ViewportHeight+", extent="+scroll.ExtentWidth+"x"+scroll.ExtentHeight+
+      ", text desired="+text.DesiredSize+", textLength="+text.Text.Length+", fontSize="+text.FontSize);
+  }
+  static Brush PaintedMenuBackground(DependencyObject node,MenuItem item){
+    Brush painted=null;
+    var border=node as Border;
+    if(border!=null&&border.IsVisible&&border.ActualWidth>=item.ActualWidth*.8&&border.ActualHeight>=item.ActualHeight*.8){
+      var brush=border.Background;
+      Console.WriteLine("MENU_TEMPLATE_BORDER name="+border.Name+" size="+border.ActualWidth+"x"+border.ActualHeight+" brush="+(brush==null?"none":brush.ToString()));
+      if(brush!=null&&brush.Opacity>0&&(!(brush is SolidColorBrush)||((SolidColorBrush)brush).Color.A>0))painted=brush;
+    }
+    for(int i=0;i<VisualTreeHelper.GetChildrenCount(node);i++){
+      var child=PaintedMenuBackground(VisualTreeHelper.GetChild(node,i),item);if(child!=null)painted=child;
+    }
+    return painted;
+  }
+  static void RequireThemedHover(Image image){
+    var menu=image.ContextMenu;menu.PlacementTarget=image;menu.IsOpen=true;menu.UpdateLayout();
+    try{
+      var item=(MenuItem)menu.Items[0];item.ApplyTemplate();item.UpdateLayout();
+      var field=typeof(MenuItem).GetField("IsHighlightedPropertyKey",BindingFlags.Static|BindingFlags.NonPublic);
+      Require(field!=null,"WPF highlight key unavailable to offline template QA");
+      item.SetValue((DependencyPropertyKey)field.GetValue(null),true);item.UpdateLayout();
+      Require(item.IsHighlighted,"Template QA did not activate hover");
+      var painted=PaintedMenuBackground(item,item);
+      Require(painted is SolidColorBrush&&((SolidColorBrush)painted).Color==Color.FromRgb(0x56,0x78,0x9A),"Rendered WPF highlight background did not use DSH hover token: "+(painted==null?"no visible solid background":painted.ToString()));
+    }finally{menu.IsOpen=false;}
+  }
   [STAThread] public static int Main(){
     var app=new Application();var w=(KujiraPet)Activator.CreateInstance(typeof(KujiraPet),true);
     try{
@@ -27,11 +60,12 @@ public static class KujiraNativeVisibilityQa {
       Require(((SolidColorBrush)image.ContextMenu.Background).Color==Color.FromRgb(0x12,0x34,0x56),"DSH background bridge was not applied");
       var style=(Style)image.ContextMenu.Resources[typeof(MenuItem)];
       Require(style.Triggers.Count==1&&((Trigger)style.Triggers[0]).Property==MenuItem.IsHighlightedProperty,"DSH hover colors lack a WPF highlight trigger");
+      RequireThemedHover(image);
       Apply(w,true,"always");
       var full=Bounds(w);
       Apply(w,false,"always");
       Require(image.Visibility==Visibility.Collapsed&&!image.IsHitTestVisible,"Hidden sprite still participates in layout or input");
-      Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,"Bubble-only window reserves sprite height");
+      RequireBubbleHeight(w,bubble,"Bubble-only window reserves sprite height");
       Require(Math.Abs(w.Width-bubble.Width)<1,"Bubble-only window reserves sprite width");
       var only=Bounds(w);Require(only.Height<full.Height,"Window did not shrink");
       var work=Work(only);
@@ -44,12 +78,13 @@ public static class KujiraNativeVisibilityQa {
       Require(Math.Abs(restored.Left-bottom.Left)<1,"Restoring pet discarded valid horizontal position");
       foreach(var bubbleScale in new[]{.8,1.4}){
         Apply(w,false,"always",null,null,bubbleScale,"Short");
-        Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,"Scaled bubble retained sprite height");
+        RequireBubbleHeight(w,bubble,"Scaled bubble retained sprite height");
         var small=Bounds(w);var screen=Work(small);
         typeof(KujiraPet).GetMethod("SetBounds",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(w,new object[]{new Rect(small.Left,screen.Bottom-small.Height,small.Width,small.Height),false});
         var shortBounds=Bounds(w);double shortHeight=w.Height;
         Apply(w,false,"always",null,null,bubbleScale,"One\nTwo\nThree\nFour");
-        Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,"Multiline scaled bubble retained sprite height");
+        Console.WriteLine("VISIBILITY_LAYOUT scale="+bubbleScale+" short="+shortHeight+" current="+w.Height+" desired="+bubble.DesiredSize+" actual="+bubble.ActualHeight);
+        RequireBubbleHeight(w,bubble,"Multiline scaled bubble retained sprite height");
         Require(w.Height>shortHeight,"Multiline bubble did not resize");
         Require(Math.Abs(Bounds(w).Bottom-shortBounds.Bottom)<1.1,"Bubble text resize moved its bottom anchor");
         var now=Bounds(w);var area=Work(now);var legal=new Rect(area.Left+10,area.Top+10,now.Width,now.Height);
@@ -60,7 +95,7 @@ public static class KujiraNativeVisibilityQa {
       Apply(w,false,"always",null,null,1.4,String.Join("\n",new string[500]).Replace("\n","Long line of status information\n"));
       var scroll=(ScrollViewer)Field(w,"bubbleScroll");var longBounds=Bounds(w);
       Require(w.Height<=Work(longBounds).Height/(double)typeof(KujiraPet).GetMethod("WindowScale",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(w,null)+1,"Long bubble exceeded work area");
-      Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,"Long bubble reserves hidden sprite space");
+      RequireBubbleHeight(w,bubble,"Long bubble reserves hidden sprite space");
       Require(scroll.ScrollableHeight>0,"Long bubble has no scroll range");
       scroll.ScrollToBottom();w.UpdateLayout();Require(scroll.VerticalOffset>0,"Long bubble cannot scroll to lower content");
       Apply(w,true,"always",null,null,1.4,String.Join("\n",new string[500]).Replace("\n","Long status\n"));
@@ -68,7 +103,7 @@ public static class KujiraNativeVisibilityQa {
       Apply(w,false,"hidden");Require(!w.IsVisible,"Both hidden left a visible HWND");
       Apply(w,false,"always");Require(w.IsVisible&&image.Visibility==Visibility.Collapsed,"Bubble did not recover independently");
       for(int i=0;i<20;i++){Apply(w,true,"always");Apply(w,false,"always");}
-      Require(Math.Abs(w.Height-bubble.DesiredSize.Height)<1,"Repeated toggles leaked sprite space");
+      RequireBubbleHeight(w,bubble,"Repeated toggles leaked sprite space");
       var oldOutput=Console.Out;var messages=new System.IO.StringWriter();Console.SetOut(messages);
       try{for(int i=0;i<5;i++){Apply(w,false,"hidden");Apply(w,false,"always");}}finally{Console.SetOut(oldOutput);}
       Require(!messages.ToString().Contains("ready"),"Visibility toggles re-emitted ready");

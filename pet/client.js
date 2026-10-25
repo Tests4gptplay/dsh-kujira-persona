@@ -137,7 +137,8 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       },[enabled,leader,showPet,bubble,s?.config.scale,s?.config.bubbleScale,viewport[0],viewport[1]])
       useEffect(()=>{const d=drag.current;drag.current=null;if(d?.moved&&d.sprite)controls.current?.endDrag();if(!enabled||!leader)setMenu(null)},[enabled,leader,showPet,bubble])
       if(!enabled||!leader)return null
-      const width=Math.min(190*s.config.scale,viewport[0],viewport[1]*320/380)
+      const bubbleFloor=bubble?Math.min(80*s.config.bubbleScale,viewport[1]/2):0
+      const width=Math.min(190*s.config.scale,viewport[0],Math.max(0,viewport[1]-bubbleFloor)*320/380)
       const clamp=p=>({x:Math.max(0,Math.min(p.x,viewport[0]-extent.width)),y:Math.max(0,Math.min(p.y,viewport[1]-extent.height))})
       const pos=position??(s.config.x!=null?{x:s.config.x,y:s.config.y??20}:null)
       const down=e=>{if(e.button!==0||drag.current||e.target.closest?.('button'))return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);const rect=root.current.getBoundingClientRect();drag.current={pointerId:e.pointerId,x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,moved:false,sprite:e.currentTarget.dataset.kujiraDrag==='sprite'}}

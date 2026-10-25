@@ -1,0 +1,133 @@
+name: Kujira 2.0.3 verified GitHub release
+on:
+  push:
+    branches:
+      - release/v2.0.3-ci
+permissions:
+  contents: read
+jobs:
+  regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ff1c7768fd362e6efed13b47ed885fa442e6a4e0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Source and selected-session regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -maxdepth 3 \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          SDK="$RUNNER_TEMP/kujira-session-sdk"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry https://registry.npmjs.org \
+            @deepseek-ai/dsh-session@0.2.1-rc.2 @deepseek-ai/dsh-session-query@0.2.1-rc.2 \
+            @deepseek-ai/dsh-session-projection@0.2.1-rc.2 @deepseek-ai/dsh-session-stats@0.2.1-rc.2 \
+            @deepseek-ai/cordis@4.0.5
+          DSH_TEST_ROOT="$SDK" node --test $(find scripts/qa -name '*check.mjs' ! -name 'playable-check.mjs' ! -name 'pet-menu-browser-check.mjs' | sort)
+      - name: Confirm development-only files remain outside runtime package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/package-audit"
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/package-audit"
+          tar -tzf "$RUNNER_TEMP"/package-audit/*.tgz > "$RUNNER_TEMP/package-audit/files.txt"
+          if grep -E '/(scripts/qa|docs/development|\.github)/' "$RUNNER_TEMP/package-audit/files.txt"; then exit 1; fi
+  browser-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ff1c7768fd362e6efed13b47ed885fa442e6a4e0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Install isolated real React and public DSH Menu fixture dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="$RUNNER_TEMP/kujira-browser"
+          mkdir -p "$SDK"
+          cp scripts/qa/pet-menu-browser-deps.json "$SDK/package.json"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          "$SDK/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise real DOM menu, skin, drag and visibility geometry
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-browser-report" node scripts/qa/pet-menu-browser-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-browser-menu-check
+          path: ${{ runner.temp }}/kujira-browser-report/
+  windows-native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ff1c7768fd362e6efed13b47ed885fa442e6a4e0
+      - name: Build clean product and run separate WPF protocol and visibility harnesses
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
+          if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+          git rev-parse HEAD | Set-Content "$env:RUNNER_TEMP/kujira-native/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-native-context-menu
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/kujira-native/KujiraPet.exe
+            ${{ runner.temp }}/kujira-native/build-result.json
+            ${{ runner.temp }}/kujira-native/native-result.json
+            ${{ runner.temp }}/kujira-native/source-commit.txt
+  publish:
+    needs: [regressions, browser-menu, windows-native]
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 'ff1c7768fd362e6efed13b47ed885fa442e6a4e0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Verify main, version and exact release package
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_MAIN="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$CURRENT_MAIN" = 'ff1c7768fd362e6efed13b47ed885fa442e6a4e0'
+          node -e 'const p=require("./package.json");if(p.version!=="2.0.3"||!p.dsh?.bundle?.patch)process.exit(1)'
+          mkdir -p dist
+          npm pack --ignore-scripts --pack-destination dist
+          test "$(sha256sum dist/dsh-kujira-persona-2.0.3.tgz | cut -d ' ' -f1)" = '03093584f92f1abde41eb75f151f56cbd94a9b09a7cc6e5bf50214e653ebb3d2'
+          tar -tzf dist/dsh-kujira-persona-2.0.3.tgz > dist/file-list.txt
+          grep -q '^package/pet/native/win-x64/KujiraPet.exe$' dist/file-list.txt
+          test "$(wc -l < dist/file-list.txt)" -eq 203
+          test "$(grep -Ec '^package/pet/assets/.*\.png$' dist/file-list.txt)" -eq 120
+          if grep -E '/(scripts/qa|docs/development|\.github)/' dist/file-list.txt; then exit 1; fi
+          test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = '3276250225c201d64b96c32094b6cbe167a1bc5348597f0f668ca89dffd3c19d'
+      - name: Publish v2.0.3 tag, notes and tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.0.3 >/dev/null 2>&1; then
+            echo 'Release already exists; keeping existing published version.'
+            exit 0
+          fi
+          gh release create v2.0.3 dist/dsh-kujira-persona-2.0.3.tgz \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target 'ff1c7768fd362e6efed13b47ed885fa442e6a4e0' \
+            --title 'Kujira 2.0.3' \
+            --notes-file docs/releases/v2.0.3.md \
+            --latest

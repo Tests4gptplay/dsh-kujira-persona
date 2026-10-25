@@ -14,8 +14,8 @@ function harness(){
  function directory(id){if(!directories.has(id))directories.set(id,{store:{subscribe:()=>()=>{},getSnapshot:()=>({current:{provider:'fixture',model:id==='s-0'?'gpt':'claude'}})},load:async()=>{}});return directories.get(id)}
  const ctx={slots:{inject:(_name,fn)=>fn(),register:(spec,component)=>slots.set(spec.id,{spec,component})},connection:{rpc:{call:async(_api,endpoint,payload)=>{calls.push({endpoint,payload});if(endpoint==='kujira-pet/select')state={...state,route:payload,revision:++revision};return{ok:true,value:state}}}},uiSession:{adapter:{current:selection}},modelDirectories:{directoryFor:directory},inject:(deps,fn)=>{injects.push(deps);return fn(ctx)},on:()=>()=>{}}
  class EventSource{constructor(){source=this}close(){}}
- window.__ModuleLoader__={load:entry=>{plugin=entry.factory(name=>{assert.equal(name,'react');return React})}}
- vm.runInNewContext(code,{window,document,EventSource,AbortController,navigator:{},console,setTimeout,clearTimeout})
+ window.__ModuleLoader__={load:entry=>{plugin=entry.factory(name=>{if(name==='@deepseek-ai/dsh-client-ui-primitives')return {Menu:()=>null};assert.equal(name,'react');return React})}}
+ vm.runInNewContext(code,{window,document,EventSource,AbortController,navigator:{},console,setTimeout,clearTimeout,MutationObserver:class{observe(){}disconnect(){}},requestAnimationFrame:()=>0,cancelAnimationFrame:()=>{}})
  plugin.apply(ctx)
  const mount=(id,key=id)=>{const slot=slots.get('kujira-model-follow'),props=slot.spec.inject(id),child=render(slot.component,props,'binder-'+key);if(child)render(child.type,child.props,'follower-'+key);return child}
  return{calls,mount,injects,source:()=>source,window,document,setSelection:key=>{current={key};for(const fn of listeners)fn()},state:()=>state}

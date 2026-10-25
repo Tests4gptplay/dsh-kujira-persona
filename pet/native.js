@@ -68,7 +68,7 @@ export class NativePet {
   }
   frame(){
     clearTimeout(this.frameTimer);this.frameTimer=null
-    if(!this.player||!this.child?.stdin.writable)return
+    if(!this.player||!this.child?.stdin.writable||this.last?.config.showPet===false)return
     const value=this.player.tick(performance.now())
     if(value.key!==this.frameKey){
       const encode=frame=>({image:join(this.root,'assets',this.art.sheets[frame.sheet]),rect:frame.rect,at:frame.at??[0,0],size:frame.size??frame.rect.slice(2)})

@@ -9,9 +9,10 @@ $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $qaRoot = [IO.Path]::GetFullPath($OutputDirectory)
 $sourceInput = Join-Path $repoRoot 'pet/native/KujiraPet.cs'
 $manifestInput = Join-Path $repoRoot 'pet/native/KujiraPet.manifest'
-$atlasInput = Join-Path $repoRoot 'pet/assets/gpt-core-v1.png'
+$atlasInput = Join-Path $repoRoot 'pet/assets/gpt-core-v3.png'
 $qaInput = Join-Path $PSScriptRoot 'native-protocol-check.cs'
-foreach ($inputFile in @($sourceInput, $manifestInput, $atlasInput, $qaInput)) {
+$visibilityInput = Join-Path $PSScriptRoot 'native-visibility-check.cs'
+foreach ($inputFile in @($sourceInput, $manifestInput, $atlasInput, $qaInput, $visibilityInput)) {
   if (!(Test-Path -LiteralPath $inputFile -PathType Leaf)) { throw "Required repository input is missing: $inputFile" }
 }
 if (Test-Path -LiteralPath $qaRoot) {
@@ -36,12 +37,14 @@ New-Item -ItemType Directory -Path $qaRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $sourceDir, $scripts | Out-Null
 $source = Join-Path $sourceDir 'KujiraPet.cs'
 $manifest = Join-Path $sourceDir 'KujiraPet.manifest'
-$atlas = Join-Path $qaRoot 'gpt-core-v1.png'
+$atlas = Join-Path $qaRoot 'gpt-core-v3.png'
 $qaSource = Join-Path $scripts 'native-protocol-check.cs'
+$visibilitySource = Join-Path $scripts 'native-visibility-check.cs'
 Copy-Item -LiteralPath $sourceInput -Destination $source
 Copy-Item -LiteralPath $manifestInput -Destination $manifest
 Copy-Item -LiteralPath $atlasInput -Destination $atlas
 Copy-Item -LiteralPath $qaInput -Destination $qaSource
+Copy-Item -LiteralPath $visibilityInput -Destination $visibilitySource
 
 $exe = Join-Path $qaRoot 'KujiraPet.exe'
 & $csc /nologo /target:winexe /platform:x64 /optimize+ ('/win32manifest:' + $manifest) ('/out:' + $exe) @refs $source
@@ -51,6 +54,12 @@ $qaExe = Join-Path $qaRoot 'NativeProtocolQa.exe'
 if ($LASTEXITCODE -ne 0) { throw "Protocol QA compile failed with code $LASTEXITCODE" }
 & $qaExe $qaRoot
 if ($LASTEXITCODE -ne 0) { throw "Native protocol QA failed with code $LASTEXITCODE" }
+$visibilityExe = Join-Path $qaRoot 'NativeVisibilityQa.exe'
+& $csc /nologo /target:exe /platform:x64 /optimize+ /main:KujiraNativeVisibilityQa ('/win32manifest:' + $manifest) ('/out:' + $visibilityExe) ('/r:' + $exe) @refs $visibilitySource
+if ($LASTEXITCODE -ne 0) { throw "Visibility QA compile failed with code $LASTEXITCODE" }
+& $visibilityExe
+if ($LASTEXITCODE -ne 0) { throw "Native visibility QA failed with code $LASTEXITCODE" }
+
 
 $checks = Get-Content -LiteralPath (Join-Path $qaRoot 'native-result.json') -Raw | ConvertFrom-Json
 $metadata = [ordered]@{

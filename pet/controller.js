@@ -51,7 +51,7 @@ export class PetController {
       const wasEnabled=this.config.enabled;const was=this.config.enabled&&this.config.showUsage;this.config=next
       if(!next.enabled||!next.showUsage)this.cancelQuery()
       if(!next.enabled){this.sessionStates.clear();this.presentation=presentation()}
-      if(next.enabled&&!wasEnabled&&this.route.sessionId){this.sessionStates.set(this.route.sessionId,this.presentation);await this.hydrate(this.route.sessionId)}
+      if(next.enabled&&!wasEnabled&&this.route.sessionId){this.sessionStates.set(this.route.sessionId,this.presentation);void this.hydrate(this.route.sessionId)}
       this.updateStats()
       const snapshot=this.publish()
       if(next.enabled&&next.showUsage){if(!was)void this.refresh();else this.schedule()}
@@ -59,7 +59,20 @@ export class PetController {
     });this.writeTail=work.catch(()=>{});return work
   }
   cancelQuery(){clearTimeout(this.timer);this.timer=null;this.queryVersion++;this.abort?.abort();this.abort=null;this.pending=null}
-  schedule(){clearTimeout(this.timer);this.timer=null;if(!this.closed&&this.config.enabled&&this.config.showUsage&&this.route.model&&this.config.refreshSeconds>0){this.timer=setTimeout(()=>{this.timer=null;void this.refresh()},this.config.refreshSeconds*1000);this.timer.unref?.()}}
+  schedule(){
+    clearTimeout(this.timer);this.timer=null
+    if(this.closed||!this.config.enabled||!this.config.showUsage||!this.route.model||this.config.refreshSeconds<=0)return
+    const started=this.now(),seconds=this.config.refreshSeconds
+    const wait=()=>{
+      const remaining=seconds-Math.max(0,this.now()-started)/1000
+      if(remaining<=0){void this.refresh();return}
+      // Node timers use a signed 32-bit millisecond delay. Split longer waits;
+      // never shorten the user's interval or dispatch a query for an intermediate chunk.
+      const timer=setTimeout(()=>{if(this.timer!==timer)return;this.timer=null;if(!this.closed&&this.config.enabled&&this.config.showUsage&&this.route.model)wait()},Math.min(remaining*1000,2**31-1))
+      this.timer=timer;timer.unref?.()
+    }
+    wait()
+  }
   updateStats(session){
     let next=null
     if(this.config.enabled&&this.config.showStats){
@@ -129,11 +142,15 @@ export class PetController {
     clearTimeout(this.timer);this.timer=null
     const version=++this.queryVersion,route={...this.route};this.abort=new AbortController()
     const timeout=AbortSignal.timeout(10000),signal=AbortSignal.any([this.abort.signal,timeout])
-    const pending=Promise.resolve().then(()=>this.queryUsage(route,signal)).then(usage=>{
+    // Cancelling optional usage must release UI callers even if a provider ignores its signal.
+    let onAbort
+    const aborted=new Promise((_,reject)=>{onAbort=()=>reject(signal.reason);if(signal.aborted)onAbort();else signal.addEventListener('abort',onAbort,{once:true})})
+    const query=Promise.resolve().then(()=>{signal.throwIfAborted();return this.queryUsage(route,signal)})
+    const pending=Promise.race([query,aborted]).then(usage=>{
       if(version===this.queryVersion&&!this.closed){this.usage={...usage,checkedAt:this.now()};this.publish()}
     }).catch(()=>{
       if(version===this.queryVersion&&!this.closed){this.usage=['ready','stale'].includes(this.usage.status)?{...this.usage,status:'stale',lines:[...this.usage.lines.filter(line=>line!=='上次查询；暂时无法刷新'),'上次查询；暂时无法刷新']}:unknownUsage(route.provider==='codex-local'?'codex':route.family==='deepseek'?'balance':'usage','暂时无法查询，请稍后刷新');this.publish()}
-    }).finally(()=>{if(version===this.queryVersion){this.pending=null;this.abort=null;this.schedule()}}).then(()=>this.snapshot())
+    }).finally(()=>{signal.removeEventListener('abort',onAbort);if(version===this.queryVersion){this.pending=null;this.abort=null;this.schedule()}}).then(()=>this.snapshot())
     this.pending=pending;return pending
   }
   acceptsSession(session){

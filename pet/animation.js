@@ -11,7 +11,7 @@ export class AnimationPlayer {
     this.manifest=manifest;this.clips=manifest.clips;this.random=random
     this.phase='idle';this.activity='idle';this.base=manifest.stateMap.idle
     this.overlay=null;this.pulse=null;this.pulseId=null;this.signal=null
-    this.active=null;this.started=now;this.lastInteraction=-Infinity;this.lastMicro=null
+    this.active=null;this.started=now;this.lastMicro=null
     this.reduced=false;this.level='normal';this.nextMicroAt=null;this.transition=null;this.transitionId=0
     this.activate(this.base,now)
   }
@@ -44,7 +44,7 @@ export class AnimationPlayer {
   }
   activate(name,now,restart=false) {
     if(!this.clips[name]||(!restart&&name===this.active))return
-    const fade=this.active&&!this.reduced&&!DRAG.has(name)&&!DRAG.has(this.active)
+    const fade=this.manifest.transitionMode!=='cut'&&this.active&&!this.reduced&&!DRAG.has(name)&&!DRAG.has(this.active)
     const visible=fade?this.layersAt(this.frameAt(now).index,now):null
     // An interrupted fade starts from the dominant visible pose, keeping two layers.
     const layers=visible?[{frame:visible.reduce((best,layer)=>layer.opacity>=best.opacity?layer:best).frame,opacity:1}]:null
@@ -93,8 +93,8 @@ export class AnimationPlayer {
     this.activate(this.overlay??this.underlay(),now);return true
   }
   interact(name,now) {
-    if(this.reduced||!INTERACTION.has(name)||!this.clips[name]||this.pulse||this.phase==='error'||this.overlay||now-this.lastInteraction<1200)return false
-    this.lastInteraction=now;this.overlay=name;this.activate(name,now);return true
+    if(this.reduced||!INTERACTION.has(name)||!this.clips[name]||this.pulse||this.overlay)return false
+    this.overlay=name;this.activate(name,now);return true
   }
   tick(now) {
     if(this.reduced)return this.result(0,null,now)

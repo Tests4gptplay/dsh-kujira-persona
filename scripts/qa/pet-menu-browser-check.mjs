@@ -34,7 +34,7 @@ try{
  await page.goto('http://127.0.0.1:'+server.address().port)
  const pet=page.locator('[data-kujira-pet]'),bubble=page.locator('[data-kujira-drag=bubble]'),sprite=page.locator('[data-kujira-drag=sprite]'),menu=page.getByRole('menu')
  const settle=async()=>{await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
- const patch=async config=>{await page.evaluate(config=>window.QA.patch(config),config);await settle()}
+ const patch=async config=>{if(Object.hasOwn(config,'x')||Object.hasOwn(config,'y'))config={...config,pageRight:null,pageBottom:null};await page.evaluate(config=>window.QA.patch(config),config);await settle()}
  const box=locator=>locator.boundingBox()
  const fits=async()=>{const r=await box(pet),v=page.viewportSize();assert(r&&r.x>=-1&&r.y>=-1&&r.x+r.width<=v.width+1&&r.y+r.height<=v.height+1,JSON.stringify({r,v}))}
  const open=async()=>{await bubble.click({button:'right',position:{x:16,y:18}});await menu.waitFor({state:'visible'});assert.equal(await menu.getByRole('menuitem').count(),3)}
@@ -54,8 +54,8 @@ try{
  await patch({showPet:false});await page.evaluate(()=>QA.task('working'));await settle();b=await box(bubble);await page.mouse.move(b.x+18,b.y+18);await page.mouse.down();await page.mouse.move(b.x+30,b.y+30);await page.evaluate(()=>QA.task('idle'));await pet.waitFor({state:'detached'});await page.mouse.up();await page.evaluate(()=>QA.task('working'));await pet.waitFor();await settle();await drag(0,1000);p=await box(pet);assert(Math.abs(p.y+p.height-720)<1)
  report.checks.push('tasks mode survives hide/show; both hidden leaves no root; interrupted bubble drag recovers')
  await patch({x:null,y:null,bubble:'always',showPet:false,bubbleScale:1.4});await page.setViewportSize({width:320,height:260});await page.evaluate(()=>QA.task('working','LongUnbrokenWord'.repeat(150)));await settle();await fits();await drag(0,1000);p=await box(pet);assert(Math.abs(p.y+p.height-260)<1)
- await page.setViewportSize({width:320,height:150});await patch({showPet:true});await fits();assert((await box(bubble)).height>20,'Tiny viewport must retain a usable bubble');await patch({showPet:false});
- report.checks.push('scaled long bubble fits small viewport; 150px-height viewport restores sprite without overflow')
+ await page.setViewportSize({width:320,height:150});await patch({showPet:true});assert(Math.abs((await box(sprite)).width-190*await page.evaluate(()=>QA.state.config.scale))<1,'Small viewport must not silently shrink the configured pet');await patch({showPet:false});await fits();assert((await box(bubble)).height>20,'Bubble-only mode remains usable in the tiny viewport');
+ report.checks.push('scaled long bubble fits small viewport; tiny viewport preserves requested sprite scale and bubble-only layout')
  await page.setViewportSize({width:900,height:720});await page.evaluate(()=>QA.task('working','主题检查'));await patch({bubbleScale:1,x:40,y:40});await open()
  const textColor=()=>menu.getByRole('menuitem').first().evaluate(el=>getComputedStyle(el).color)
  const light=await textColor();await page.evaluate(()=>QA.theme(true));await settle();const dark=await textColor();assert.notEqual(light,dark);assert.equal(dark,'rgb(240, 242, 245)')

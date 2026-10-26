@@ -22,7 +22,7 @@ for(const count of [2,3,10,50])test(`${count} sessions running before observatio
 })
 test('same selected route rehydrates after enable; completion and cancellation survive reopen',async()=>{
  const {c,sessions,begin,choose,append}=fixture();const [a,b]=sessions;begin(a);begin(b);await choose(a)
- await c.configure({enabled:false});append(a,'tool/call',{name:'write_file',callId:'x'});await c.configure({enabled:true});assert.equal(c.task.activity,'editing')
+ await c.configure({enabled:false});append(a,'tool/call',{name:'write_file',callId:'x'});await c.configure({enabled:true});await c.hydrate(c.route.sessionId);assert.equal(c.task.activity,'editing')
  append(a,'turn/end',{reason:{kind:'completed'}});await choose(a);assert.equal(c.task.phase,'completed');assert.equal(visible(c),true)
  append(b,'turn/end',{reason:{kind:'aborted'}});await choose(b);assert.equal(c.task.phase,'idle');assert.equal(visible(c),false);c.dispose()
 })

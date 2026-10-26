@@ -136,7 +136,7 @@ test('tool has no owner/path schema or runtime bypass, and does not require pers
   const { diary, host } = await fixture(t), a = agent('gpt')
   await diary.configure({ enabled: true }); await host.assemble(a, { model: 'gpt' })
   const tool = host.tools.get('ai_diary')
-  assert.deepEqual(Object.keys(tool.parameters.properties).sort(), ['action', 'summary', 'text'])
+  assert.deepEqual(Object.keys(tool.parameters.properties).sort(), ['action', 'cursor', 'date', 'end_line', 'full', 'kind', 'max_chars', 'max_results', 'query', 'start_column', 'start_line', 'summary', 'text'])
   assert.equal(tool.parameters.additionalProperties, false)
   assert.equal(Object.hasOwn(tool, 'when'), false)
   for (const args of [{ action: 'read', owner: 'claude' }, { action: 'read', path: '/tmp/foreign' }, { action: 'list' }]) await assert.rejects(tool.execute(args, { agent: a }), /只接受/)
@@ -175,7 +175,7 @@ test('invalid settings initialize safely even before optional tools service exis
   const assembly = await host.assemble(agent('gpt'), { model: 'gpt' })
   assert.equal(diaryText(assembly), '')
   assert.equal(assembly.sections.find(value => value.name === 'normal').text, 'normal conversation remains')
-  assert.equal(host.warnings.length, 1)
+  assert.equal(host.warnings.length, 0)
 })
 
 test('tool requires paired summary, supports summary-only correction and renders partial saves truthfully', async t => {
@@ -221,4 +221,124 @@ test('actual index wiring preserves persona tools and routes current diary despi
   await readOnlyPersonaHost.assemble(a, { provider: 'fixture', model: 'gpt-6' })
   assert.equal(readOnlyPersonaHost.tools.has('persona_edit'), false)
   assert.ok(readOnlyPersonaHost.tools.has('ai_diary'))
+})
+
+test('tool default read is bounded, explicit full is available, and rendered search/read cursors are actionable', async t => {
+  const { diary, host } = await fixture(t), a = agent('role-c')
+  await diary.configure({ enabled: true }); await host.assemble(a, { model: 'role-c' })
+  const tool = host.tools.get('ai_diary'), body = '中😀'.repeat(5000) + 'needleA 间隔 needleA END-DETAIL'
+  await tool.execute({ action: 'append', text: body, summary: '只保留简短个性摘要' }, { agent: a })
+  const page = await tool.execute({ action: 'read' }, { agent: a })
+  assert.equal(page.returned_chars, 8000); assert.equal(page.next_start_line, 1); assert.equal(page.next_start_column, 8001)
+  const rendered = tool.output.render({}, page)[0].text
+  assert.match(rendered, /start_line=1、start_column=8001/); assert.doesNotMatch(rendered, /END-DETAIL/)
+  const full = await tool.execute({ action: 'read', full: true }, { agent: a })
+  assert.equal(full.text, body + '\n'); assert.equal(full.has_more, false)
+  const first = await tool.execute({ action: 'search', query: 'needleA', max_results: 1 }, { agent: a })
+  const second = await tool.execute({ action: 'search', query: 'needleA', start_line: first.next_start_line, start_column: first.next_start_column, max_results: 1 }, { agent: a })
+  assert.equal(first.matches.length, 1); assert.equal(second.matches.length, 1); assert.equal(second.has_more, false)
+  assert.ok(first.matches[0].column < second.matches[0].column)
+  assert.match(tool.output.render({}, first)[0].text, new RegExp(`start_line=${first.next_start_line}、start_column=${first.next_start_column}`))
+  assert.equal((await tool.execute({ action: 'read', start_line: second.matches[0].line, start_column: second.matches[0].column, max_chars: 7 }, { agent: a })).text, 'needleA')
+  const prompt = diaryText(await host.assemble(a, { model: 'role-c' }))
+  assert.match(prompt, /只保留简短个性摘要/); assert.match(prompt, /不必每轮查阅/); assert.doesNotMatch(prompt, /END-DETAIL|needleA/)
+})
+
+test('irrelevant known parameters do not block operations; foreign paths and unusable ranges still reject', async t => {
+  const { diary, host } = await fixture(t), a = agent('role-c')
+  await diary.configure({ enabled: true }); await host.assemble(a, { model: 'role-c' })
+  const tool = host.tools.get('ai_diary')
+  for (const args of [{ action: 'read', query: 'ignored?' }, { action: 'search', query: 'x', full: true }, { action: 'append', text: 'x', summary: '', max_chars: 10 }]) await tool.execute(args, { agent: a })
+  for (const args of [{ action: 'search', query: 'x', path: '/tmp/other' }, { action: 'read', owner: 'other' }]) await assert.rejects(tool.execute(args, { agent: a }), /只接受/)
+  await assert.rejects(tool.execute({ action: 'search' }, { agent: a }), /query/)
+  await assert.rejects(tool.execute({ action: 'read', full: true, max_chars: 1 }, { agent: a }), /不能同时/)
+})
+
+test('OFF after a read/search result resolves and OFF-ON before delivery still revoke the captured tool', async t => {
+  for (const [action, method] of [['read', 'readRangeOwn'], ['search', 'searchOwn']]) {
+    const { home, diary, host } = await fixture(t), a = agent('role-c')
+    await diary.configure({ enabled: true }); await host.assemble(a, { model: 'role-c' })
+    await diary.appendOwn(roles['role-c'], 'cached result must not escape', 'unchanged summary')
+    const tool = host.tools.get('ai_diary'), original = diary[method]
+    diary[method] = async (...args) => {
+      const value = await original(...args)
+      await diary.configure({ enabled: false }); await diary.configure({ enabled: true })
+      return value
+    }
+    await assert.rejects(tool.execute(action === 'read' ? { action } : { action, query: 'cached' }, { agent: a }), /失效|已关闭/)
+    diary[method] = original
+    assert.notEqual(host.tools.get('ai_diary'), tool)
+    assert.equal(await readFile(join(home, 'diaries', 'role-c', 'Diary.md'), 'utf8'), 'cached result must not escape\n')
+    await diary.configure({ enabled: false })
+    assert.equal(host.tools.has('ai_diary'), false); assert.equal(diaryText(await host.assemble(a, { model: 'role-c' })), '')
+  }
+})
+
+test('search/read bind each parallel session before later role switches, without touching other prompt sections', async t => {
+  const { diary, host, requests } = await fixture(t), a = agent('gpt'), b = agent('claude')
+  await diary.configure({ enabled: true })
+  await diary.appendOwn(roles.gpt, 'query ONLY-A', 'summary-A'); await diary.appendOwn(roles.claude, 'query ONLY-B', 'summary-B')
+  await host.assemble(a, { model: 'gpt' }); await host.assemble(b, { model: 'claude' })
+  const tool = host.tools.get('ai_diary'), search = tool.execute({ action: 'search', query: 'query' }, { agent: a }), read = tool.execute({ action: 'read' }, { agent: b })
+  requests.set(a, { entry: roles['role-c'] }); requests.set(b, { entry: roles['role-c'] })
+  const [sa, rb] = await Promise.all([search, read])
+  assert.equal(sa.owner, 'gpt'); assert.match(sa.matches[0].excerpt, /ONLY-A/); assert.doesNotMatch(sa.matches[0].excerpt, /ONLY-B/)
+  assert.equal(rb.owner, 'claude'); assert.match(rb.text, /ONLY-B/); assert.equal(rb.summary, 'summary-B')
+  const assembly = await host.assemble(a, { model: 'gpt' })
+  assert.deepEqual(assembly.history, [{ role: 'assistant', content: 'KEEP-OLD-CHAT' }])
+  assert.deepEqual(assembly.contexts, [{ name: 'untouched', text: 'existing context' }])
+})
+
+test('OFF while current-role fallback resolution is pending revokes search and range read', async t => {
+  const finishes = []
+  const { diary, host } = await fixture(t, { forInvocation: () => new Promise(resolve => finishes.push(resolve)) })
+  await diary.configure({ enabled: true })
+  const tool = host.tools.get('ai_diary'), a = agent('role-c')
+  const reads = [tool.execute({ action: 'read' }, { agent: a }), tool.execute({ action: 'search', query: 'anything' }, { agent: a })]
+  const off = diary.configure({ enabled: false })
+  finishes.forEach(finish => finish({ entry: roles['role-c'] }))
+  for (const result of reads) await assert.rejects(result, /已关闭|失效/)
+  await off; assert.equal(host.tools.has('ai_diary'), false)
+})
+
+test('official DSH schema subset, registration, prompt advertisement and native dispatch accept diary paging', { skip: !process.env.DSH_TEST_ROOT }, async t => {
+  // Optional host integration, enabled in release verification. No new package
+  // dependency: DSH_TEST_ROOT is an isolated official SDK installation root.
+  const { pathToFileURL } = await import('node:url')
+  const sdk = name => import(pathToFileURL(join(process.env.DSH_TEST_ROOT, 'node_modules', '@deepseek-ai', name, 'lib', 'index.js')).href)
+  const [{ Context }, { default: SystemPrompt }, { default: ToolRuntime, assertObjectJsonSchema, assertSupportedJsonSchema }] = await Promise.all([sdk('cordis'), sdk('dsh-system-prompt'), sdk('dsh-tools')])
+  const home = await mkdtemp(join(tmpdir(), 'kujira-diary-official-sdk-'))
+  t.after(() => rm(home, { recursive: true, force: true }))
+  const ctx = new Context(), diary = openDiary({ home }), requests = new WeakMap(), entry = roles['role-c']
+  t.after(() => ctx.fiber.dispose())
+  await ctx.plugin(SystemPrompt, { personaPrefix: 'KEEP-OFFICIAL-PERSONA' })
+  await ctx.plugin(ToolRuntime, { mode: 'native' })
+  const a = agent('role-c'); requests.set(a, { entry })
+  await ctx.plugin({ name: 'diary-real-sdk-test', inject: ['systemPrompt', 'tools'], apply(scope) { applyDiaryIntegration(scope, { diary, requests, forInvocation: async () => ({ entry }) }) } })
+  await diary.ready; await diary.configure({ enabled: true })
+  const tool = ctx.tools.get('ai_diary')
+  assert.ok(tool, 'official tools.register must accept the output schema, not only the test harness')
+  assertObjectJsonSchema(tool.parameters); assertSupportedJsonSchema(tool.output.schema)
+  // Pin the regression: these are valid general JSON Schema constructs, but
+  // not the subset enforced by the target official DSH tools service.
+  assert.throws(() => assertSupportedJsonSchema({ type: ['integer', 'null'] }))
+  assert.throws(() => assertObjectJsonSchema({ type: 'object', properties: { count: { type: 'integer', minimum: 1 } } }))
+  const assembly = await ctx.systemPrompt.assemble({ agent: a, model: 'role-c' })
+  assert.ok(assembly.tools.some(value => value.name === 'ai_diary'))
+  const execute = async args => {
+    const result = await ctx.tools.execute({ agent: a, name: 'ai_diary', arguments: args, signal: new AbortController().signal, callId: 'official-diary-' + args.action })
+    assert.notEqual(result.isError, true, JSON.stringify(result)); assert.ok(result.content.some(value => value.type === 'text'))
+    return result.content.filter(value => value.type === 'text').map(value => value.text).join('\n')
+  }
+  assert.match(await execute({ action: 'read' }), /此范围没有正文/)
+  await execute({ action: 'append', text: '😀关键片段与关键第二处', summary: '简短摘要' })
+  assert.match(await execute({ action: 'search', query: '关键', max_results: 1 }), /start_line=1、start_column=7/)
+  assert.match(await execute({ action: 'read', start_line: 1, start_column: 7, max_chars: 2 }), /关键/)
+  assert.match(await execute({ action: 'read', full: true }), /明确请求的完整读取/)
+  assert.match(await execute({ action: 'search', query: '无此内容' }), /无命中/)
+  await diary.configure({ enabled: false })
+  assert.equal(ctx.tools.get('ai_diary'), undefined)
+  const off = await ctx.systemPrompt.assemble({ agent: a, model: 'role-c' })
+  assert.equal(off.tools.some(value => value.name === 'ai_diary'), false)
+  assert.equal(diaryText(off), '')
 })

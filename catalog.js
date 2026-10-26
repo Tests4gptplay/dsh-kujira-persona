@@ -1,6 +1,7 @@
 /** Model-family routing and user-authored persona bindings. No background work. */
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rename, writeFile, lstat } from 'node:fs/promises'
 import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 
 export const BUILTINS = [
   { id: 'deepseek', label: 'DeepSeek' },
@@ -37,7 +38,7 @@ const FAMILIES = [
   ['mimo', /^mimo(?:[-._:]|\d|$)/],
 ]
 const text = value => typeof value === 'string' ? value.trim() : ''
-const safeId = value => /^[a-z][a-z0-9-]{0,63}$/.test(value) && value !== 'none'
+const safeId = value => typeof value === 'string' && /^[a-z][a-z0-9-]*$/.test(value) && value !== 'none'
 
 /** Match model identity, never display names or API protocol. Versions share a family. */
 export function modelFamily(route) {
@@ -68,7 +69,7 @@ export function openCatalog(config) {
   const path = join(config.personasDir, '.kujira-catalog.json')
   const listeners = new Set()
   const notify = () => { for (const fn of listeners) { try { fn() } catch {} } }
-  let state, initialization
+  let state, initialization, reloadNeeded = false, recoveryRaw = null
   let tail = Promise.resolve()
   function enqueue(operation) {
     const result = tail.then(operation)
@@ -78,23 +79,46 @@ export function openCatalog(config) {
   async function load() {
     let raw
     try { raw = await readFile(path, 'utf8') } catch (e) {
-      if (e.code === 'ENOENT') return { v: 1, personas: [], bindings: [] }
+      if (e.code === 'ENOENT') { reloadNeeded = false; recoveryRaw = null; return { v: 1, personas: [], bindings: [] } }
       throw e
     }
-    const value = JSON.parse(raw)
-    if (value.v !== 1 || !Array.isArray(value.personas) || !Array.isArray(value.bindings)) throw new Error('人设目录索引格式无效，未覆盖原文件')
-    return value
+    let value
+    try { value = JSON.parse(raw) } catch {
+      recoveryRaw = raw; reloadNeeded = true
+      return state ?? { v: 1, personas: [], bindings: [] }
+    }
+    const object = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+    const personas = (Array.isArray(object.personas) ? object.personas : []).filter(p => p && safeId(p.id) && typeof p.label === 'string')
+    const ids = new Set(['none', ...BUILTINS.map(p => p.id), ...personas.map(p => p.id)])
+    const bindings = (Array.isArray(object.bindings) ? object.bindings : []).filter(b => b && ids.has(b.persona)
+      && (b.provider === undefined || typeof b.provider === 'string') && (b.model === undefined || typeof b.model === 'string')
+      && (text(b.provider) || text(b.model)))
+    reloadNeeded = !Array.isArray(object.personas) || !Array.isArray(object.bindings)
+      || personas.length !== object.personas.length || bindings.length !== object.bindings.length
+    recoveryRaw = reloadNeeded ? raw : null
+    return { ...object, personas, bindings }
   }
   async function save(next) {
     await mkdir(config.personasDir, { recursive: true })
+    if (recoveryRaw !== null) {
+      const suffix = createHash('sha256').update(recoveryRaw).digest('hex').slice(0, 16)
+      try { await writeFile(`${path}.recovered-${suffix}.bak`, recoveryRaw, { flag: 'wx' }) }
+      catch (error) { if (error.code !== 'EEXIST') throw error }
+    }
     const temporary = `${path}.${process.pid}.tmp`
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
     await rename(temporary, path)
     state = next
+    recoveryRaw = null; reloadNeeded = false
     notify()
   }
   function ready() {
-    return initialization ??= enqueue(async () => { state = await load() })
+    if (!initialization || reloadNeeded) {
+      const work = enqueue(async () => { state = await load() })
+      initialization = work
+      work.catch(() => { if (initialization === work) initialization = undefined })
+    }
+    return initialization
   }
   function entries(state) {
     return [...BUILTINS.filter(p => !state.personas.some(u => u.id === p.id)).map(p => ({ ...p, builtin: true })), ...state.personas
@@ -128,8 +152,8 @@ export function openCatalog(config) {
     async get(id) { await ready(); await tail; return selected(state, id) },
     reload() {
       const work = enqueue(async () => { state = await load(); notify(); return { personas: entries(state), bindings: state.bindings } })
-      initialization = work.then(() => undefined)
-      initialization.catch(() => {})
+      initialization = work
+      work.catch(() => { if (initialization === work) initialization = undefined })
       return work
     },
     async resolve(route) {
@@ -147,16 +171,26 @@ export function openCatalog(config) {
         const next = { ...state, personas: [...state.personas], bindings: [...state.bindings] }
         const id = text(args.persona), action = args.action
         if (action === 'create') {
-          if (!safeId(id)) throw new Error('角色 ID 使用小写字母开头的字母、数字、短横线，最多 64 字符')
+          if (!safeId(id)) throw new Error('角色 ID 使用小写字母开头的字母、数字、短横线，不能带路径')
           if (entries(next).some(p => p.id === id)) throw new Error('该角色已存在；补充设定请用 persona_edit，不要按模型版本重复创建角色')
-          const label = text(args.name), body = text(args.text)
-          if (!label || !body) throw new Error('create 需要 name 和 text（基本人设）')
+          const label = text(args.name) || id, body = typeof args.text === 'string' ? args.text : ''
           const rule = args.use_current_model === true || text(args.model) || text(args.provider) ? routeRule(args, current) : null
           const directory = join(config.personasDir, id)
           await mkdir(config.personasDir, { recursive: true })
-          await mkdir(directory)
-          await writeFile(join(directory, '00-用户设定.md'), `# ${label}\n\n> 用户自定义角色。\n\n${body}\n`, 'utf8')
-          await writeFile(join(directory, '90-记忆.md'), `# ${label}的记忆\n\n`, 'utf8')
+          try { await mkdir(directory) } catch (error) {
+            if (error.code !== 'EEXIST') throw error
+            const info = await lstat(directory)
+            if (!info.isDirectory() || info.isSymbolicLink()) throw new Error('角色目录必须是自己的目录，不能指向其它角色或文件')
+          }
+          // A prior interrupted create may already have written these files.
+          // Keep every existing byte; retry only the missing files and registry save.
+          for (const [name, content] of [
+            ['00-用户设定.md', `# ${label}\n\n> 用户自定义角色。\n\n${body}\n`],
+            ['90-记忆.md', `# ${label}的记忆\n\n`],
+          ]) {
+            try { await writeFile(join(directory, name), content, { flag: 'wx' }) }
+            catch (error) { if (error.code !== 'EEXIST') throw error }
+          }
           next.personas.push({ id, label })
           if (rule) putBinding(next, rule, id)
           await save(next)

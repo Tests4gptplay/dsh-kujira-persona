@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtemp,mkdir,writeFile,rm} from 'node:fs/promises'
+import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {PetController} from '../../pet/controller.js'
@@ -33,4 +33,22 @@ test('real registered config Fetch route returns actual filesystem save error an
   }
   await rm(blocked,{recursive:true});const success=await call('config',{showPet:false});assert.equal(success.result.ok,true);assert.equal(success.result.value.config.showPet,false)
  }finally{dispose.forEach(fn=>fn());await rm(home,{recursive:true,force:true})}
+})
+test('malformed or unfamiliar-version pet settings do not lock ordinary settings writes',async()=>{
+ for(const raw of ['{broken',JSON.stringify({v:999,enabled:true,showUsage:false,display:'page'})]){
+  const home=await mkdtemp(join(tmpdir(),'kujira-settings-recovery-')),routes=new Map(),dispose=[]
+  await writeFile(join(home,'kujira-pet.json'),raw)
+  const ctx={inject:(_deps,fn)=>fn(ctx),on:(name,fn)=>{if(name==='dispose')dispose.push(fn);return()=>{}},connection:{fetch:{register:spec=>routes.set(spec.path,spec.fetch)}},logger:{warn(){}},sessions:{get:()=>null},get:()=>undefined}
+  applyPet(ctx,{home,catalog:{resolve:async()=>({}),subscribe:()=>()=>{}},ensureSeeded:async()=>{},ensureFolder:async()=>{}})
+  const call=async(endpoint,payload={})=>(await routes.get('/api/kujira-pet/'+endpoint)(new Request('http://qa/api/kujira-pet/'+endpoint,{method:'POST',body:JSON.stringify({type:'client-request',rpcId:'private-settings-check',method:'kujira-pet/'+endpoint,payload})}))).json()
+  try{assert.equal((await call('state')).result.ok,true);const saved=await call('config',{enabled:true,showUsage:false,display:'page',bubble:'tasks'});assert.equal(saved.result.ok,true);assert.equal(saved.result.value.config.bubble,'tasks');assert.equal((await call('config',{enabled:false})).result.value.config.enabled,false)}finally{dispose.forEach(fn=>fn());await rm(home,{recursive:true,force:true})}
+ }
+})
+test('custom positive scales survive registered config write and a fresh plugin initialization unchanged',async()=>{
+ const home=await mkdtemp(join(tmpdir(),'kujira-scale-restart-'));const make=()=>{const routes=new Map(),dispose=[];const ctx={inject:(_deps,fn)=>fn(ctx),on:(name,fn)=>{if(name==='dispose')dispose.push(fn);return()=>{}},connection:{fetch:{register:spec=>routes.set(spec.path,spec.fetch)}},logger:{warn(){}},sessions:{get:()=>null},get:()=>undefined};applyPet(ctx,{home,catalog:{resolve:async()=>({}),subscribe:()=>()=>{}},ensureSeeded:async()=>{},ensureFolder:async()=>{}});return{close:()=>dispose.forEach(fn=>fn()),call:async(endpoint,payload={})=>(await routes.get('/api/kujira-pet/'+endpoint)(new Request('http://qa/api/kujira-pet/'+endpoint,{method:'POST',body:JSON.stringify({type:'client-request',rpcId:'scale-persist',method:'kujira-pet/'+endpoint,payload})}))).json()}}
+ let first,second
+ try{await writeFile(join(home,'kujira-pet.json'),JSON.stringify({enabled:false,showUsage:false,scale:2,bubbleScale:0.2,refreshSeconds:1800}));first=make();const before=await first.call('state');assert.equal(before.result.value.config.scale,2);assert.equal(before.result.value.config.bubbleScale,0.2)
+  const saved=await first.call('config',{enabled:false});assert.equal(saved.result.value.config.scale,2);assert.equal(saved.result.value.config.bubbleScale,0.2);assert.equal(saved.result.value.config.refreshSeconds,1800);const bytes=await readFile(join(home,'kujira-pet.json'),'utf8');first.close();first=null
+  second=make();const loaded=(await second.call('state')).result.value.config;assert.equal(loaded.scale,2);assert.equal(loaded.bubbleScale,0.2);assert.equal(loaded.refreshSeconds,1800);assert.equal(await readFile(join(home,'kujira-pet.json'),'utf8'),bytes)
+ }finally{first?.close();second?.close();await rm(home,{recursive:true,force:true})}
 })

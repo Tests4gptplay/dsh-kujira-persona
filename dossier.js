@@ -3,9 +3,6 @@ import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { basename, dirname, join, resolve, sep } from 'node:path'
 
-const MAX_SOURCE_BYTES = 256 * 1024
-const MAX_TEXT_CHARS = 64000
-const MAX_APPEND_CHARS = 4000
 const STATE_FILE = '.kujira-state.json'
 const TARGETS = {
   memory: ['90-记忆.md', '记忆'],
@@ -19,7 +16,7 @@ const emptyStats = () => ({ added: 0, updated: 0, kept: 0, upToDate: 0 })
 async function readSource(path) {
   try {
     const info = await stat(path)
-    if (!info.isFile() || info.size > MAX_SOURCE_BYTES) return null
+    if (!info.isFile()) return null
     return { path: resolve(path), text: await readFile(path, 'utf8') }
   } catch (error) {
     if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null
@@ -105,7 +102,7 @@ async function syncDirectory(config) {
 
 function editableTarget(config, file) {
   const name = typeof file === 'string' ? file.trim() : ''
-  if (!/^(?!_|\.)[^\\/]+\.md$/.test(name)) throw new Error('file 必须是目录内 .md 文件名，不能带路径或以 _、. 开头')
+  if (!name.endsWith('.md') || /[\\/]/.test(name)) throw new Error('file 必须是目录内 .md 文件名，不能带路径')
   const path = resolve(config.personaDir, name)
   if (!path.startsWith(`${resolve(config.personaDir)}${sep}`)) throw new Error('目标不在档案目录里')
   return { name, path }
@@ -143,7 +140,7 @@ export function openDossier(config) {
     const parts = [frameText(config), ...sources.map(s => s.text.trim())]
     if (config.extraText?.trim()) parts.push(config.extraText.trim())
     const joined = parts.join('\n\n')
-    const text = joined.length > MAX_TEXT_CHARS ? `${joined.slice(0, MAX_TEXT_CHARS)}\n\n（内容过长，已截断）` : joined
+    const text = joined
     return { text, sources, chars: text.length }
   }
   async function scan() {
@@ -156,12 +153,18 @@ export function openDossier(config) {
     return snapshot
   }
   function ready() {
-    return initialization ??= enqueue(async () => { stats = await syncDirectory(config); await scan() })
+    if (!initialization) {
+      const work = enqueue(async () => { stats = await syncDirectory(config); await scan() })
+      initialization = work
+      work.catch(() => { if (initialization === work) initialization = undefined })
+    }
+    return initialization
   }
   function replaceSource(path, text) {
     path = resolve(path)
     const sources = snapshot.sources.filter(s => s.path !== path)
-    if (text?.trim() && Buffer.byteLength(text, 'utf8') <= MAX_SOURCE_BYTES) sources.push({ path, text })
+    const name = basename(path), explicitMemory = config.memoryFile && path === resolve(config.memoryFile)
+    if (text?.trim() && (explicitMemory || (!name.startsWith('_') && !name.startsWith('.')))) sources.push({ path, text })
     snapshot = build(sources)
   }
   function refresh(sync) {
@@ -170,8 +173,8 @@ export function openDossier(config) {
       await scan()
       return sync ? stats : snapshot
     })
-    initialization = work.then(() => undefined)
-    initialization.catch(() => {})
+    initialization = work
+    work.catch(() => { if (initialization === work) initialization = undefined })
     return work
   }
   const api = {
@@ -183,6 +186,13 @@ export function openDossier(config) {
     async files() {
       const value = await api.compose()
       return value.sources.map(s => ({ file: basename(s.path), chars: s.text.length }))
+    },
+    async read(file) {
+      await ready(); await tail
+      const { path } = editableTarget(config, file)
+      const source = await readSource(path)
+      if (!source) throw new Error('找不到该档案文件')
+      return source
     },
     async edit(args) {
       await ready()
@@ -214,9 +224,8 @@ export function openDossier(config) {
           return { action, persona: config.id, file: name, path, cache_updated: true, note: `已${action === 'delete' ? '删除' : '替换'} ${name}；对应缓存已更新。` }
         }
         if (action !== 'append') throw new Error(`未知 action：${action}`)
-        const text = typeof input.text === 'string' ? input.text.trim() : ''
-        if (!text) throw new Error('append 需要 text')
-        if (text.length > MAX_APPEND_CHARS) throw new Error(`单条最多 ${MAX_APPEND_CHARS} 字，长文请拆条`)
+        if (typeof input.text !== 'string') throw new Error('append 需要 text 字符串')
+        const text = input.text
         const source = typeof input.source === 'string' ? input.source.trim() : ''
         const target = TARGETS[input.category] ?? TARGETS.character
         const explicit = typeof input.file === 'string' && input.file.trim()

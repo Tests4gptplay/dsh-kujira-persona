@@ -4,12 +4,24 @@
  */
 import {copyFile, mkdir, readdir, lstat, readFile, writeFile, rename, constants} from 'node:fs/promises'
 import {dirname, join, resolve} from 'node:path'
+import {createHash} from 'node:crypto'
 
 const STATE='.kujira-state.json'
 const MARKER='.kujira-legacy-migration.json'
 const missing=e=>e?.code==='ENOENT'||e?.code==='ENOTDIR'
 async function exists(path){try{await lstat(path);return true}catch(e){if(missing(e))return false;throw e}}
-async function ownership(dir){try{return JSON.parse(await readFile(join(dir,STATE),'utf8'))?.files??{}}catch(e){if(missing(e)||e instanceof SyntaxError)return {};throw e}}
+async function preserve(path,raw){
+  const suffix=createHash('sha256').update(raw).digest('hex').slice(0,16)
+  try{await writeFile(path+'.recovered-'+suffix+'.bak',raw,{flag:'wx'})}catch(e){if(e.code!=='EEXIST')throw e}
+}
+async function stateAt(dir,preserveInvalid=true){
+  const path=join(dir,STATE);let raw
+  try{raw=await readFile(path,'utf8')}catch(e){if(missing(e))return{files:{}};throw e}
+  try{const value=JSON.parse(raw);if(value&&typeof value==='object'&&!Array.isArray(value)&&value.files&&typeof value.files==='object'&&!Array.isArray(value.files))return value}catch{}
+  // The legacy source is never replaced; reading it must not require write access.
+  if(preserveInvalid)await preserve(path,raw)
+  return{files:{}}
+}
 async function copyOnce(src,dest){
   try{
     if(!(await lstat(src)).isFile())return false
@@ -29,14 +41,21 @@ async function copyBackups(src,dest){
 export async function migrateDeepSeek({legacyDir,targetDir,legacyMemoryFile}){
   const old=resolve(legacyDir),target=resolve(targetDir)
   if(old===target)return {target,migrated:false,reason:'same-folder'}
-  if(await exists(join(target,MARKER)))return {target,migrated:false,reason:'previously-imported'}
+  const marker=join(target,MARKER)
+  if(await exists(marker)){
+    const raw=await readFile(marker,'utf8');let value
+    try{value=JSON.parse(raw)}catch{}
+    if(value?.completed===true)return {target,migrated:false,reason:'previously-imported'}
+    await preserve(marker,raw)
+  }
   let entries=[]
   try{entries=await readdir(old,{withFileTypes:true})}catch(e){if(!missing(e))throw e}
   const externalMemory=legacyMemoryFile?resolve(legacyMemoryFile):null
   const hasExternal=!!(externalMemory&&await exists(externalMemory))
   if(!entries.length&&!hasExternal)return {target,migrated:false,reason:'no-legacy-data'}
   await mkdir(target,{recursive:true})
-  const oldState=await ownership(old),targetState=await ownership(target)
+  const oldRecord=await stateAt(old,false),targetRecord=await stateAt(target)
+  const oldState=oldRecord.files,targetState=targetRecord.files
   const deleted=new Set(Object.entries(targetState).filter(([,v])=>v?.source==='deleted').map(([name])=>name))
   const oldDeleted=new Set(Object.entries(oldState).filter(([,v])=>v?.source==='deleted').map(([name])=>name))
   const imported=[]
@@ -54,13 +73,12 @@ export async function migrateDeepSeek({legacyDir,targetDir,legacyMemoryFile}){
   const merged={...oldState,...targetState}
   if(Object.keys(merged).length){
     const statePath=join(target,STATE)
-    const original=await exists(statePath)?JSON.parse(await readFile(statePath,'utf8')):{files:{}}
-    const next={...original,files:merged}
+    const next={...targetRecord,files:merged}
     const tmp=statePath+'.migration-'+process.pid+'.tmp'
     await writeFile(tmp,JSON.stringify(next,null,2)+'\n','utf8')
     await rename(tmp,statePath)
   }
-  const marker=join(target,MARKER),tmp=marker+'.'+process.pid+'.tmp'
+  const tmp=marker+'.'+process.pid+'.tmp'
   await writeFile(tmp,JSON.stringify({schema:1,completed:true,importedFiles:imported.length})+'\n','utf8')
   await rename(tmp,marker)
   return {target,migrated:true,importedFiles:imported}

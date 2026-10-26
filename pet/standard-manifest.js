@@ -48,6 +48,6 @@ export function buildStandardManifest(manifest) {
   const workingActivityMap = Object.fromEntries(WORK.map(kind => [kind,choose(kind,inputWork,working)]))
   // An unknown tool does not establish that a shell command is running.
   workingActivityMap['using-tool'] = choose('using-tool',inputWork,idle)
-  return {...manifest,clips,stateMap,workingActivityMap,fallbackSources,
+  return {...manifest,transitionMode:'cut',clips,stateMap,workingActivityMap,fallbackSources,
     idleMicroClips:(manifest.idleMicroClips ?? []).filter(name => Object.hasOwn(clips,name) && !clips[name].loop)}
 }

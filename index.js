@@ -7,8 +7,9 @@ import { openDossier } from './dossier.js'
 import { openCatalog, BUILTINS } from './catalog.js'
 import { migrateDeepSeek } from './persona-migration.js'
 import { applyPet } from './pet/index.js'
-import { openDiary } from './diary.js'
+import { openDiary } from './daily-diary.js'
 import { applyDiaryIntegration } from './diary-integration.js'
+import { applyDiarySleep } from './diary-sleep.js'
 
 export const inject = ['systemPrompt']
 const SECTION = 'whale:persona'
@@ -43,11 +44,19 @@ export function apply(ctx, rawConfig) {
   if (!config.enabled) return
   const catalog = openCatalog(config)
   const diary = openDiary({ home: HOME, worldDir: config.worldDir, personasDir: config.personasDir, personaDir: config.personaDir, sharedDir: config.sharedDir })
+  const sleep = applyDiarySleep(ctx, { diary, catalog, personaContext: async entry => (await dossier(entry).compose()).text })
   const deepseekDir = join(config.personasDir, 'deepseek')
-  const migrationReady = migrateDeepSeek({legacyDir:config.personaDir,targetDir:deepseekDir,legacyMemoryFile:config.memoryFile})
-  let seedReady=Promise.resolve()
-  applyPet(ctx, { catalog, diary, home: HOME, folders: {worldDir:config.worldDir,personasDir:config.personasDir,sharedDir:config.sharedDir}, ensureSeeded:()=>seedReady, ensureFolder: async id => {
-    await seedReady
+  let migrationReady,seedReady
+  function ensureMigration() {
+    if (!migrationReady) {
+      const work = migrateDeepSeek({legacyDir:config.personaDir,targetDir:deepseekDir,legacyMemoryFile:config.memoryFile})
+      migrationReady = work
+      work.catch(() => { if (migrationReady === work) migrationReady = undefined })
+    }
+    return migrationReady
+  }
+  applyPet(ctx, { catalog, diary, sleep, home: HOME, folders: {worldDir:config.worldDir,personasDir:config.personasDir,sharedDir:config.sharedDir}, ensureSeeded, ensureFolder: async id => {
+    await ensureSeeded()
     if(id==='world')return world.compose()
     const targetId=id==='persona'?'deepseek':id
     return dossier(await catalog.get(targetId)).compose()
@@ -79,14 +88,21 @@ export function apply(ctx, rawConfig) {
   }
   // Start the built-in presets as soon as the plugin starts. Their directories
   // are ready before the settings folder listing is returned, not on first click.
-  seedReady=migrationReady.then(async()=>{
-    await world.compose()
-    await Promise.all(BUILTINS.map(async entry=>{
-      await mkdir(join(config.personasDir,entry.id),{recursive:true})
-      await dossier({...entry,builtin:true}).compose()
-    }))
-  })
-  seedReady.catch(e=>ctx.logger?.warn?.('Kujira 人物预设初始化失败：'+e.message))
+  function ensureSeeded() {
+    if (!seedReady) {
+      const work = ensureMigration().then(async()=>{
+        await world.compose()
+        await Promise.all(BUILTINS.map(async entry=>{
+          await mkdir(join(config.personasDir,entry.id),{recursive:true})
+          await dossier({...entry,builtin:true}).compose()
+        }))
+      })
+      seedReady = work
+      work.catch(() => { if (seedReady === work) seedReady = undefined })
+    }
+    return seedReady
+  }
+  ensureSeeded().catch(e=>ctx.logger?.warn?.('Kujira 人物预设初始化失败：'+e.message))
   ctx.systemPrompt.section({ name: WORLD_SECTION, order: 0, interpolate: false, text: '' })
   ctx.systemPrompt.section({ name: SECTION, order: 1, interpolate: false, text: '' })
   ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
@@ -98,7 +114,7 @@ export function apply(ctx, rawConfig) {
     if (shared) { try { common.push((await shared.compose()).text) } catch {} }
     try {
       entry = await catalog.resolve(route)
-      if(entry?.id==='deepseek')await migrationReady
+      if(entry?.id==='deepseek')await ensureMigration()
       personalText = entry ? (await dossier(entry).compose()).text : ''
       const custom = (await catalog.list()).personas.filter(p => !p.builtin)
       if (custom.length) common.push('## 用户登记的其他角色\n' + custom.map(p => `${p.label}（${p.id}）`).join('、') + '\n这里只共享名字。公开背景与关系由用户补充到世界观，个人记忆不在这里共享。')
@@ -123,7 +139,7 @@ export function apply(ctx, rawConfig) {
     const captured = requests.get(agent)
     const same = captured && captured.route.provider === route.provider && captured.route.model === route.model
     const entry = explicit ? await catalog.get(explicit) : !pending && same ? captured.entry : await catalog.resolve(route)
-    if(entry?.id==='deepseek')await migrationReady
+    if(entry?.id==='deepseek')await ensureMigration()
     return { route, entry, store: dossier(entry) }
   }
   applyDiaryIntegration(ctx, { diary, requests, forInvocation })
@@ -165,7 +181,7 @@ export function apply(ctx, rawConfig) {
           category: { type: 'string', enum: ['character', 'world', 'meme', 'memory'] },
           file: { type: 'string', description: '角色目录内 .md 文件名，不是路径；read 可省略以读取全部。' },
           oldText: { type: 'string' }, newText: { type: 'string' },
-          text: { type: 'string', description: 'append 正文，最多 4000 字。' }, source: { type: 'string' },
+          text: { type: 'string', description: 'append 正文。' }, source: { type: 'string' },
         }, required: ['action'], additionalProperties: false,
       },
       output: {
@@ -195,9 +211,7 @@ export function apply(ctx, rawConfig) {
             path: store.config.personaDir, cache_updated: true, note: '已重新读取受影响内容并刷新缓存；下一次请求生效，无需重启 DSH。' }
         }
         if (args.action === 'read') {
-          const all = (await store.compose()).sources
-          const sources = args.file ? all.filter(s => basename(s.path) === args.file) : all
-          if (args.file && !sources.length) throw new Error('找不到该档案文件')
+          const sources = args.file ? [await store.read(args.file)] : (await store.compose()).sources
           return { action: 'read', persona: entry.id, label: entry.label, scope: scopeName,
             text: sources.map(s => `## ${basename(s.path)}\n${s.text}`).join('\n\n') }
         }

@@ -1,4 +1,4 @@
-name: Kujira 2.1.0 candidate QA
+name: Kujira 2.1.0 verified release
 on:
   push:
     branches:
@@ -81,3 +81,75 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
           if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+
+  publish:
+    needs: [regressions, browser-menu, windows-native]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bd4fe8c21497c1c8838aa91d9fdf7d3ad3b57a12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Check exact main version, package bytes and install payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_MAIN="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$CURRENT_MAIN" = 'bd4fe8c21497c1c8838aa91d9fdf7d3ad3b57a12'
+          node -e 'const p=require("./package.json");if(p.version!=="2.1.0"||!p.dsh?.bundle?.patch)process.exit(1)'
+          mkdir -p dist
+          npm pack --ignore-scripts --pack-destination dist
+          test -f dist/dsh-kujira-persona-2.1.0.tgz
+          test "$(sha256sum dist/dsh-kujira-persona-2.1.0.tgz | cut -d ' ' -f1)" = 'd5aee4a7469adb3df5f2fce237321d49d8d2450cc45c94c196a50b02bb5cb682'
+          tar -tzf dist/dsh-kujira-persona-2.1.0.tgz > dist/file-list.txt
+          test "$(wc -l < dist/file-list.txt)" -eq 205
+          test "$(grep -Ec '^package/pet/assets/.*\\.png$' dist/file-list.txt)" -eq 120
+          for item in package/diary.js package/diary-integration.js package/README.md package/CHANGELOG.md package/pet/native/win-x64/KujiraPet.exe; do
+            grep -qx "$item" dist/file-list.txt
+          done
+          if grep -E '/(scripts/qa|docs/development|\\.github)/|package/(diary|diary-integration)\\.test\\.js$' dist/file-list.txt; then exit 1; fi
+          test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = '3276250225c201d64b96c32094b6cbe167a1bc5348597f0f668ca89dffd3c19d'
+          (cd dist && sha256sum dsh-kujira-persona-2.1.0.tgz > SHA256SUMS.txt && sha256sum --check SHA256SUMS.txt)
+      - name: Assemble version-specific release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -n '/^## 2[.]1[.]0/,/^## 2[.]0[.]4/{ /^## 2[.]0[.]4/!p; }' CHANGELOG.md > dist/RELEASE_NOTES.md
+          test -s dist/RELEASE_NOTES.md
+          cat >> dist/RELEASE_NOTES.md <<'NOTES'
+
+          ## 安装与升级
+
+          DSH Desktop → 插件 → 添加插件：
+
+          ```text
+          github:Tests4gptplay/dsh-kujira-persona#v2.1.0
+          ```
+
+          Web：`dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.1.0'`。
+
+          保留原有的世界观、人设、记忆和桌宠配置。AI 日记为设置页中的可选实验功能，默认关闭，启用后可能增加 Token 消耗。
+          
+          本次 Windows 原生窗口、浏览器菜单和 AI 日记专项及回归测试通过。GitHub 发行附件包含对应 TGZ 与 SHA256 校验文件。
+          NOTES
+      - name: Publish immutable v2.1.0 tag and tested assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'v2.1.0 already exists; preserving existing published assets'
+            exit 0
+          fi
+          gh release create v2.1.0 dist/dsh-kujira-persona-2.1.0.tgz dist/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target 'bd4fe8c21497c1c8838aa91d9fdf7d3ad3b57a12' \
+            --title 'Kujira 2.1.0 — 可选 AI 日记' \
+            --notes-file dist/RELEASE_NOTES.md \
+            --latest

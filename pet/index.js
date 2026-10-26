@@ -23,7 +23,7 @@ export async function applyNativeAction(controller,message){
     controller.publish()
   }
 }
-export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personasDir:join(home,'personas')},ensureFolder,ensureSeeded}){
+export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),personasDir:join(home,'personas')},ensureFolder,ensureSeeded,diary}){
   ctx.inject(['sessions','agents','sessionQuery','connection','webServer'],scope=>{
     const path=join(home,'kujira-pet.json'),assets=new Map(),streams=new Set()
     const folderBrowser=createFolderBrowser({...folders,catalog,ensureFolder,ensureSeeded})
@@ -65,10 +65,21 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
       offAssistant=ctx.on('agent/assistant-stream',event=>controller.assistantFrame(event),{global:true})
       render(controller.snapshot());return controller
     })().catch(()=>{scope.logger?.warn?.('Kujira 桌宠未启动，人设功能继续可用');return null})
-    const endPointError=(endpoint,e)=>endpoint==='config'&&e?.code==='kujira-config-save'?e.message:endpoint==='open-folder'?'无法打开文件夹：'+(e?.message??'请检查文件管理器与访问权限'):endpoint==='folders'?'读取文件夹大小失败：'+(e?.message??'请检查目录权限'):'未能完成这次设置，请重试'
+    const endPointError=(endpoint,e)=>endpoint.startsWith('diary-')?(e?.message??'未能完成日记设置，请重试'):endpoint==='config'&&e?.code==='kujira-config-save'?e.message:endpoint==='open-folder'?'无法打开文件夹：'+(e?.message??'请检查文件管理器与访问权限'):endpoint==='folders'?'读取文件夹大小失败：'+(e?.message??'请检查目录权限'):'未能完成这次设置，请重试'
     const dispatch=async(endpoint,payload)=>{
-      const c=await ready;if(!c||closed)return {ok:false,error:{code:'kujira-pet',message:'桌宠设置暂不可用',details:{issues:[]}}}
       try{
+        if(endpoint.startsWith('diary-')){
+          if(closed||!diary)throw new Error('日记设置暂不可用，请重试')
+          let value
+          switch(endpoint){
+            case 'diary-settings':value=await diary.getSettings();break
+            case 'diary-config':value=await diary.configure(payload??{});break
+            case 'diary-open-folder':value=await diary.openFolder();break
+            default:throw new Error('未知日记操作')
+          }
+          return {ok:true,value}
+        }
+        const c=await ready;if(!c||closed)return {ok:false,error:{code:'kujira-pet',message:'桌宠设置暂不可用',details:{issues:[]}}}
         let value
         switch(endpoint){
           case 'state':value=c.snapshot();break
@@ -85,7 +96,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         return {ok:true,value}
       }catch(e){return {ok:false,error:{code:e?.code==='kujira-config-save'?'kujira-config-save':'kujira-pet',message:endPointError(endpoint,e),details:{issues:[]}}}}
     }
-    for(const endpoint of ['state','config','select','refresh','folders','open-folder','menu-theme'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
+    for(const endpoint of ['state','config','select','refresh','folders','open-folder','menu-theme','diary-settings','diary-config','diary-open-folder'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
       let envelope;try{envelope=await request.json()}catch{return new Response('Expected JSON',{status:400})}
       if(envelope.type!=='client-request'||envelope.method!=='kujira-pet/'+endpoint||typeof envelope.rpcId!=='string')return new Response('Invalid request',{status:400})
       return Response.json({type:'server-response',rpcId:envelope.rpcId,result:await dispatch(endpoint,envelope.payload)})

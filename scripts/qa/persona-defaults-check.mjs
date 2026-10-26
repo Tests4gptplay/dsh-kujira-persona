@@ -13,8 +13,9 @@ const wait=async predicate=>{for(let i=0;i<100;i++){if(await predicate())return;
 test('startup creates all 15 packaged persona folders and real prompts use community nicknames',async()=>{
  const base=await mkdtemp(join(tmpdir(),'kujira-persona-'))
  const oldHome=process.env.DSH_HOME;process.env.DSH_HOME=base
- let promptHook
- const ctx={systemPrompt:{section(){}},inject(){},on(event,fn){if(event==='system-prompt/assemble')promptHook=fn},get(){return null}}
+ const promptHooks=[]
+ const ctx={systemPrompt:{section(){}},inject(){},on(event,fn,options={}){if(event==='system-prompt/assemble'){if(options.prepend)promptHooks.unshift(fn);else promptHooks.push(fn)}},get(){return null}}
+ const promptHook=async(assembly,context,next)=>{const run=i=>i===promptHooks.length?next():promptHooks[i](assembly,context,()=>run(i+1));return run(0)}
  try{
    const {apply}=await import(pathToFileURL(join(root,'index.js')))
    apply(ctx,{personasDir:join(base,'personas'),worldDir:join(base,'world'),personaDir:join(base,'old')})

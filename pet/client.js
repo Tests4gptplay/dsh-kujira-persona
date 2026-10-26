@@ -38,6 +38,11 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       .kujira-folder:first-child{border-top:0}.kujira-folder-info{min-width:0;flex:1}.kujira-folder-info small{display:block;font-size:11px;opacity:.65;overflow-wrap:anywhere;margin-top:3px}
       .kujira-folder button{flex-shrink:0}.kujira-folder-list{max-height:270px;overflow-y:auto;border-radius:8px}
       .kujira-folder-summary{font-size:13px;font-variant-numeric:tabular-nums}.kujira-muted{opacity:.7}
+      .kujira-diary-item{display:grid;gap:14px;min-width:0}
+      .kujira-diary-warning{font-size:13px;line-height:1.6;margin:0}
+      .kujira-diary-directory{display:grid;gap:7px;min-width:0}.kujira-diary-directory input{box-sizing:border-box;width:100%;min-width:0;border:1px solid var(--dsw-alias-border-l2,#a2aab755);border-radius:8px;padding:8px 10px;background:var(--surface-color,transparent);color:inherit;font:inherit}
+      .kujira-diary-actions{display:flex;flex-wrap:wrap;gap:8px}.kujira-diary-actions button:disabled{opacity:.55}
+      .kujira-diary-directory input:focus-visible{outline:2px solid var(--dsw-alias-label-primary,currentColor);outline-offset:2px}
     `
     const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)
     function RouteBinder({getDirectory,sessionId,selection}){
@@ -58,6 +63,38 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     }
     function Usage({value}){return value?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...value.lines.map((t,i)=>h('div',{key:i},t)),...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},`${w.label}重置：${new Date(w.resetAt).toLocaleString()}`))):null}
     function WorkStats({value}){return value?h('div',{className:'kujira-usage','data-kujira-stats':'session','aria-label':'会话工作统计'},...value.lines.map((line,i)=>h('div',{key:i},line))):null}
+    function DiarySettings(){
+      const [settings,setSettings]=useState(null),[directory,setDirectory]=useState(''),[busy,setBusy]=useState('load'),[error,setError]=useState(''),[notice,setNotice]=useState('')
+      const mounted=useRef(false),pending=useRef(false)
+      const run=async(action,task)=>{
+        if(pending.current)return
+        pending.current=true;setBusy(action);setError('');setNotice('')
+        try{const result=await task();if(mounted.current)return result}
+        catch(e){if(mounted.current)setError(e.message)}
+        finally{pending.current=false;if(mounted.current)setBusy('')}
+      }
+      const load=()=>run('load',async()=>{const value=await call('diary-settings');if(mounted.current){setSettings(value);setDirectory(value.directory)}})
+      useEffect(()=>{mounted.current=true;void load();return()=>{mounted.current=false}},[])
+      const save=patch=>run('save',async()=>{
+        const value=await call('diary-config',patch)
+        if(mounted.current){setSettings(value);if(Object.hasOwn(patch,'directory'))setDirectory(value.directory);setNotice(Object.hasOwn(patch,'directory')?'日记库已设置。':value.enabled?'AI 日记已开启。':'AI 日记已关闭。')}
+      })
+      const open=()=>run('open',async()=>{await call('diary-open-folder');if(mounted.current)setNotice('已请求打开日记库。')})
+      const changed=!!settings&&directory.trim()!==settings.directory
+      return h('section',{className:'kujira-diary-item','data-kujira-diary-settings':'true','aria-labelledby':'kujira-diary-title','aria-busy':!!busy},
+        h('h4',{id:'kujira-diary-title'},'AI 日记'),
+        h('label',{className:'kujira-row'},h('span',null,'启用 AI 日记'),h('input',{type:'checkbox',checked:settings?.enabled===true,disabled:!!busy||!settings,'aria-label':'启用 AI 日记','aria-describedby':'kujira-diary-warning',onChange:e=>void save({enabled:e.target.checked})})),
+        h('p',{className:'kujira-diary-warning',id:'kujira-diary-warning'},'开启后会产生额外 token 消耗，消耗量不可控、无法预估。'),
+        h('div',{className:'kujira-small'},'各角色在指定文件夹下拥有独立空间，自主决定何时写日记、写什么以及如何书写。'),
+        h('label',{className:'kujira-diary-directory'},h('span',null,'日记库'),h('input',{type:'text',value:directory,disabled:!!busy||!settings,'aria-label':'日记库',spellCheck:false,onChange:e=>{setDirectory(e.target.value);setNotice('')}})),
+        h('div',{className:'kujira-diary-actions'},
+          h('button',{type:'button','aria-label':'设置日记库',disabled:!!busy||!settings||!changed||!directory.trim(),onClick:()=>void save({directory:directory.trim()})},busy==='save'?'正在保存…':'设置日记库'),
+          h('button',{type:'button','aria-label':'打开日记库',title:settings?.directory,disabled:!!busy||!settings,onClick:()=>void open()},busy==='open'?'正在打开…':'打开日记库')),
+        !settings?h('div',{className:'kujira-small'},busy==='load'?'正在读取日记设置…':'尚未读取日记设置。'):null,
+        error?h('div',{role:'alert'},error):null,
+        !settings&&!busy?h('button',{type:'button',onClick:()=>void load()},'重新读取日记设置'):null,
+        notice?h('div',{className:'kujira-small',role:'status'},notice):null)
+    }
     function Settings(){
       const s=usePet(),[error,setError]=useState(''),[busy,setBusy]=useState(false)
       const [folders,setFolders]=useState(null),[folderError,setFolderError]=useState(''),[folderBusy,setFolderBusy]=useState('')
@@ -69,16 +106,16 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const folderRow=item=>h('div',{className:'kujira-folder',key:item.id},
         h('div',{className:'kujira-folder-info'},h('div',null,h('strong',null,item.label),h('span',{className:'kujira-muted'},' · '+bytes(item.bytes))),h('small',{title:item.path},item.path)),
         h('button',{type:'button',disabled:!!folderBusy,onClick:()=>void openFolder(item.id),'aria-label':'打开'+item.label+'文件夹'},folderBusy===item.id?'正在打开…':'打开文件夹'))
+      const visibleCharacters=(folders?.characters??[]).filter(item=>!item.hidden&&item.id!=='role:stella')
       const row=(label,control)=>h('label',{className:'kujira-row',key:label},h('span',null,label),control)
-      if(!s)return h('section',{className:'kujira-card'},'正在读取 Kujira 设置…')
       const write=async patch=>{setBusy(true);setError('');try{await call('config',patch)}catch(e){setError(e.message)}finally{setBusy(false)}}
       const toggle=(key,label)=>row(label,h('input',{type:'checkbox',checked:s.config[key],'aria-label':label,disabled:busy,onChange:e=>void write({[key]:e.target.checked})}))
       const choice=(key,label,options)=>row(label,h('select',{'aria-label':label,value:s.config[key],disabled:busy,onChange:e=>void write({[key]:key==='refreshSeconds'?Number(e.target.value):e.target.value})},...options.map(([v,t])=>h('option',{key:v,value:v},t))))
       const range=(key,label,min,max)=>row(label,h('input',{'aria-label':label,type:'range',min,max,step:.05,value:s.config[key],onChange:e=>void write({[key]:Number(e.target.value)})}))
       return h('div',{className:'kujira-settings','aria-label':'Kujira · 人设与桌宠'},
-        h('section',{className:'kujira-card'},
+        s?h('section',{className:'kujira-card'},
           h('h3',null,'Kujira · 人设与桌宠'),
-          h('div',{className:'kujira-small'},'随当前模型切换 AI 角色形象；未选择或未识别的模型由星璃陪伴。'),
+          h('div',{className:'kujira-small'},'随当前模型切换 AI 角色形象。'),
           toggle('enabled','启用桌宠'),toggle('showPet','显示桌宠形象'),
           choice('display','显示位置',[['auto','自动（Windows 桌面／其他系统页面内）'],['desktop','桌面窗口（Windows）'],['page','DSH 页面内']]),
           range('scale','角色大小',.55,1.6),range('bubbleScale','整个气泡大小',.8,1.4),
@@ -91,16 +128,17 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
           s.nativeError?h('div',{role:'status'},s.nativeError):null,
           s.config.enabled&&s.config.showUsage?h(React.Fragment,null,h(Usage,{value:s.usage}),h('button',{type:'button',disabled:busy,onClick:async()=>{setBusy(true);try{await call('refresh')}catch(e){setError(e.message)}finally{setBusy(false)}}},'刷新当前余额／套餐')):null,
           h('div',{className:'kujira-small'},'账户凭据仍在 DSH 原有账户设置中管理。'),
-          error?h('div',{role:'alert'},error):null),
+          error?h('div',{role:'alert'},error):null):h('section',{className:'kujira-card'},'正在读取 Kujira 设置…'),
         h('section',{className:'kujira-card'},
           h('h3',null,'世界观与人物档案'),
           h('div',{className:'kujira-small'},'打开本机文件夹查看各角色资料和记忆；尺寸为文件夹在磁盘上的实际文件大小。'),
           folders?h('div',{className:'kujira-folder-summary'},h('strong',null,'档案总计：'+bytes(folders.totalBytes)),h('div',{className:'kujira-small'},folders.groups.map(g=>g.label+' '+bytes(g.bytes)).join(' · '))):null,
           h('button',{type:'button',disabled:folderLoading||!!folderBusy,onClick:()=>void loadFolders()},folderLoading?'正在统计…':'刷新文件夹大小'),
           folders?h('div',null,...folders.groups.map(folderRow)):h('div',{className:'kujira-small'},'正在读取档案目录…'),
-          folders?h('details',null,h('summary',null,'所有角色档案（'+folders.characters.length+'）'),h('div',{className:'kujira-folder-list'},...folders.characters.map(folderRow))):null,
+          folders?h('details',null,h('summary',null,'所有角色档案（'+visibleCharacters.length+'）'),h('div',{className:'kujira-folder-list'},...visibleCharacters.map(folderRow))):null,
           folderError?h('div',{role:'alert'},folderError):null,
-          h('div',{className:'kujira-small'},'修改世界观、人物性格、记忆、模型绑定或档案存放位置，请在 DSH 对话中告诉 AI；这里用于查看与打开目录。')))
+          h('div',{className:'kujira-small'},'修改世界观、人物性格、记忆、模型绑定或档案存放位置，请在 DSH 对话中告诉 AI；这里用于查看与打开目录。')),
+        h('section',{className:'kujira-card','aria-labelledby':'kujira-experiments-title'},h('h3',{id:'kujira-experiments-title'},'实验性功能'),h(DiarySettings)))
     }
     function Sprite({state,controls}){
       const canvas=useRef(null),renderer=useRef(null),current=useRef(state),[ready,setReady]=useState(false)

@@ -7,6 +7,8 @@ import { openDossier } from './dossier.js'
 import { openCatalog, BUILTINS } from './catalog.js'
 import { migrateDeepSeek } from './persona-migration.js'
 import { applyPet } from './pet/index.js'
+import { openDiary } from './diary.js'
+import { applyDiaryIntegration } from './diary-integration.js'
 
 export const inject = ['systemPrompt']
 const SECTION = 'whale:persona'
@@ -40,10 +42,11 @@ export function apply(ctx, rawConfig) {
   const config = configuration(rawConfig)
   if (!config.enabled) return
   const catalog = openCatalog(config)
+  const diary = openDiary({ home: HOME, worldDir: config.worldDir, personasDir: config.personasDir, personaDir: config.personaDir, sharedDir: config.sharedDir })
   const deepseekDir = join(config.personasDir, 'deepseek')
   const migrationReady = migrateDeepSeek({legacyDir:config.personaDir,targetDir:deepseekDir,legacyMemoryFile:config.memoryFile})
   let seedReady=Promise.resolve()
-  applyPet(ctx, { catalog, home: HOME, folders: {worldDir:config.worldDir,personasDir:config.personasDir,sharedDir:config.sharedDir}, ensureSeeded:()=>seedReady, ensureFolder: async id => {
+  applyPet(ctx, { catalog, diary, home: HOME, folders: {worldDir:config.worldDir,personasDir:config.personasDir,sharedDir:config.sharedDir}, ensureSeeded:()=>seedReady, ensureFolder: async id => {
     await seedReady
     if(id==='world')return world.compose()
     const targetId=id==='persona'?'deepseek':id
@@ -123,6 +126,7 @@ export function apply(ctx, rawConfig) {
     if(entry?.id==='deepseek')await migrationReady
     return { route, entry, store: dossier(entry) }
   }
+  applyDiaryIntegration(ctx, { diary, requests, forInvocation })
   async function summary(agent) {
     const { route, entry } = await forInvocation(agent, true)
     return `模式：${config.mode}\n供应商 ID：${route.provider || '未知'}\n模型 ID：${route.model || '尚未请求'}\n角色：${entry ? `${entry.label}（${entry.id}）` : '未绑定'}`

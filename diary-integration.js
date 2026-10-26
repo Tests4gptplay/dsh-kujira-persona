@@ -115,11 +115,11 @@ export function applyDiaryIntegration(ctx, { diary, requests, forInvocation }) {
     const unsubscribe = diary.subscribe(update)
     const cleanup = () => { if (closed) return; closed = true; unsubscribe(); removeTool(); cleanups.delete(cleanup) }
     cleanups.add(cleanup)
-    scope.on('dispose', cleanup)
+    scope.effect(() => cleanup)
     // This is initialization, not a poll or a request-generating continuation.
     readiness.then(update).catch(warn)
   })
   const dispose = () => { if (disposed) return; disposed = true; for (const cleanup of [...cleanups]) cleanup() }
-  ctx.on('dispose', dispose)
+  ctx.effect(() => dispose)
   return { dispose }
 }

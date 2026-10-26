@@ -155,7 +155,7 @@ test('plugin binds official live event and disposes it without host polling',asy
  const {tmpdir}=await import('node:os'),{join}=await import('node:path')
  const home=await mkdtemp(join(tmpdir(),'kujira-state-qa-'))
  const handlers=new Map(),routes=new Map(),disposed=[];let onDispose
- const scope={sessions:{get:()=>undefined},connection:{fetch:{register:r=>routes.set(r.path,r)}},logger:{warn:message=>{throw new Error(message)}},on:(name,fn)=>{if(name==='dispose')onDispose=fn},get:()=>undefined}
+ const scope={effect(setup){onDispose=setup();return onDispose},sessions:{get:()=>undefined},connection:{fetch:{register:r=>routes.set(r.path,r)}},logger:{warn:message=>{throw new Error(message)}},on:(name,fn)=>{if(name==='dispose')onDispose=fn},get:()=>undefined}
  const ctx={inject:(_deps,fn)=>fn(scope),on:(name,fn)=>{handlers.set(name,fn);return()=>{disposed.push(name);handlers.delete(name)}}}
  const catalog={subscribe:()=>()=>{},resolve:()=>null}
  applyPet(ctx,{catalog,home})
@@ -170,7 +170,7 @@ test('plugin binds official live event and disposes it without host polling',asy
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'start',attemptId:'a',revision:1,turn:1,step:1}})
  handlers.get('agent/assistant-stream')({agent:a,frame:{type:'chunk',attemptId:'a',revision:2,index:0,chunk:{type:'text-delta'}}})
  assert.equal((await request('state')).task.phase,'responding')
- onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','agent/status','session/disposed','session/event'])
+ await onDispose();assert.deepEqual(disposed.sort(),['agent/assistant-stream','agent/status','session/disposed','session/event'])
 })
 
 test('all current role manifests resolve every exposed state and activity to real frames',()=>{

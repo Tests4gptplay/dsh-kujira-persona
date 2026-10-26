@@ -45,7 +45,7 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
    const mark=epoch,route={...selected};if(!await barrier(mark))return
    const entry=await catalog.resolve(route);if(!entry){setState('waiting','当前模型没有绑定角色，后台整理暂不启动。');return}
    const watchKey=diary.settings().directory+'|'+entry.id
-   if(watchedRole!==watchKey&&diary.watchOwn){roleWatch?.();roleWatch=await diary.watchOwn(entry,reason=>{if(reason==='watch-error'){if(watchedRole===watchKey){roleWatch=null;watchedRole=null}return}change('日记源文件已改变')});watchedRole=roleWatch?watchKey:null}
+   if(watchedRole!==watchKey&&diary.watchOwn){roleWatch?.();roleWatch=null;watchedRole=null;const stop=await diary.watchOwn(entry,reason=>{if(reason==='watch-error'){if(watchedRole===watchKey){roleWatch=null;watchedRole=null}return}change('日记源文件已改变')});if(closed||mark!==epoch){stop?.();return}roleWatch=stop;watchedRole=roleWatch?watchKey:null}
    // Check local files BEFORE preparing or dispatching any model request.
    const pending=await diary.pendingSleep(entry);if(mark!==epoch||!diary.settings().sleepEnabled)return
    if(!pending.length){setState('idle');return}
@@ -112,8 +112,8 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
   const stream=next()
   return(async function*(){externalCalls++;change('其它模型请求优先');try{yield* stream}finally{externalCalls--;wake()}})()
  },{global:true}))
- ctx.inject(['agents','llm','sessions'],scope=>{services={agents:scope.agents,llm:scope.llm};wake();scope.on('dispose',()=>{services=null;change('宿主服务已停止')})})
- ctx.inject(['jobs'],scope=>{const off=scope.jobs.events.subscribe({owners:'all'},()=>change('后台任务状态已改变'));scope.on('dispose',off)})
+ ctx.inject(['agents','llm','sessions'],scope=>{services={agents:scope.agents,llm:scope.llm};wake();scope.effect(()=>()=>{services=null;change('宿主服务已停止')})})
+ ctx.inject(['jobs'],scope=>{const off=scope.jobs.events.subscribe({owners:'all'},()=>change('后台任务状态已改变'));scope.effect(()=>off)})
  const api={snapshot,subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)},
   async select(input={}){
    const next=typeof input.provider==='string'&&input.provider&&typeof input.model==='string'&&input.model&&typeof input.sessionId==='string'&&input.sessionId&&input.ready!==false?{provider:input.provider,model:input.model,sessionId:input.sessionId,...typeof input.reasoningEffort==='string'&&input.reasoningEffort?{reasoningEffort:input.reasoningEffort}:{}}:null
@@ -123,5 +123,5 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
   },
   dispose(){if(closed)return;closed=true;abort('插件已关闭');clearTimeout(timer);roleWatch?.();for(const off of offs)off?.();listeners.clear()},
  }
- ctx.on('dispose',()=>api.dispose());return api
+ ctx.effect(()=>()=>api.dispose());return api
 }

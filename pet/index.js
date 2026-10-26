@@ -127,7 +127,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         return new Response(assets.get(file),{headers:{'content-type':'image/png','cache-control':'private, max-age=86400'}})
       }catch{return new Response('not found',{status:404})}
     }})
-    scope.on('dispose',()=>{closed=true;offEvent();offAssistant();offStatus();offSession();offState();offCatalog();controller?.dispose();native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear()})
+    scope.effect(()=>()=>{closed=true;offEvent();offAssistant();offStatus();offSession();offState();offCatalog();controller?.dispose();const stopped=native?.dispose();for(const s of streams)try{s.close()}catch{};streams.clear();assets.clear();return stopped})
   })
 }
 

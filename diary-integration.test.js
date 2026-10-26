@@ -8,13 +8,14 @@ import { applyDiaryIntegration, DIARY_SECTION } from './diary-integration.js'
 
 const roles = { gpt: { id: 'gpt', label: 'GPT' }, claude: { id: 'claude', label: 'Claude' }, 'role-c': { id: 'role-c', label: '角色C' } }
 function harness() {
-  const sections = new Map(), events = new Map(), tools = new Map(), warnings = [], registrations = [], disposedTools = []
+  const sections = new Map(), events = new Map(), tools = new Map(), warnings = [], registrations = [], disposedTools = [], effects = new Set()
   const ctx = {
     logger: { warn: text => warnings.push(text) },
     systemPrompt: { section(value) { sections.set(value.name, value); return () => sections.delete(value.name) } },
     tools: { register(definition) { assert.equal(tools.has(definition.name), false); tools.set(definition.name, definition); registrations.push(definition.name); return () => { if (tools.get(definition.name) === definition) tools.delete(definition.name); disposedTools.push(definition.name) } } },
     commands: { register() {} },
     get() { return undefined },
+    effect(setup) { const cleanup = setup(); const dispose = () => { if (effects.delete(dispose)) return cleanup?.() }; effects.add(dispose); return dispose },
     on(name, listener, options = {}) {
       const listeners = events.get(name) ?? []; events.set(name, listeners)
       if (options.prepend) listeners.unshift(listener); else listeners.push(listener)
@@ -28,8 +29,8 @@ function harness() {
     const next = i => i === listeners.length ? Promise.resolve(assembly) : listeners[i](assembly, { agent }, () => next(i + 1))
     return next(0)
   }
-  function dispose() { for (const listener of [...events.get('dispose') ?? []]) listener() }
-  return { ctx, assemble, dispose, tools, warnings, registrations, disposedTools, events }
+  function dispose() { for (const stop of [...effects]) stop(); for (const listener of [...events.get('dispose') ?? []]) listener() }
+  return { ctx, assemble, dispose, tools, warnings, registrations, disposedTools, events, effects }
 }
 async function fixture(t, options = {}) {
   const home = options.home ?? await mkdtemp(join(tmpdir(), 'kujira-diary-integration-'))
@@ -70,7 +71,7 @@ test('default OFF registers no tool; ON registers once; OFF disposes and removes
   assert.equal(diaryText(result), '')
   assert.deepEqual(result.history, [{ role: 'assistant', content: 'KEEP-OLD-CHAT' }])
   assert.deepEqual(result.contexts, [{ name: 'untouched', text: 'existing context' }])
-  assert.deepEqual([...host.events.keys()].sort(), ['dispose', 'system-prompt/assemble'])
+  assert.deepEqual([...host.events.keys()].sort(), ['system-prompt/assemble']); assert.equal(host.effects.size, 2)
   await diary.configure({ enabled: true })
   await assert.rejects(tool.execute({ action: 'append', text: 'old tool cannot revive', summary: 'old tool cannot revive' }, { agent: a }), /失效/)
   assert.equal((await diary.readOwn(roles.gpt)).text, before.text)

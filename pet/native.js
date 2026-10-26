@@ -7,17 +7,19 @@ import { AnimationPlayer } from './animation.js'
 import { artFor } from './art.js'
 export class NativePet {
   constructor(root,onStatus,onAction){
-    this.root=root;this.onStatus=onStatus;this.onAction=onAction;this.child=null;this.starting=null;this.wanted=false;this.last=null;this.stopping=Promise.resolve()
+    this.disposed=false;this.root=root;this.onStatus=onStatus;this.onAction=onAction;this.child=null;this.starting=null;this.stopRequest=null;this.wanted=false;this.last=null;this.stopping=Promise.resolve()
     this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey='';this.frameTimer=null;this.pendingState=null;this.pendingFrame=null
   }
   async show(state){
+    if(this.disposed)return
     this.wanted=true;this.last=state
-    if(this.child){this.send(state);return}
+    if(this.child&&!this.stopRequest){this.send(state);return}
     if(this.starting)return this.starting
     const start=(async()=>{
       await this.stopping
+      if(this.child){if(this.wanted&&!this.disposed)this.send(this.last);return}
       const exe=join(this.root,'native','win-x64','KujiraPet.exe');await access(exe)
-      if(!this.wanted)return
+      if(!this.wanted||this.disposed)return
       const p=spawn(exe,[],{stdio:['pipe','pipe','pipe'],windowsHide:true,cwd:this.root})
       this.child=p;p.stderr.on('data',()=>{});p.stdin.on('error',()=>{})
       p.stdin.on('drain',()=>this.flush(p))
@@ -33,7 +35,7 @@ export class NativePet {
           else this.onAction(m)
         }
       }catch{}})
-      p.once('error',()=>{if(this.child===p){this.child=null;this.stopFrames()}this.onStatus('none','桌面窗口暂时无法启动；可选择页面内显示')})
+      p.once('error',()=>{if(this.child===p&&(p.pid==null||p.exitCode!=null||p.signalCode!=null)){this.child=null;this.stopFrames()}this.onStatus('none','桌面窗口暂时无法启动；可选择页面内显示')})
       p.once('exit',()=>{lines.close();if(this.child===p){this.child=null;this.stopFrames();this.onStatus('none',this.wanted?'桌宠窗口已关闭，可重新启用':'')}})
       this.send(this.last)
     })()
@@ -79,10 +81,33 @@ export class NativePet {
   }
   stopFrames(){clearTimeout(this.frameTimer);this.frameTimer=null;this.player=null;this.art=null;this.artId=null;this.sessionId=null;this.frameKey='';this.pendingState=null;this.pendingFrame=null}
   hide(){
-    this.wanted=false;this.stopFrames();const p=this.child;this.child=null
-    if(p){this.stopping=new Promise(resolve=>{if(p.exitCode!==null){resolve();return}p.once('exit',resolve);p.once('error',resolve);p.stdin.end();p.kill()})}
+    this.wanted=false;this.stopFrames()
+    if(this.stopRequest)return this.stopRequest
+    const p=this.child
+    if(!p){this.onStatus('none','');return this.stopping}
     this.onStatus('none','')
+    const stop=new Promise((resolve,reject)=>{
+      const exited=()=>p.exitCode!=null||p.signalCode!=null
+      const finish=error=>{
+        p.removeListener('exit',onExit);p.removeListener('error',onError)
+        if(exited()&&this.child===p)this.child=null
+        error?reject(error):resolve()
+      }
+      const onExit=()=>{if(this.child===p)this.child=null;finish()},onError=error=>finish(error)
+      if(exited()){finish();return}
+      p.once('exit',onExit);p.once('error',onError)
+      // EOF is cooperative; a pipe error does not prove the process survived.
+      try{p.stdin.end()}catch(error){this.onStatus('none',error?.message??String(error))}
+      try{const killed=p.kill();if(exited())finish();else if(!killed)finish(new Error('无法结束 Windows 桌宠进程，请关闭桌宠后重试'))}catch(error){finish(error)}
+    })
+    this.stopRequest=stop
+    // The returned request rejects on failure; the internal barrier recovers so
+    // a later hide/show can retry, still owning a child that did not exit.
+    this.stopping=stop.then(()=>{if(this.stopRequest===stop)this.stopRequest=null},error=>{
+      if(this.stopRequest===stop)this.stopRequest=null
+      this.onStatus('none',error?.message??String(error))
+    })
+    return stop
   }
-  dispose(){this.hide()}
+  dispose(){this.disposed=true;return this.hide()}
 }
-

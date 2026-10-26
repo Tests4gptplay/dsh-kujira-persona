@@ -25,7 +25,7 @@ test('published DSH 0.2.1-rc.2 Session/Query/Projection/Cordis modules hydrate a
    const session=sdk.sessions.create('sdk-'+i);session.append('turn/start',{turn:i+1});session.append('step/start',{turn:i+1,step:1});session.append('step/end',{turn:i+1,step:1});session.append('step/start',{turn:i+1,step:2})
    sessions.push(session);agents.set(session.id,{id:session.id,session,status:'running'})
   }
-  const scope={sessions:sdk.sessions,connection:{fetch:{register:r=>routes.set(r.path,r)}},logger:{warn:message=>{throw Error(message)}},get:name=>name==='agents'?{get:id=>agents.get(id)}:sdk.get(name),on:(name,fn)=>{if(name==='dispose')dispose=fn}}
+  const scope={effect(setup){dispose=setup();return dispose},sessions:sdk.sessions,connection:{fetch:{register:r=>routes.set(r.path,r)}},logger:{warn:message=>{throw Error(message)}},get:name=>name==='agents'?{get:id=>agents.get(id)}:sdk.get(name),on:(name,fn)=>{if(name==='dispose')dispose=fn}}
   applyPet({inject:(_deps,fn)=>fn(scope),on:(...args)=>sdk.on(...args)},{catalog:{subscribe:()=>()=>{},resolve:()=>null},home})
   const call=async(endpoint,payload={})=>{const response=await routes.get('/api/kujira-pet/'+endpoint).fetch(new Request('http://fixture.test/api/kujira-pet/'+endpoint,{method:'POST',body:JSON.stringify({type:'client-request',rpcId:'sdk',method:'kujira-pet/'+endpoint,payload})}));const envelope=await response.json();assert.equal(envelope.result.ok,true);return envelope.result.value}
   await call('config',{enabled:true,showUsage:false,display:'page'})
@@ -37,5 +37,5 @@ test('published DSH 0.2.1-rc.2 Session/Query/Projection/Cordis modules hydrate a
   a.session.append('step/end',{turn:1,step:2});a.session.append('turn/end',{turn:1,reason:{kind:'aborted',reason:{kind:'user'}}});a.status='idle';sdk.emit(scopeTarget(a,a),'agent/status',{agent:a,status:'idle'})
   const stopped=await call('select',{sessionId:a.id,provider:'fixture',model:'gpt'});assert.equal(stopped.task.phase,'idle');assert.equal(stopped.task.turnActive,false)
   console.log('Real DSH Session.append → global Cordis events → plugin HTTP state: 50 sessions, 100 switches, real query/projection hydration, stream, background completion and abort passed. Agent status values were controlled fixtures; no model provider or GUI was launched.')
- }finally{dispose?.();for(const fiber of fibers.reverse())await fiber.dispose()}
+ }finally{await dispose?.();for(const fiber of fibers.reverse())await fiber.dispose()}
 })

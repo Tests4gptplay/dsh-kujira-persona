@@ -8,11 +8,11 @@ import {applyPet} from '../../pet/index.js'
 
 async function harness({diary,brokenPet=false}={}){
   const home=await mkdtemp(join(tmpdir(),'kujira-diary-api-')),routes=new Map(),dispose=[]
-  const ctx={inject:(_deps,fn)=>fn(ctx),on:(name,fn)=>{if(name==='dispose')dispose.push(fn);return()=>{}},connection:{fetch:{register:spec=>routes.set(spec.path,spec.fetch)}},logger:{warn(){}},sessions:{get:()=>null},get:()=>undefined}
+  const ctx={effect(setup){const cleanup=setup();dispose.push(cleanup);return cleanup},inject:(_deps,fn)=>fn(ctx),on:(name,fn)=>{if(name==='dispose')dispose.push(fn);return()=>{}},connection:{fetch:{register:spec=>routes.set(spec.path,spec.fetch)}},logger:{warn(){}},sessions:{get:()=>null},get:()=>undefined}
   const catalog={resolve:async()=>({}),subscribe:()=>{if(brokenPet)throw Error('companion-only failure');return()=>{}}}
   applyPet(ctx,{home,catalog,diary,ensureSeeded:async()=>{},ensureFolder:async()=>{}})
   const request=(endpoint,payload={},envelope={})=>routes.get('/api/kujira-pet/'+endpoint)(new Request('http://localhost/api/kujira-pet/'+endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'client-request',rpcId:'diary-test',method:'kujira-pet/'+endpoint,payload,...envelope})}))
-  return {request,call:async(endpoint,payload)=> (await (await request(endpoint,payload)).json()).result,close:async()=>{dispose.forEach(fn=>fn());await rm(home,{recursive:true,force:true})}}
+  return {request,call:async(endpoint,payload)=> (await (await request(endpoint,payload)).json()).result,close:async()=>{await Promise.all(dispose.map(fn=>fn()));await rm(home,{recursive:true,force:true})}}
 }
 
 test('registered diary settings routes work with desktop pet disabled and have independent persisted values',async()=>{

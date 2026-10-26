@@ -108,11 +108,11 @@ jobs:
           test "$(sha256sum dist/dsh-kujira-persona-2.1.0.tgz | cut -d ' ' -f1)" = 'd5aee4a7469adb3df5f2fce237321d49d8d2450cc45c94c196a50b02bb5cb682'
           tar -tzf dist/dsh-kujira-persona-2.1.0.tgz > dist/file-list.txt
           test "$(wc -l < dist/file-list.txt)" -eq 205
-          test "$(grep -Ec '^package/pet/assets/.*\\.png$' dist/file-list.txt)" -eq 120
+          test "$(grep -Ec '^package/pet/assets/.*\.png$' dist/file-list.txt)" -eq 120
           for item in package/diary.js package/diary-integration.js package/README.md package/CHANGELOG.md package/pet/native/win-x64/KujiraPet.exe; do
             grep -qx "$item" dist/file-list.txt
           done
-          if grep -E '/(scripts/qa|docs/development|\\.github)/|package/(diary|diary-integration)\\.test\\.js$' dist/file-list.txt; then exit 1; fi
+          if grep -E '/(scripts/qa|docs/development|\.github)/|package/(diary|diary-integration)\.test\.js$' dist/file-list.txt; then exit 1; fi
           test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = '3276250225c201d64b96c32094b6cbe167a1bc5348597f0f668ca89dffd3c19d'
           (cd dist && sha256sum dsh-kujira-persona-2.1.0.tgz > SHA256SUMS.txt && sha256sum --check SHA256SUMS.txt)
       - name: Assemble version-specific release notes

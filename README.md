@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **Kujira 2.2.1。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
+> **Kujira 2.2.2。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
 ## 世界观与人物
 
@@ -86,12 +86,12 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-以下为 **v2.2.1** 的安装与升级方法。
+以下为 **v2.2.2** 的安装与升级方法。
 
 DSH Desktop：打开 **插件 → 添加插件**，输入：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.2.1
+github:Tests4gptplay/dsh-kujira-persona#v2.2.2
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
@@ -99,7 +99,7 @@ github:Tests4gptplay/dsh-kujira-persona#v2.2.1
 Web 版安装命令：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.1'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.2'
 ```
 
 Web 与 Desktop 分别安装。[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 也提供备用 `.tgz` 安装包。

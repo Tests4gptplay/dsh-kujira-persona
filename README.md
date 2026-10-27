@@ -4,7 +4,7 @@
 
 > **Kujira 2.2.3。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
-**Support / 赞助：** [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
 
 ## 世界观与人物
 

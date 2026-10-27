@@ -1,7 +1,7 @@
 /** Model-family routing and user-authored persona bindings. No background work. */
 import { mkdir, readFile, rename, writeFile, lstat } from 'node:fs/promises'
 import { join } from 'node:path'
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 
 export const BUILTINS = [
   { id: 'deepseek', label: 'DeepSeek' },
@@ -67,6 +67,9 @@ const matchesRule = (route, rule) => matches(route.provider, rule.provider) && m
 /** The registry contains only role names and model bindings, never model credentials. */
 export function openCatalog(config) {
   const path = join(config.personasDir, '.kujira-catalog.json')
+  const goodPath = path + '.last-good.json'
+  const warnings = new Set()
+  const warn = message => { if (!warnings.has(message)) { warnings.add(message); config.onWarning?.(message) } }
   const listeners = new Set()
   const notify = () => { for (const fn of listeners) { try { fn() } catch {} } }
   let state, initialization, reloadNeeded = false, recoveryRaw = null
@@ -76,27 +79,53 @@ export function openCatalog(config) {
     tail = result.then(() => undefined, () => undefined)
     return result
   }
+  function parse(raw) {
+    const object = JSON.parse(raw)
+    if (!object || typeof object !== 'object' || Array.isArray(object)) throw new Error('invalid catalog')
+    const personas = (Array.isArray(object.personas) ? object.personas : []).filter(p => p && safeId(p.id) && typeof p.label === 'string')
+    const ids = new Set(['none', ...BUILTINS.map(p => p.id), ...personas.map(p => p.id)])
+    const bindings = (Array.isArray(object.bindings) ? object.bindings : []).filter(b => b && ids.has(b.persona)
+      && (b.provider === undefined || typeof b.provider === 'string') && (b.model === undefined || typeof b.model === 'string')
+      && (text(b.provider) || text(b.model)))
+    const valid = Array.isArray(object.personas) && Array.isArray(object.bindings)
+      && personas.length === object.personas.length && bindings.length === object.bindings.length
+    return { value: { ...object, personas, bindings }, valid }
+  }
+  async function retainGood(value) {
+    const raw = JSON.stringify(value, null, 2) + '\n'
+    try {
+      try { if (await readFile(goodPath, 'utf8') === raw) return } catch (error) { if (error.code !== 'ENOENT') throw error }
+      const temporary = `${goodPath}.${randomUUID()}.tmp`
+      await writeFile(temporary, raw, 'utf8')
+      await rename(temporary, goodPath)
+    } catch { warn('角色绑定恢复副本未能保存；当前绑定仍保留。') }
+  }
+  async function preserveRaw(raw) {
+    const suffix = createHash('sha256').update(raw).digest('hex').slice(0, 16)
+    try { await writeFile(`${path}.recovered-${suffix}.bak`, raw, { flag: 'wx' }) }
+    catch (error) { if (error.code !== 'EEXIST') warn('损坏的角色绑定原文未能另存；原文件尚未替换。') }
+  }
   async function load() {
     let raw
     try { raw = await readFile(path, 'utf8') } catch (e) {
       if (e.code === 'ENOENT') { reloadNeeded = false; recoveryRaw = null; return { v: 1, personas: [], bindings: [] } }
       throw e
     }
-    let value
-    try { value = JSON.parse(raw) } catch {
-      recoveryRaw = raw; reloadNeeded = true
-      return state ?? { v: 1, personas: [], bindings: [] }
+    let parsed
+    try { parsed = parse(raw) } catch { /* Recover from the last complete catalog. */ }
+    if (parsed?.valid) {
+      reloadNeeded = false; recoveryRaw = null
+      await retainGood(parsed.value)
+      return parsed.value
     }
-    const object = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
-    const personas = (Array.isArray(object.personas) ? object.personas : []).filter(p => p && safeId(p.id) && typeof p.label === 'string')
-    const ids = new Set(['none', ...BUILTINS.map(p => p.id), ...personas.map(p => p.id)])
-    const bindings = (Array.isArray(object.bindings) ? object.bindings : []).filter(b => b && ids.has(b.persona)
-      && (b.provider === undefined || typeof b.provider === 'string') && (b.model === undefined || typeof b.model === 'string')
-      && (text(b.provider) || text(b.model)))
-    reloadNeeded = !Array.isArray(object.personas) || !Array.isArray(object.bindings)
-      || personas.length !== object.personas.length || bindings.length !== object.bindings.length
-    recoveryRaw = reloadNeeded ? raw : null
-    return { ...object, personas, bindings }
+    recoveryRaw = raw; reloadNeeded = true
+    await preserveRaw(raw)
+    let recovered = state
+    if (!recovered) {
+      try { const good = parse(await readFile(goodPath, 'utf8')); if (good.valid) recovered = good.value } catch {}
+    }
+    warn(recovered ? '角色绑定文件损坏；继续使用最近有效绑定，原文件待修复。' : '角色绑定文件损坏且没有有效恢复副本；仅使用可恢复的登记与默认匹配，请检查绑定。')
+    return recovered ?? parsed?.value ?? { v: 1, personas: [], bindings: [] }
   }
   async function save(next) {
     await mkdir(config.personasDir, { recursive: true })
@@ -105,9 +134,10 @@ export function openCatalog(config) {
       try { await writeFile(`${path}.recovered-${suffix}.bak`, recoveryRaw, { flag: 'wx' }) }
       catch (error) { if (error.code !== 'EEXIST') throw error }
     }
-    const temporary = `${path}.${process.pid}.tmp`
+    const temporary = `${path}.${randomUUID()}.tmp`
     await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`, 'utf8')
     await rename(temporary, path)
+    await retainGood(next)
     state = next
     recoveryRaw = null; reloadNeeded = false
     notify()

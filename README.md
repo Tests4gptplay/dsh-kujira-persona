@@ -86,12 +86,14 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-以下为 **v2.2.2** 的安装与升级方法。
+以下为 **v2.2.3** 的安装与升级方法。
+
+**更新前先关闭桌面上已显示的桌宠和提示气泡，再卸载旧包并安装新版。**
 
 DSH Desktop：打开 **插件 → 添加插件**，输入：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.2.2
+github:Tests4gptplay/dsh-kujira-persona#v2.2.3
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内的 `.kujira-catalog.json`）。同时保留 DSH 数据目录中的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 及已配置的日记库；使用自定义路径时，以实际设置为准。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
@@ -99,10 +101,10 @@ github:Tests4gptplay/dsh-kujira-persona#v2.2.2
 Web 版安装命令：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.2'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.3'
 ```
 
-Web 与 Desktop 分别安装。[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 也提供备用 `.tgz` 安装包。
+Web 与 Desktop 分别安装。也可下载 [v2.2.3 `.tgz` 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.2.3/dsh-kujira-persona-2.2.3.tgz)；[本版发布页](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.2.3) 提供 SHA256 校验文件。
 
 ### Windows 安装提示 EPERM
 

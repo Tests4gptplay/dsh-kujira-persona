@@ -4,6 +4,8 @@
 
 > **Kujira 2.2.3。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
+**Support / 赞助：** [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+
 ## 世界观与人物
 
 **世界观**是大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。比如与 DeepSeek 聊天时，她也知道“猫猫”通常指 Gemini、“白龙”指 GPT。故事发生在哪里、角色如何相处，都可以由你继续设定。

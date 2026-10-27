@@ -168,10 +168,10 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     }
     function Sprite({state,controls}){
       const canvas=useRef(null),renderer=useRef(null),current=useRef(state),[ready,setReady]=useState(false)
-      const failed=useRef(false),[retry,setRetry]=useState(0)
+      const failed=useRef(false),[retry,setRetry]=useState(0),[loadError,setLoadError]=useState(false)
       current.current=state
       useEffect(()=>{
-        let closed=false,view=null;const abort=new AbortController();failed.current=false;setReady(false)
+        let closed=false,view=null;const abort=new AbortController();failed.current=false;setReady(false);setLoadError(false)
         const module=spriteModule??=import('/api/kujira-pet/sprite-canvas.js'+(spriteAttempt?'?retry='+spriteAttempt:'')).catch(error=>{spriteModule=null;spriteAttempt++;throw error})
         void Promise.all([module,fetch('/api/kujira-pet/art?id='+encodeURIComponent(state.route.art),{signal:abort.signal}).then(r=>{if(!r.ok)throw new Error('Animation manifest unavailable');return r.json()})]).then(async([runtime,art])=>{
           if(closed)return
@@ -180,14 +180,15 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
           view.update(current.current.task,current.current.config,current.current.route.sessionId)
           await view.ready
           if(!closed)setReady(true)
-        }).catch(()=>{if(!closed)failed.current=true;view?.dispose();if(renderer.current===view)renderer.current=null;if(controls.current===view)controls.current=null})
+        }).catch(()=>{if(!closed){failed.current=true;setLoadError(true)}view?.dispose();if(renderer.current===view)renderer.current=null;if(controls.current===view)controls.current=null})
         return()=>{closed=true;abort.abort();view?.dispose();if(renderer.current===view)renderer.current=null;if(controls.current===view)controls.current=null}
       },[state.route.art,connectionGeneration,retry])
       // Retry a failed load only on a subsequent user/task transition, never on a timer.
       useEffect(()=>{if(failed.current){failed.current=false;setRetry(value=>value+1)}},[state.route.model,state.route.sessionId,state.task.phase,state.task.activity])
       useEffect(()=>renderer.current?.update(state.task,state.config,state.route.sessionId),[state])
       return h('div',{style:{position:'relative',aspectRatio:'320 / 380'}},
-        h('canvas',{ref:canvas,width:320,height:380,'aria-label':state.route.name+' 动画桌宠',style:{visibility:ready?'visible':'hidden'}}))
+        h('canvas',{ref:canvas,width:320,height:380,'aria-label':state.route.name+' 动画桌宠',style:{visibility:ready?'visible':'hidden'}}),
+        loadError?h('button',{type:'button',style:{pointerEvents:'auto'},onClick:()=>{failed.current=false;setRetry(value=>value+1)}},'重试加载动画'):null)
     }
     function Pet(){
       const s=usePet(),[position,setPosition]=useState(null),[leader,setLeader]=useState(!navigator.locks),[viewport,setViewport]=useState(()=>[window.innerWidth,window.innerHeight])

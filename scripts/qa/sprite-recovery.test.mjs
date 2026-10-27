@@ -38,3 +38,12 @@ test('late failed or successful old-role loading cannot replace the new role',as
   h.render({task:{phase:'responding',signal:2}});await tick();h.render();assert.equal(h.fetches.length,2,'old failure must not schedule a new-role retry')
  }finally{h.dispose()}
 })
+
+test('failed sprite offers a manual same-state retry and removes it after recovery',async()=>{
+ const h=harness({readyFor:n=>n===0?Promise.reject(Error('temporary')):Promise.resolve()})
+ try{
+  h.render();await tick();const failed=h.render();assert.equal(h.visible(),'hidden');assert.equal(h.fetches.length,1)
+  const button=failed.children.find(n=>n?.type==='button');assert(button);assert.equal(button.children[0],'重试加载动画')
+  button.props.onClick();h.render();await tick();const recovered=h.render();assert.equal(h.fetches.length,2);assert.equal(h.visible(),'visible');assert(!recovered.children.some(n=>n?.type==='button'))
+ }finally{h.dispose()}
+})

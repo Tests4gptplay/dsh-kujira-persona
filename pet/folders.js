@@ -4,7 +4,7 @@ import { join, resolve, sep } from 'node:path'
 import { spawn } from 'node:child_process'
 import { BUILTINS } from '../catalog.js'
 
-const validId=id=>typeof id==='string'&&/^[a-z][a-z0-9-]{0,63}$/.test(id)
+const validId=id=>typeof id==='string'&&/^[a-z][a-z0-9-]*$/.test(id)&&id!=='none'
 const inside=(path,parent)=>path===parent||path.startsWith(parent+sep)
 const existsError=e=>e?.code==='ENOENT'||e?.code==='ENOTDIR'
 

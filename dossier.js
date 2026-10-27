@@ -1,6 +1,6 @@
 /** Lazy Markdown snapshots. Writes update the affected snapshot; no polling. */
-import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
-import { createHash } from 'node:crypto'
+import { mkdir, readFile, readdir, rm, stat, writeFile, rename, realpath, readlink } from 'node:fs/promises'
+import { createHash, randomUUID } from 'node:crypto'
 import { basename, dirname, join, resolve, sep } from 'node:path'
 
 const STATE_FILE = '.kujira-state.json'
@@ -17,7 +17,7 @@ async function readSource(path) {
   try {
     const info = await stat(path)
     if (!info.isFile()) return null
-    return { path: resolve(path), text: await readFile(path, 'utf8') }
+    return { path: resolve(path), realPath: await realpath(path), text: await readFile(path, 'utf8') }
   } catch (error) {
     if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null
     throw error
@@ -39,22 +39,44 @@ async function loadDirectory(dir) {
   return sources
 }
 
-async function readState(dir) {
+async function preserveInvalid(path, raw) {
+  try { await writeFile(`${path}.recovered-${digest(raw).slice(0, 16)}.bak`, raw, { flag: 'wx' }) }
+  catch (error) { if (error.code !== 'EEXIST') throw error }
+}
+async function readState(dir, onWarning) {
+  const path = join(dir, STATE_FILE)
+  let raw
+  try { raw = await readFile(path, 'utf8') }
+  catch (error) { if (error.code === 'ENOENT') return { files: {} }; throw error }
   try {
-    const state = JSON.parse(await readFile(join(dir, STATE_FILE), 'utf8'))
-    if (state && state.files && typeof state.files === 'object') return state
-  } catch { /* Preserve the legacy ownership format. */ }
-  return { files: {} }
+    const state = JSON.parse(raw)
+    if (state && state.files && typeof state.files === 'object' && !Array.isArray(state.files)) return state
+  } catch { /* Preserve invalid bytes before replacing state. */ }
+  let recoveryUnsaved = false
+  try { await preserveInvalid(path, raw) } catch { recoveryUnsaved = true; onWarning?.('档案状态损坏且恢复副本未能保存；保留原状态文件，不自动补回缺失默认内容。') }
+  const state = { files: {} }
+  Object.defineProperty(state, 'recoveryInvalid', { value: true })
+  Object.defineProperty(state, 'recoveryUnsaved', { value: recoveryUnsaved })
+  return state
 }
 async function writeState(dir, state) {
-  await writeFile(join(dir, STATE_FILE), JSON.stringify(state, null, 2), 'utf8')
+  if (state.recoveryUnsaved) return
+  const path = join(dir, STATE_FILE), temporary = `${path}.${randomUUID()}.tmp`
+  try {
+    await writeFile(temporary, JSON.stringify(state, null, 2), 'utf8')
+    await rename(temporary, path)
+  } finally { await rm(temporary, { force: true }).catch(() => {}) }
 }
 async function backup(config, name, text) {
   try {
     const dir = join(config.personaDir, '.kujira-backup')
     await mkdir(dir, { recursive: true })
+    const archived = join(dir, `${name}.${digest(text).slice(0, 16)}.bak`)
+    try { await writeFile(archived, text, { flag: 'wx' }) }
+    catch (error) { if (error.code !== 'EEXIST') throw error }
     await writeFile(join(dir, name), text, 'utf8')
-  } catch { /* Existing single-file backup remains best effort. */ }
+    return ''
+  } catch { const warning = '备份未完整保存；请另行保留需要的原文。'; config.onWarning?.(warning); return warning }
 }
 
 /** Only on first use or explicit sync, never on a warm prompt request. */
@@ -65,7 +87,7 @@ async function syncDirectory(config) {
   try { names = (await readdir(config.packagedDir)).filter(n => n.endsWith('.md')) }
   catch (error) { if (error.code === 'ENOENT') return stats; throw error }
   await mkdir(config.personaDir, { recursive: true })
-  const state = await readState(config.personaDir)
+  const state = await readState(config.personaDir, config.onWarning)
   for (const name of names) {
     const bundleText = await readFile(join(config.packagedDir, name), 'utf8')
     const bundleHash = digest(bundleText), path = join(config.personaDir, name)
@@ -73,8 +95,18 @@ async function syncDirectory(config) {
     try { userText = await readFile(path, 'utf8') }
     catch (error) { if (error.code !== 'ENOENT') throw error; userText = null }
     const record = state.files[name]
+    try { await editableTarget(config, name, true) }
+    catch (error) {
+      if (error.code !== 'KUJIRA_OUTSIDE_DOSSIER') throw error
+      stats.kept++
+      continue
+    }
     if (userText === null) {
-      if (config.seed === false || record?.source === 'deleted') continue
+      if (record || state.recoveryInvalid) {
+        state.files[name] = { source: 'deleted' }
+        continue
+      }
+      if (config.seed === false) continue
       await writeFile(path, bundleText, 'utf8')
       state.files[name] = { hash: bundleHash, source: 'seed' }
       stats.added++
@@ -100,11 +132,30 @@ async function syncDirectory(config) {
   return stats
 }
 
-function editableTarget(config, file) {
+async function editableTarget(config, file, forWrite = false) {
   const name = typeof file === 'string' ? file.trim() : ''
   if (!name.endsWith('.md') || /[\\/]/.test(name)) throw new Error('file 必须是目录内 .md 文件名，不能带路径')
   const path = resolve(config.personaDir, name)
   if (!path.startsWith(`${resolve(config.personaDir)}${sep}`)) throw new Error('目标不在档案目录里')
+  // A configured root may itself be a symlink; only prevent a file from
+  // redirecting an edit outside that root's actual directory.
+  try {
+    if (!forWrite) return { name, path }
+    const root = await realpath(config.personaDir)
+    let target
+    try { target = await realpath(path) }
+    catch (error) {
+      if (error.code !== 'ENOENT') throw error
+      let link
+      try { link = await readlink(path) } catch (error) { if (error.code === 'ENOENT' || error.code === 'EINVAL') return { name, path }; throw error }
+      const destination = resolve(dirname(path), link)
+      const parent = await realpath(dirname(destination)).catch(error => { if (error.code === 'ENOENT') return dirname(destination); throw error })
+      target = join(parent, basename(destination))
+    }
+    if (target !== root && !target.startsWith(`${root}${sep}`)) {
+      const error = new Error('目标链接指向档案目录之外'); error.code = 'KUJIRA_OUTSIDE_DOSSIER'; throw error
+    }
+  } catch (error) { if (error.code !== 'ENOENT') throw error }
   return { name, path }
 }
 function today() {
@@ -161,11 +212,12 @@ export function openDossier(config) {
     }
     return initialization
   }
-  function replaceSource(path, text) {
+  async function replaceSource(path, text) {
     path = resolve(path)
-    const sources = snapshot.sources.filter(s => s.path !== path)
+    const physical = text?.trim() ? await realpath(path) : null
+    const sources = snapshot.sources.filter(s => s.path !== path).map(s => physical && s.realPath === physical ? { ...s, text } : s)
     const name = basename(path), explicitMemory = config.memoryFile && path === resolve(config.memoryFile)
-    if (text?.trim() && (explicitMemory || (!name.startsWith('_') && !name.startsWith('.')))) sources.push({ path, text })
+    if (text?.trim() && (explicitMemory || (!name.startsWith('_') && !name.startsWith('.')))) sources.push({ path, realPath: physical, text })
     snapshot = build(sources)
   }
   function refresh(sync) {
@@ -190,7 +242,7 @@ export function openDossier(config) {
     },
     async read(file) {
       await ready(); await tail
-      const { path } = editableTarget(config, file)
+      const { path } = await editableTarget(config, file)
       const source = await readSource(path)
       if (!source) throw new Error('找不到该档案文件')
       return source
@@ -203,26 +255,27 @@ export function openDossier(config) {
         if (action === 'list') return { action, persona: config.id, files: snapshot.sources.map(s => ({ file: basename(s.path), chars: s.text.length })) }
         const oldText = typeof input.oldText === 'string' ? input.oldText : ''
         if (action === 'replace' || action === 'delete') {
-          const { name, path } = editableTarget(config, input.file)
+          const { name, path } = await editableTarget(config, input.file, true)
           const text = await readFile(path, 'utf8')
+          let warning = ''
           if (action === 'delete' && !oldText) {
-            await backup(config, name, text)
+            warning = await backup(config, name, text)
             await rm(path)
-            replaceSource(path, null)
-            const state = await readState(config.personaDir)
+            await replaceSource(path, null)
+            const state = await readState(config.personaDir, config.onWarning)
             state.files[name] = { source: 'deleted' }
             await writeState(config.personaDir, state)
           } else {
             if (!oldText) throw new Error('replace 需要 oldText')
             const hits = text.split(oldText).length - 1
             if (hits !== 1) throw new Error(`oldText 在 ${name} 中匹配 ${hits} 次，需要唯一匹配`)
-            await backup(config, name, text)
+            warning = await backup(config, name, text)
             const replacement = action === 'delete' ? '' : typeof input.newText === 'string' ? input.newText : ''
             const updated = text.replace(oldText, () => replacement)
             await writeFile(path, updated, 'utf8')
-            replaceSource(path, updated)
+            await replaceSource(path, updated)
           }
-          return { action, persona: config.id, file: name, path, cache_updated: true, note: `已${action === 'delete' ? '删除' : '替换'} ${name}；对应缓存已更新。` }
+          return { action, persona: config.id, file: name, path, cache_updated: true, note: `已${action === 'delete' ? '删除' : '替换'} ${name}；对应缓存已更新。${warning}`, ...(warning ? { warning } : {}) }
         }
         if (action !== 'append') throw new Error(`未知 action：${action}`)
         if (typeof input.text !== 'string') throw new Error('append 需要 text 字符串')
@@ -230,8 +283,10 @@ export function openDossier(config) {
         const source = typeof input.source === 'string' ? input.source.trim() : ''
         const target = TARGETS[input.category] ?? TARGETS.character
         const explicit = typeof input.file === 'string' && input.file.trim()
-        const { name, path } = explicit ? editableTarget(config, input.file)
-          : { name: target[0], path: input.category === 'memory' && config.memoryFile ? config.memoryFile : join(config.personaDir, target[0]) }
+        const { name, path } = explicit ? await editableTarget(config, input.file, true)
+          : input.category === 'memory' && config.memoryFile && dirname(resolve(config.memoryFile)) !== resolve(config.personaDir)
+            ? { name: target[0], path: config.memoryFile }
+            : await editableTarget(config, input.category === 'memory' && config.memoryFile ? basename(config.memoryFile) : target[0], true)
         await mkdir(dirname(path), { recursive: true })
         let existing
         try { existing = await readFile(path, 'utf8') }
@@ -239,7 +294,7 @@ export function openDossier(config) {
         const line = `- ${today()} · ${text}${source ? ` · 来源：${source}` : ''}`
         const updated = `${existing}${existing.endsWith('\n') ? '' : '\n'}${line}\n`
         await writeFile(path, updated, 'utf8')
-        replaceSource(path, updated)
+        await replaceSource(path, updated)
         return { action, persona: config.id, path, file: name, cache_updated: true, note: `${line}\n对应缓存已更新。` }
       })
     },

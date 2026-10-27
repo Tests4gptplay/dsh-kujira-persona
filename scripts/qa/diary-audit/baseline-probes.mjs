@@ -1,0 +1,14 @@
+import {mkdtemp,mkdir,writeFile,readFile} from 'node:fs/promises';import {tmpdir} from 'node:os';import {join,resolve} from 'node:path';import {fork} from 'node:child_process';import {pathToFileURL} from 'node:url';
+const source=resolve(process.argv[2]);const {openDiary}=await import(pathToFileURL(join(source,'daily-diary.js')));const role={id:'gpt',label:'GPT'},report={};
+async function fixture(){const home=await mkdtemp(join(tmpdir(),'kujira-audit-only-'));const d=openDiary({home,timeZone:'UTC',now:()=>new Date('2026-10-25T12:00:00Z')});await d.ready;await d.configure({enabled:true,sleepEnabled:true});return{home,d};}
+{
+const {home,d}=await fixture();await d.appendOwn(role,'SEED','SEED');const pending=new Map();const workers=['PROCESS_A','PROCESS_B'].map(body=>{const c=fork(new URL('./append-worker.mjs',import.meta.url),[join(source,'daily-diary.js'),home,body],{stdio:['ignore','ignore','inherit','ipc']});const stages=[];c.on('message',m=>{stages.push(m);pending.get(c)?.();});c.stages=stages;return c;});
+const waitStage=(c,stage)=>new Promise(resolve=>{const check=()=>{if(c.stages.find(m=>m.stage===stage)){pending.delete(c);resolve();}else pending.set(c,check);};check();});await Promise.all(workers.map(c=>waitStage(c,'ready')));workers.forEach(c=>c.send('go'));await Promise.all(workers.map(c=>waitStage(c,'snapshot-read')));workers.forEach(c=>c.send('release'));await Promise.all(workers.map(c=>waitStage(c,'done')));const text=await readFile(join(home,'diaries/gpt/long/2026-10-25.md'),'utf8');report.cross_process={both_report_written:workers.every(c=>c.stages.find(m=>m.stage==='done').value.written),text,lost:['PROCESS_A','PROCESS_B'].filter(v=>!text.includes(v))};
+}
+{
+const{home,d}=await fixture();await d.appendOwn(role,'UNIQUE_NEEDLE','short');await mkdir(join(home,'diaries/gpt/index/keywords.json'));try{report.search_index={result:await d.searchOwn(role,{query:'UNIQUE_NEEDLE'})};}catch(e){report.search_index={error:e.message};}
+}
+{
+const{home,d}=await fixture();const long=join(home,'diaries/gpt/long');await mkdir(long,{recursive:true});const file=join(long,'2026-10-24.md');await writeFile(file,'OLD SOURCE');const pending=await d.pendingSleep(role);await d.saveSleep(role,pending.map(source=>({source,text:'SAVED MEMORY',tags:[]})));const output=join(home,'diaries/gpt/sleep/2026-10-24.md');const before=await readFile(output,'utf8');await writeFile(file,'CHANGED SOURCE');const result=await d.saveSleep(role,pending.map(source=>({source,text:'STALE',tags:[]})));report.stale_sleep={saved:result.saved,before,after:await readFile(output,'utf8')};
+}
+console.log(JSON.stringify(report,null,2));

@@ -113,7 +113,10 @@ export function openDiary({ home, worldDir, personasDir, personaDir, sharedDir, 
       raw = await readFile(settingsFile, 'utf8')
       const stored = JSON.parse(raw)
       if (!stored || typeof stored !== 'object' || Array.isArray(stored)) throw new Error('invalid settings')
-      const directory = typeof stored.directory === 'string' ? await validateDirectory(stored.directory) : state.directory
+      // A temporarily unavailable library is not a request to disable or switch it.
+      // Preserve valid persisted intent; every actual access/configure still validates it.
+      if (typeof stored.directory === 'string' && (!stored.directory.trim() || stored.directory.includes('\0'))) throw new Error('invalid settings directory')
+      const directory = typeof stored.directory === 'string' ? resolve(stored.directory.trim()) : state.directory
       state = { enabled: stored.enabled === true, directory }
       if (typeof stored.enabled !== 'boolean' || typeof stored.directory !== 'string') {
         await writeFile(settingsFile + '.recovered-' + randomUUID() + '.bak', raw, { flag: 'wx', mode: 0o600 })

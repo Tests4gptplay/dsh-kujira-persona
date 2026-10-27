@@ -40,7 +40,7 @@ function configuration(raw) {
 }
 
 export function apply(ctx, rawConfig) {
-  const config = configuration(rawConfig)
+  const config = { ...configuration(rawConfig), onWarning: message => ctx.logger?.warn?.(message) }
   if (!config.enabled) return
   const catalog = openCatalog(config)
   const diary = openDiary({ home: HOME, worldDir: config.worldDir, personasDir: config.personasDir, personaDir: config.personaDir, sharedDir: config.sharedDir })

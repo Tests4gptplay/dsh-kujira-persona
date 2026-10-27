@@ -1,27 +1,30 @@
 /** One event-driven, cancellable auxiliary call at a time. Never creates a conversation agent. */
-import {randomUUID} from 'node:crypto'
+import {randomUUID,createHash} from 'node:crypto'
 const key=r=>JSON.stringify([r?.sessionId,r?.provider,r?.model,r?.reasoningEffort])
-export async function collectResponse(stream,signal){
- const parts=new Map();let finish,replayState
+const usageKeys=['inputTokens','outputTokens','totalTokens','cacheReadTokens','cacheWriteTokens','reasoningTokens']
+const workKey=(directory,entry,route,batch)=>createHash('sha256').update(JSON.stringify([directory,entry.id,route.provider,route.model,route.reasoningEffort,batch.map(b=>[b.id,b.hash])])).digest('hex')
+export async function collectResponse(stream,signal,onUsage){
+ const parts=new Map();let finish,replayState,usage
  for await(const chunk of stream){signal.throwIfAborted();const index=chunk.index??0
   if(chunk.type==='finish'){finish=chunk.reason;replayState=chunk.replayState;continue}
-  if(chunk.type==='usage')continue
+  if(chunk.type==='usage'){const counts=Object.fromEntries(usageKeys.filter(k=>Number.isFinite(chunk.usage?.[k])&&chunk.usage[k]>=0).map(k=>[k,chunk.usage[k]]));if(Object.keys(counts).length){usage={...usage,...counts};onUsage?.({...usage})}continue}
   let item=parts.get(index);if(!item){item={type:chunk.blockType??(chunk.type==='tool-call-delta'?'tool-call':chunk.type==='reasoning-delta'?'reasoning':'text'),text:'',arguments:''};parts.set(index,item)}
   if(item.complete)continue
   if(chunk.type==='block-end'){parts.set(index,{...chunk.block,complete:true});continue}
   if(chunk.type==='text-delta'||chunk.type==='reasoning-delta')item.text+=chunk.text
   if(chunk.type==='tool-call-delta'){item.type='tool-call';item.id=chunk.id;if(chunk.name)item.name=chunk.name;item.arguments+=chunk.argumentsDelta}
  }
- return{finish,replayState,blocks:[...parts.values()].map(({complete,...b})=>b.type==='tool-call'?{type:b.type,id:b.id,name:b.name,arguments:b.arguments}:{type:b.type,text:b.text})}
+ return{finish,replayState,...usage?{usage}:{},blocks:[...parts.values()].map(({complete,...b})=>b.type==='tool-call'?{type:b.type,id:b.id,name:b.name,arguments:b.arguments}:{type:b.type,text:b.text})}
 }
 export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',defer=queueMicrotask}){
  let closed=false,selected=null,epoch=0,active=null,evaluating=false,queued=false,rerun=false,externalCalls=0,timer=null
- let state={phase:'off',message:''},services=null,roleWatch=null,watchedRole=null
+ let state={phase:'off',message:''},services=null,roleWatch=null,watchedRole=null,evaluation=null,pendingBarrier=null,noProgress=null
+ const usage={requests:0,reportedRequests:0,tokens:{}}
  const offs=[],listeners=new Set(),workflows=new Set()
- const setState=(phase,message='')=>{state={phase,message};for(const fn of listeners)try{fn({...state})}catch{}}
- const snapshot=()=>({...state})
- const abort=reason=>{epoch++;active?.abort.abort(new Error(reason))}
- function wake(){if(closed)return;if(evaluating){rerun=true;return}if(queued)return;queued=true;defer(()=>{queued=false;void evaluate()})}
+ const snapshot=()=>({...state,usage:{...usage,tokens:{...usage.tokens}}})
+ const setState=(phase,message='')=>{state={phase,message};for(const fn of listeners)try{fn(snapshot())}catch{}}
+ const abort=reason=>{epoch++;evaluation?.abort(new Error(reason));pendingBarrier?.abort()}
+ function wake(){if(closed)return;if(evaluating){rerun=true;pendingBarrier?.abort();return}if(queued)return;queued=true;defer(()=>{queued=false;void evaluate()})}
  function change(reason){abort(reason);wake()}
  function scheduleDay(){clearTimeout(timer);timer=null;if(closed||!diary.settings().sleepEnabled||!selected)return
   const start=Date.now(),current=diary.today(),zone=diary.timeZone(),fmt=new Intl.DateTimeFormat('en-US',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'})
@@ -31,10 +34,21 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
  }
  const busy=()=>!services||externalCalls>0||workflows.size>0||services.agents.list().some(a=>a.status==='running'||a.inbox?.hasPending)
  function jobsBusy(){const jobs=ctx.get('jobs');if(!jobs)return false;const ids=new Set([undefined,...(ctx.get('sessions')?.list()??[]).map(s=>s.id),...services.agents.list().map(a=>a.id)]);for(const id of ids)if(jobs.list(id).some(j=>j.status==='running'||j.status==='stopping'))return true;return false}
- async function barrier(mark){if(busy()||jobsBusy())return false;const all=services.agents.list();if(all.some(a=>typeof a.whenIdle!=='function'))throw Error('宿主当前无法确认所有对话任务已结束，后台整理暂不启动');await Promise.all(all.map(a=>a.whenIdle()));return !closed&&epoch===mark&&!busy()&&!jobsBusy()}
+ async function barrier(mark){
+  if(closed||epoch!==mark||evaluation?.signal.aborted||busy()||jobsBusy())return false
+  const all=services.agents.list();if(all.some(a=>typeof a.whenIdle!=='function')){setState('waiting','宿主当前无法确认所有对话任务已结束，后台整理暂不启动');return false}
+  // Host idle promises are not necessarily cancellable. Release our wait when a
+  // task/settings/service event invalidates it; never impose a time budget.
+  const wait=new AbortController();pendingBarrier=wait
+  try{
+   const settled=await new Promise((resolve,reject)=>{const cancelled=()=>resolve(false);wait.signal.addEventListener('abort',cancelled,{once:true});Promise.all(all.map(a=>a.whenIdle())).then(()=>{wait.signal.removeEventListener('abort',cancelled);resolve(true)},error=>{wait.signal.removeEventListener('abort',cancelled);reject(error)})})
+   return settled&&!closed&&epoch===mark&&!evaluation?.signal.aborted&&!busy()&&!jobsBusy()
+  }finally{if(pendingBarrier===wait)pendingBarrier=null}
+ }
  async function evaluate(){
   if(evaluating||closed)return;evaluating=true;rerun=false
   let continueWork=false
+  const control=new AbortController();evaluation=control
   setState('checking')
   try{
    await diary.ready
@@ -49,8 +63,9 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
    // Check local files BEFORE preparing or dispatching any model request.
    const pending=await diary.pendingSleep(entry);if(mark!==epoch||!diary.settings().sleepEnabled)return
    if(!pending.length){setState('idle');return}
-   const batch=pending
-   const control=new AbortController(),job={abort:control,route,entry};active=job
+   const batch=pending,attempt=workKey(diary.settings().directory,entry,route,batch)
+   if(noProgress===attempt){setState('idle','这批旧日记上次未产生整理结果；源文、模型或整理设置变化后再尝试。');return}
+   const job={abort:control,route,entry};active=job
    const savedPersona=await diary.sleepContext(entry),persona=await personaContext(entry)
    if(!await barrier(mark)||control.signal.aborted)return
    const config={provider:route.provider,model:route.model,...route.reasoningEffort?{reasoningEffort:route.reasoningEffort}:{}}
@@ -69,10 +84,11 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
    for(;;){
     control.signal.throwIfAborted();if(!await barrier(mark))return
     const options={...prepared.config,system,messages,tools,purpose:'kujira-diary-sleep',signal:control.signal,...route.sessionId?{sessionId:route.sessionId}:{}}
-    const response=await collectResponse(prepared.stream(options),control.signal)
+    usage.requests++;let reported=false,counts={}
+    const response=await collectResponse(prepared.stream(options),control.signal,next=>{if(!reported){usage.reportedRequests++;reported=true}for(const [name,value] of Object.entries(next)){usage.tokens[name]=(usage.tokens[name]??0)+value-(counts[name]??0)}counts=next;setState('running')})
     if(response.finish?.kind!=='stop'&&response.finish?.kind!=='tool-calls')throw Error(response.finish?.failure?.message??'后台整理未完整完成，原文与已有进度保留')
     const calls=response.blocks.filter(b=>b.type==='tool-call')
-    if(!calls.length){setState('idle');continueWork=written>0;break}
+    if(!calls.length){if(!written)noProgress=attempt;setState('idle',written?'':'这批旧日记未产生整理结果；源文、模型或整理设置变化后再尝试。');continueWork=written>0;break}
     messages.push({id:randomUUID(),role:'assistant',source:{kind:'model',provider:route.provider,model:route.model,...response.replayState===undefined?{}:{replayState:response.replayState}},content:response.blocks})
     for(const tool of calls){
      control.signal.throwIfAborted();let value,isError=false
@@ -91,12 +107,13 @@ export function applyDiarySleep(ctx,{diary,catalog,personaContext=async()=>'',de
      messages.push({id:randomUUID(),role:'tool',source:{kind:'tool',callId:tool.id},toolCallId:tool.id,content:[{type:'text',text:JSON.stringify(value)}],isError})
     }
     prepared=await services.llm.prepareCall(config,control.signal)
+    if(prepared.config.provider!==route.provider||prepared.config.model!==route.model||(route.reasoningEffort&&prepared.config.reasoningEffort!==route.reasoningEffort))throw Error('宿主未保持前台所选模型，已停止后台整理')
    }
 
-  }catch(error){if(active?.abort.signal.aborted){setState(diary.settings().sleepEnabled?'waiting':'off')}else{setState('error',error?.message??String(error));try{ctx.logger?.warn?.('Kujira 睡眠整理：'+(error?.message??String(error)))}catch{}}}
-  finally{active=null;evaluating=false;if(continueWork||rerun)wake()}
+  }catch(error){if(control.signal.aborted){setState(diary.settings().sleepEnabled?'waiting':'off')}else{setState('error',error?.message??String(error));try{ctx.logger?.warn?.('Kujira 睡眠整理：'+(error?.message??String(error)))}catch{}}}
+  finally{active=null;evaluation=null;evaluating=false;if(continueWork||rerun)wake()}
  }
- offs.push(diary.subscribe(()=>{roleWatch?.();roleWatch=null;watchedRole=null;change('日记设置已改变');scheduleDay()}),diary.subscribeWrites(()=>wake()),catalog.subscribe(()=>{change('角色绑定已改变')}))
+ offs.push(diary.subscribe(()=>{noProgress=null;roleWatch?.();roleWatch=null;watchedRole=null;change('日记设置已改变');scheduleDay()}),diary.subscribeWrites(()=>wake()),catalog.subscribe(()=>{change('角色绑定已改变')}))
  for(const name of ['agent/created','agent/inbox/inserted'])offs.push(ctx.on(name,()=>change('前台新任务优先'),{global:true}))
  offs.push(ctx.on('agent/status',({status})=>{if(status==='running')change('前台新任务优先');else wake()},{global:true}))
  offs.push(ctx.on('agent/disposed',()=>change('对话任务状态已改变'),{global:true}))

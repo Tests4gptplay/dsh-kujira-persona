@@ -59,15 +59,16 @@ export async function migrateDeepSeek({legacyDir,targetDir,legacyMemoryFile}){
   const deleted=new Set(Object.entries(targetState).filter(([,v])=>v?.source==='deleted').map(([name])=>name))
   const oldDeleted=new Set(Object.entries(oldState).filter(([,v])=>v?.source==='deleted').map(([name])=>name))
   const imported=[]
+  // Explicit memory configuration wins over the legacy default; existing target data still wins.
+  if(externalMemory&&!deleted.has('90-记忆.md')&&!oldDeleted.has('90-记忆.md')&&await copyOnce(externalMemory,join(target,'90-记忆.md'))){
+    imported.push('90-记忆.md')
+  }
   for(const item of entries){
     const src=join(old,item.name),dst=join(target,item.name)
     if(item.isDirectory()&&item.name==='.kujira-backup')await copyBackups(src,dst)
     else if(item.isFile()&&item.name.endsWith('.md')&&!item.name.startsWith('.')&&!deleted.has(item.name)&&!oldDeleted.has(item.name)){
       if(await copyOnce(src,dst))imported.push(item.name)
     }
-  }
-  if(externalMemory&&!deleted.has('90-记忆.md')&&!oldDeleted.has('90-记忆.md')&&await copyOnce(externalMemory,join(target,'90-记忆.md'))){
-    imported.push('90-记忆.md')
   }
   // Target ownership state wins; import only missing ownership entries.
   const merged={...oldState,...targetState}

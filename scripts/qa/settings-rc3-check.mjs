@@ -59,3 +59,12 @@ test('settings navigation and whole-bubble CSS are wired in the client', async (
   assert.match(client,/世界观与人物档案/)
   assert.match(client,/刷新文件夹大小/)
 })
+
+test('folder browser accepts catalog-valid IDs longer than 64 without weakening path validation',async()=>{
+ const base=await mkdtemp(join(tmpdir(),'kujira-long-id-')),id='a'.repeat(65),opened=[]
+ const browser=createFolderBrowser({worldDir:join(base,'world'),personasDir:join(base,'personas'),platform:'win32',catalog:{list:async()=>({personas:[{id,label:'long valid'}]})},launch:(_cmd,args)=>{opened.push(args[0]);const child=new EventEmitter();child.unref=()=>{};process.nextTick(()=>child.emit('spawn'));return child}})
+ try{
+  const rows=await browser.list();assert(rows.characters.some(row=>row.id==='role:'+id));await browser.open('role:'+id);assert.equal(opened[0],join(base,'personas',id))
+  await assert.rejects(browser.open('role:../outside'),/无效/);await assert.rejects(browser.open('role:none'),/无效/)
+ }finally{await rm(base,{recursive:true,force:true})}
+})

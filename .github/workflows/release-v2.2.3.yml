@@ -1,0 +1,172 @@
+name: Kujira 2.2.3 verified release
+on:
+  push:
+    branches:
+      - release/v2.2.3-ci-20261027
+permissions:
+  contents: read
+jobs:
+  regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 350c9919de3e0941d28ba3a45d3e808158a2de67
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Syntax, AI diary, integration and existing DSH regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const p=require("./package.json"); if(p.version!=="2.2.3" || !p.dsh?.bundle?.patch)process.exit(1)'
+          find . -maxdepth 3 \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          SDK="$RUNNER_TEMP/kujira-session-sdk"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry https://registry.npmjs.org \
+            @deepseek-ai/dsh-session@0.2.1-rc.2 @deepseek-ai/dsh-session-query@0.2.1-rc.2 \
+            @deepseek-ai/dsh-session-projection@0.2.1-rc.2 @deepseek-ai/dsh-session-stats@0.2.1-rc.2 \
+            @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2 \
+            @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-llm@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 \
+            @deepseek-ai/cordis@4.0.5
+          DSH_TEST_ROOT="$SDK" node --test $(find . -maxdepth 1 -name "*.test.js" | sort) $(find scripts/qa \( -name '*check.mjs' -o -name '*.test.mjs' \) ! -name 'playable-check.mjs' ! -name '*browser-check.mjs' | sort)
+      - name: Pack and inspect actual distribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/kujira-package"
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/kujira-package"
+          test -f "$RUNNER_TEMP/kujira-package/dsh-kujira-persona-2.2.3.tgz"
+          tar -tzf "$RUNNER_TEMP/kujira-package/dsh-kujira-persona-2.2.3.tgz" > "$RUNNER_TEMP/kujira-package/files.txt"
+          for path in package/daily-diary.js package/diary-sleep.js package/diary.js package/diary-integration.js package/index.js package/pet/client.js package/pet/native/win-x64/KujiraPet.exe package/README.md package/CHANGELOG.md; do
+            grep -qx "$path" "$RUNNER_TEMP/kujira-package/files.txt"
+          done
+          if grep -E '/(scripts/qa|docs/development|\.github)/|package/[^/]*\.test\.[cm]?js$' "$RUNNER_TEMP/kujira-package/files.txt"; then exit 1; fi
+          mkdir -p "$RUNNER_TEMP/unpacked"
+          tar -xzf "$RUNNER_TEMP/kujira-package/dsh-kujira-persona-2.2.3.tgz" -C "$RUNNER_TEMP/unpacked"
+          node -e 'const p=require(process.argv[1]);if(p.version!=="2.2.3")process.exit(1)' "$RUNNER_TEMP/unpacked/package/package.json"
+          sha256sum "$RUNNER_TEMP/kujira-package/dsh-kujira-persona-2.2.3.tgz"
+  browser-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 350c9919de3e0941d28ba3a45d3e808158a2de67
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Install isolated React and DSH menu fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="$RUNNER_TEMP/kujira-browser"
+          mkdir -p "$SDK"
+          cp scripts/qa/native-theme-browser-deps.json "$SDK/package.json"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          "$SDK/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Run real DOM menu, skin, drag and layout tests
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-browser-report" node scripts/qa/pet-menu-browser-check.mjs
+      - name: Official primitive sampling and Cordis cleanup
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-theme-report" node scripts/qa/native-theme-browser-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-223-browser-reports
+          path: |
+            ${{ runner.temp }}/kujira-browser-report/
+            ${{ runner.temp }}/kujira-theme-report/
+  windows-native:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 350c9919de3e0941d28ba3a45d3e808158a2de67
+      - name: Build native desktop pet and verify WPF protocol and visibility
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
+          if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-223-native-checks
+          path: ${{ runner.temp }}/kujira-native/
+
+  publish:
+    needs: [regressions, browser-menu, windows-native]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 350c9919de3e0941d28ba3a45d3e808158a2de67
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Check exact main version, package bytes and install payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_MAIN="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$CURRENT_MAIN" = '350c9919de3e0941d28ba3a45d3e808158a2de67'
+          node -e 'const p=require("./package.json");if(p.version!=="2.2.3"||!p.dsh?.bundle?.patch)process.exit(1)'
+          mkdir -p dist
+          npm pack --ignore-scripts --pack-destination dist
+          test -f dist/dsh-kujira-persona-2.2.3.tgz
+          test "$(sha256sum dist/dsh-kujira-persona-2.2.3.tgz | cut -d ' ' -f1)" = '5df2bfadf803dc0cf06eb67f07c7cf3845faf356e22eb6673295832464004eef'
+          tar -tzf dist/dsh-kujira-persona-2.2.3.tgz > dist/file-list.txt
+          test "$(wc -l < dist/file-list.txt)" -eq 207
+          test "$(grep -Ec '^package/pet/assets/.*\.png$' dist/file-list.txt)" -eq 120
+          for item in package/daily-diary.js package/diary-sleep.js package/diary.js package/diary-integration.js package/README.md package/CHANGELOG.md package/pet/native/win-x64/KujiraPet.exe; do
+            grep -qx "$item" dist/file-list.txt
+          done
+          if grep -E '/(scripts/qa|docs/development|\.github)/|package/[^/]*\.test\.[cm]?js$' dist/file-list.txt; then exit 1; fi
+          test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = 'c2c8124e133450018374bc1e00a7e6519bda49eef711b010acf72c632f151663'
+          (cd dist && sha256sum dsh-kujira-persona-2.2.3.tgz > SHA256SUMS.txt && sha256sum --check SHA256SUMS.txt)
+      - name: Read version-specific release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp docs/releases/v2.2.3.md dist/RELEASE_NOTES.md
+          test -s dist/RELEASE_NOTES.md
+      - name: Publish v2.2.3 tag and tested assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.2.3 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'v2.2.3 already exists; preserving existing published assets'
+            exit 0
+          fi
+          gh release create v2.2.3 dist/dsh-kujira-persona-2.2.3.tgz dist/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target '350c9919de3e0941d28ba3a45d3e808158a2de67' \
+            --title 'Kujira 2.2.3 — 档案、日记与桌宠恢复' \
+            --notes-file dist/RELEASE_NOTES.md \
+            --latest
+
+      - name: Download and verify the published installation package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/published-release"
+          gh release download v2.2.3 --repo "$GITHUB_REPOSITORY" \
+            --pattern dsh-kujira-persona-2.2.3.tgz --pattern SHA256SUMS.txt \
+            --dir "$RUNNER_TEMP/published-release"
+          (cd "$RUNNER_TEMP/published-release" && sha256sum --check SHA256SUMS.txt)
+          cmp dist/dsh-kujira-persona-2.2.3.tgz "$RUNNER_TEMP/published-release/dsh-kujira-persona-2.2.3.tgz"
+          tar -xOf "$RUNNER_TEMP/published-release/dsh-kujira-persona-2.2.3.tgz" package/package.json \
+            | node -e 'let x="";process.stdin.on("data",b=>x+=b).on("end",()=>{const p=JSON.parse(x);if(p.version!=="2.2.3"||p.name!=="dsh-kujira-persona"||!p.dsh?.bundle?.patch)process.exit(1)})'
+

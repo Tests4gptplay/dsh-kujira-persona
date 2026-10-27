@@ -4,16 +4,18 @@ import assert from 'node:assert/strict'
 import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
+import {BUILTINS} from '../../catalog.js'
 import {openDiary} from '../../daily-diary.js'
 
 const section=(a,name)=>a.sections.find(s=>s.name===name)?.text??''
 const tick=()=>new Promise(resolve=>setImmediate(resolve))
-async function fixture(t){
-  const home=await mkdtemp(join(tmpdir(),'kujira-prompt-layers-')),world=join(home,'world'),personas=join(home,'personas'),persona=join(personas,'gpt')
+async function fixture(t,role='gpt'){
+  const home=await mkdtemp(join(tmpdir(),'kujira-prompt-layers-')),world=join(home,'world'),personas=join(home,'personas'),persona=join(personas,role)
   await mkdir(world,{recursive:true});await mkdir(persona,{recursive:true})
   await writeFile(join(world,'00-shared.md'),'WORLD_SHARED_MARKER: all roles keep common collaboration requirements.')
   await writeFile(join(persona,'00-personal.md'),'PERSONA_ORIGINAL_MARKER: GPT keeps its individual communication style.')
   await writeFile(join(persona,'90-记忆.md'),'PERSONA_CORRECTION_MARKER: user-specific correction for this role.')
+  if(!BUILTINS.some(entry=>entry.id===role))await writeFile(join(personas,'.kujira-catalog.json'),JSON.stringify({v:1,personas:[{id:role,label:role}],bindings:[]}))
   const sections=new Map(),events=new Map(),tools=new Map(),routes=new Map(),effects=new Set(),warnings=[]
   const available=new Set(['tools','sessions','agents','sessionQuery','connection','webServer'])
   const ctx={
@@ -29,7 +31,7 @@ async function fixture(t){
   let plugin
   try{plugin=await import(new URL('../../index.js?prompt-layers='+encodeURIComponent(home),import.meta.url))}
   finally{if(priorHome===undefined)delete process.env.DSH_HOME;else process.env.DSH_HOME=priorHome}
-  plugin.apply(ctx,{mode:'fixed',persona:'gpt',worldDir:world,personasDir:personas,personaDir:join(home,'legacy-persona'),seed:false,sync:false})
+  plugin.apply(ctx,{mode:'fixed',persona:role,worldDir:world,personasDir:personas,personaDir:join(home,'legacy-persona'),seed:false,sync:false})
   const agent={id:'prompt-layer-agent',session:{requestHeader:()=>({config:{provider:'fixture',model:'gpt-fixture'}})}}
   async function call(endpoint,payload={}){
     const handler=routes.get('/api/kujira-pet/'+endpoint);assert.ok(handler,'actual apply registered '+endpoint)
@@ -44,12 +46,13 @@ async function fixture(t){
   }
   t.after(async()=>{for(const stop of [...effects])await stop();for(const stop of [...events.get('dispose')??[]])await stop();await tick();await rm(home,{recursive:true,force:true,maxRetries:3,retryDelay:30})})
   await call('diary-settings');await call('state');await assemble();await tick()
-  return{home,persona,tools,agent,call,assemble,warnings}
+  return{home,world,persona,tools,agent,call,assemble,warnings}
 }
 function assertPermanent(a){
   assert.match(section(a,'whale:world'),/WORLD_SHARED_MARKER/)
   assert.match(section(a,'whale:world'),/world[\s\S]*persona/)
   for(const text of ['不只用于角色扮演','项目共识','经用户确认','共同规则共享，个人差异保留'])assert.ok(section(a,'whale:world').includes(text),text)
+  for(const text of ['私聊内容与私人上下文默认私密','任务执行授权不自动包含对外披露','截图来源','提交信息','已获授权公开','披露范围不明确时先确认','历史、副本残留'])assert.ok(section(a,'whale:world').includes(text),text)
   assert.match(section(a,'whale:persona'),/PERSONA_ORIGINAL_MARKER/)
   assert.match(section(a,'whale:persona'),/PERSONA_CORRECTION_MARKER/)
   assert.equal(section(a,'host'),'HOST_SYSTEM_MARKER')
@@ -107,4 +110,15 @@ test('actual daily diary: sleep-only keeps private history readable to the worke
   await diary.configure({sleepEnabled:false});await assert.rejects(diary.sleepContext(role),/关闭/);await assert.rejects(diary.pendingSleep(role),/关闭/)
   await diary.configure({enabled:true,sleepEnabled:true});assert.match((await diary.contextSnapshot(role)).text,/OLD_PRIVATE_SUMMARY/)
   assert.ok((await diary.pendingSleep(role)).length>0,'off/on must preserve pending history')
+})
+
+test('shared privacy guidance reaches every built-in and custom role with diary off without rewriting world',async t=>{
+  for(const role of [...BUILTINS.map(entry=>entry.id),'custom-private'])await t.test(role,async t=>{
+    const f=await fixture(t,role),path=join(f.world,'00-shared.md'),original=await readFile(path,'utf8')
+    await f.call('diary-config',{enabled:false,sleepEnabled:false})
+    const a=await f.assemble();assertPermanent(a)
+    assert.ok(section(a,'whale:persona').includes(BUILTINS.find(entry=>entry.id===role)?.label??role))
+    assert.equal(section(a,'whale:diary'),'');assert.equal(f.tools.has('ai_diary'),false)
+    assert.equal(await readFile(path,'utf8'),original)
+  })
 })

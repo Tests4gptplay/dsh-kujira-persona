@@ -11,7 +11,7 @@ function harness({fetcher,readyFor=()=>Promise.resolve()}={}){
  class SpriteCanvas{constructor(_canvas,manifest){this.manifest=manifest;this.disposed=false;this.ready=readyFor(views.length);views.push(this)}update(task,_config,session){this.task=task;this.session=session}dispose(){this.disposed=true}}
  const window={TEST_runtime:{SpriteCanvas},__ModuleLoader__:{load:e=>{const plugin=e.factory(name=>name==='react'?React:{Menu:()=>null});plugin.apply(ctx)}}}
  const document={head:{appendChild(){}},createElement:()=>({remove(){}})}
- const ctx={connection:{rpc:{call:async()=>({ok:true,value:{revision:0,route:{sessionId:''},config:{}}})}},slots:{inject:()=>{}},inject:()=>{},on:()=>{}}
+ const ctx={effect:setup=>setup(),connection:{rpc:{call:async()=>({ok:true,value:{revision:0,route:{sessionId:''},config:{}}})}},slots:{inject:()=>{}},inject:()=>{},on:()=>{}}
  const fetch=async(url,options)=>{fetches.push({url,options});return fetcher?fetcher(url,options,fetches.length):{ok:true,json:async()=>({manifest:{role:new URL(url,'http://qa').searchParams.get('id')},urls:{}})}}
  const instrumented=code.replace("import('/api/kujira-pet/sprite-canvas.js'+(spriteAttempt?'?retry='+spriteAttempt:''))",'Promise.resolve(window.TEST_runtime)').replace('    function Pet(){','    window.TEST_Sprite=Sprite\n    function Pet(){')
  vm.runInNewContext(instrumented,{window,document,EventSource:class{},AbortController,navigator:{},fetch,console,setTimeout,clearTimeout})

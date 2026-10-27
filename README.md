@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **Kujira 2.2.0。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
+> **Kujira 2.2.1。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
 ## 世界观与人物
 
@@ -24,7 +24,7 @@
 
 桌宠默认关闭，可以在 DSH 设置 → Kujira · 人设中开启“启用桌宠”。用户明确绑定的角色优先。支持页面内显示与 Windows x64 原生桌面窗口；页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
 
-在桌宠或气泡上点击右键，可分别显示／隐藏桌宠、显示／隐藏气泡，或同时关闭两者。只显示气泡时仍可拖动；全部隐藏后，可从 Kujira 设置页重新显示。菜单沿用 DSH 当前主题，原生窗口也同步配色。
+在桌宠或气泡上点击右键，可分别显示／隐藏桌宠、显示／隐藏气泡，或同时关闭两者。只显示气泡时仍可拖动；全部隐藏后，可从 Kujira 设置页重新显示。页面菜单使用 DSH 官方菜单组件；Windows 原生菜单同步当前皮肤的圆角、字体、间距、边框与配色。
 
 ### 任务状态与动作
 
@@ -86,12 +86,12 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-以下为 **v2.2.0** 的安装与升级方法。
+以下为 **v2.2.1** 的安装与升级方法。
 
 DSH Desktop：打开 **插件 → 添加插件**，输入：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.2.0
+github:Tests4gptplay/dsh-kujira-persona#v2.2.1
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
@@ -99,7 +99,7 @@ github:Tests4gptplay/dsh-kujira-persona#v2.2.0
 Web 版安装命令：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.0'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.1'
 ```
 
 Web 与 Desktop 分别安装。[GitHub Releases](https://github.com/Tests4gptplay/dsh-kujira-persona/releases) 也提供备用 `.tgz` 安装包。

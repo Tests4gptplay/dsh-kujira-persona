@@ -1,0 +1,51 @@
+name: Native menu theme development checks
+on:
+  push:
+    branches: ['feature/native-menu-theme-20261027']
+permissions:
+  contents: read
+jobs:
+  browser-theme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Existing menu and selected-session regressions
+        run: node --test scripts/qa/{menu-errors,pet-menu-layout,selected-session-client,selected-session-adapter,selected-session-hydration,multisession-bubble,native-transport,native-visibility-source,state-routing}-check.mjs
+      - name: Install isolated QA dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/theme-deps"
+          cp scripts/qa/native-theme-browser-deps.json "$RUNNER_TEMP/theme-deps/package.json"
+          npm install --prefix "$RUNNER_TEMP/theme-deps" --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          "$RUNNER_TEMP/theme-deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Actual public primitives and Cordis lifecycle QA
+        run: DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/theme-deps" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/theme-report" node scripts/qa/native-theme-browser-check.mjs
+      - name: Verify QA excluded from runtime package
+        run: |
+          npm pack --dry-run --json > "$RUNNER_TEMP/pack.json"
+          node -e 'const p=require(process.env.RUNNER_TEMP+"/pack.json")[0];if(p.files.some(f=>/^(scripts|docs\/development|\.github)\//.test(f.path)))process.exit(1)'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-menu-browser-theme
+          path: ${{ runner.temp }}/theme-report/
+  windows-native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile product and separate WPF QA
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
+          if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+          git rev-parse HEAD | Set-Content "$env:RUNNER_TEMP/kujira-native/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-menu-wpf-theme
+          path: ${{ runner.temp }}/kujira-native/

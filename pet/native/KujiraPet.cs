@@ -81,7 +81,7 @@ public class KujiraPet : Window {
     Title="Kujira 桌宠";Width=290;Height=540;AllowsTransparency=true;WindowStyle=WindowStyle.None;Background=Brushes.Transparent;Topmost=true;ShowActivated=false;ShowInTaskbar=false;ResizeMode=ResizeMode.NoResize;
     Content=canvas;bubbleScroll.Content=text;bubble.Child=bubbleScroll;canvas.Children.Add(bubble);canvas.Children.Add(image);
     BindDrag(image,true);BindDrag(bubble,false);
-    // Keep WPF's menu templates; the browser can supply DSH's resolved theme colors.
+    // Keep native MenuItem input behavior; DSH supplies the visual theme.
     var petItem=new MenuItem();var bubbleItem=new MenuItem();var close=new MenuItem { Header="全部关闭" };
     petItem.Click+=(s,e)=>Emit(json.Serialize(new {type="action",action="toggle-pet"}));
     bubbleItem.Click+=(s,e)=>Emit(json.Serialize(new {type="action",action="toggle-bubble"}));
@@ -101,14 +101,74 @@ public class KujiraPet : Window {
     if(value.Length!=7||value[0]!='#')return null;
     try{var brush=new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));brush.Freeze();return brush;}catch{return null;}
   }
+  MenuGeometry menuGeometry;
+  sealed class MenuGeometry {
+    public double[] SurfaceRadius,SurfacePadding,SurfaceBorderWidth,ItemRadius,ItemPadding;
+    public double SurfaceMinWidth,ItemMinHeight,FontSize,FontWeight,LineHeight;
+    public FontFamily FontFamily;
+  }
+  static bool Metric(double value){return !Double.IsNaN(value)&&!Double.IsInfinity(value)&&value>=0;}
+  static double[] ThemeQuad(IDictionary<string,object> geometry,string key){
+    var values=Get(geometry,key) as IList;if(values==null||values.Count!=4)return null;
+    var result=new double[4];
+    for(int i=0;i<4;i++){try{result[i]=Convert.ToDouble(values[i]);}catch{return null;}if(!Metric(result[i]))return null;}
+    return result;
+  }
+  static FontFamily ThemeFont(string family){
+    var names=new List<string>();
+    foreach(var entry in family.Split(',')){
+      string name=entry.Trim().Trim('\"','\'');
+      if(name=="system-ui"||name=="-apple-system"||name=="BlinkMacSystemFont")name="Segoe UI";
+      else if(name=="sans-serif")name="Global User Interface";
+      else if(name=="serif")name="Global Serif";
+      else if(name=="monospace")name="Global Monospace";
+      if(name!=""&&!names.Contains(name))names.Add(name);
+    }
+    return names.Count==0?null:new FontFamily(String.Join(", ",names.ToArray()));
+  }
+  static MenuGeometry ReadMenuGeometry(object value){
+    var m=Map(value);var g=new MenuGeometry {
+      SurfaceRadius=ThemeQuad(m,"surfaceRadius"),SurfacePadding=ThemeQuad(m,"surfacePadding"),SurfaceBorderWidth=ThemeQuad(m,"surfaceBorderWidth"),
+      ItemRadius=ThemeQuad(m,"itemRadius"),ItemPadding=ThemeQuad(m,"itemPadding"),
+      SurfaceMinWidth=Num(m,"surfaceMinWidth",Double.NaN),ItemMinHeight=Num(m,"itemMinHeight",Double.NaN),
+      FontSize=Num(m,"fontSize",Double.NaN),FontWeight=Num(m,"fontWeight",Double.NaN),LineHeight=Num(m,"lineHeight",Double.NaN)
+    };
+    if(g.SurfaceRadius==null||g.SurfacePadding==null||g.SurfaceBorderWidth==null||g.ItemRadius==null||g.ItemPadding==null||
+       !Metric(g.SurfaceMinWidth)||!Metric(g.ItemMinHeight)||!Metric(g.FontSize)||g.FontSize==0||
+       !Metric(g.FontWeight)||g.FontWeight<1||g.FontWeight>999||!Metric(g.LineHeight)||g.LineHeight==0)return null;
+    try{g.FontFamily=ThemeFont(Str(m,"fontFamily"));}catch{return null;}
+    return g.FontFamily==null?null:g;
+  }
+  static Thickness ThemeThickness(double[] css){return new Thickness(css[3],css[0],css[1],css[2]);}
+  static CornerRadius ThemeRadius(double[] css){return new CornerRadius(css[0],css[1],css[2],css[3]);}
   void ApplyMenuTheme(IDictionary<string,object> state){
     var theme=Map(Get(state,"menuTheme"));
-    string key=Str(theme,"background")+"|"+Str(theme,"foreground")+"|"+Str(theme,"border")+"|"+Str(theme,"hover")+"|"+Str(theme,"hoverForeground");
+    string key=Str(theme,"background")+"|"+Str(theme,"foreground")+"|"+Str(theme,"border")+"|"+Str(theme,"hover")+"|"+Str(theme,"hoverForeground")+"|"+json.Serialize(Get(theme,"geometry"));
     if(key==menuThemeKey)return;
     var background=ThemeBrush(theme,"background");var foreground=ThemeBrush(theme,"foreground");
     var border=ThemeBrush(theme,"border");var hover=ThemeBrush(theme,"hover");var hoverForeground=ThemeBrush(theme,"hoverForeground");
     if(background==null||foreground==null||border==null||hover==null||hoverForeground==null)return;
+    var geometryValue=Get(theme,"geometry");
+    // A partial geometry snapshot must not block valid color updates. Keep the last complete geometry.
+    var geometry=(geometryValue==null?null:ReadMenuGeometry(geometryValue))??menuGeometry;
     menu.Background=background;menu.Foreground=foreground;menu.BorderBrush=border;
+    if(geometry!=null){
+      // One rounded surface paints the popup; no system square background remains behind it.
+      menu.Background=Brushes.Transparent;menu.Padding=ThemeThickness(geometry.SurfacePadding);
+      menu.BorderThickness=ThemeThickness(geometry.SurfaceBorderWidth);menu.MinWidth=geometry.SurfaceMinWidth;
+      menu.FontFamily=geometry.FontFamily;menu.FontSize=geometry.FontSize;menu.FontWeight=FontWeight.FromOpenTypeWeight((int)geometry.FontWeight);
+      var surfaceTemplate=new ControlTemplate(typeof(ContextMenu));
+      var surface=new FrameworkElementFactory(typeof(Border),"DshMenuSurface");
+      surface.SetValue(Border.BackgroundProperty,background);surface.SetValue(Border.BorderBrushProperty,border);
+      surface.SetValue(Border.BorderThicknessProperty,new TemplateBindingExtension(Control.BorderThicknessProperty));
+      surface.SetValue(Border.PaddingProperty,new TemplateBindingExtension(Control.PaddingProperty));
+      surface.SetValue(Border.CornerRadiusProperty,ThemeRadius(geometry.SurfaceRadius));
+      surface.AppendChild(new FrameworkElementFactory(typeof(ItemsPresenter)));surfaceTemplate.VisualTree=surface;
+      menu.Template=surfaceTemplate;
+    }else{
+      menu.ClearValue(Control.TemplateProperty);menu.ClearValue(Control.PaddingProperty);menu.ClearValue(Control.BorderThicknessProperty);
+      menu.ClearValue(FrameworkElement.MinWidthProperty);menu.ClearValue(Control.FontFamilyProperty);menu.ClearValue(Control.FontSizeProperty);menu.ClearValue(Control.FontWeightProperty);
+    }
     menu.Resources[SystemColors.MenuBrushKey]=background;menu.Resources[SystemColors.MenuTextBrushKey]=foreground;
     menu.Resources[SystemColors.HighlightBrushKey]=hover;menu.Resources[SystemColors.HighlightTextBrushKey]=hoverForeground;
     // Aero's built-in item template paints its own fixed hover brush. Keep MenuItem behavior,
@@ -116,21 +176,32 @@ public class KujiraPet : Window {
     var template=new ControlTemplate(typeof(MenuItem));
     var itemBorder=new FrameworkElementFactory(typeof(Border),"DshMenuBorder");
     itemBorder.SetValue(Border.BackgroundProperty,new TemplateBindingExtension(Control.BackgroundProperty));
-    itemBorder.SetValue(Border.PaddingProperty,new Thickness(12,6,12,6));
-    var header=new FrameworkElementFactory(typeof(ContentPresenter));
-    header.SetValue(ContentPresenter.ContentSourceProperty,"Header");
-    header.SetValue(ContentPresenter.RecognizesAccessKeyProperty,true);
+    itemBorder.SetValue(Border.PaddingProperty,geometry==null?new Thickness(12,6,12,6):ThemeThickness(geometry.ItemPadding));
+    if(geometry!=null)itemBorder.SetValue(Border.CornerRadiusProperty,ThemeRadius(geometry.ItemRadius));
+    var header=new FrameworkElementFactory(geometry==null?typeof(ContentPresenter):typeof(TextBlock));
+    if(geometry==null){header.SetValue(ContentPresenter.ContentSourceProperty,"Header");header.SetValue(ContentPresenter.RecognizesAccessKeyProperty,true);}
+    else{
+      header.SetBinding(TextBlock.TextProperty,new System.Windows.Data.Binding("Header"){RelativeSource=System.Windows.Data.RelativeSource.TemplatedParent});
+      header.SetValue(TextBlock.LineHeightProperty,geometry.LineHeight);
+      header.SetValue(TextBlock.LineStackingStrategyProperty,LineStackingStrategy.BlockLineHeight);
+    }
     header.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Left);
     header.SetValue(FrameworkElement.VerticalAlignmentProperty,VerticalAlignment.Center);
     itemBorder.AppendChild(header);template.VisualTree=itemBorder;
     var itemStyle=new Style(typeof(MenuItem));
     itemStyle.Setters.Add(new Setter(Control.TemplateProperty,template));
+    if(geometry!=null){
+      itemStyle.Setters.Add(new Setter(FrameworkElement.MinHeightProperty,geometry.ItemMinHeight));
+      itemStyle.Setters.Add(new Setter(Control.FontFamilyProperty,geometry.FontFamily));
+      itemStyle.Setters.Add(new Setter(Control.FontSizeProperty,geometry.FontSize));
+      itemStyle.Setters.Add(new Setter(Control.FontWeightProperty,FontWeight.FromOpenTypeWeight((int)geometry.FontWeight)));
+    }
     itemStyle.Setters.Add(new Setter(Control.BackgroundProperty,Brushes.Transparent));
     itemStyle.Setters.Add(new Setter(Control.ForegroundProperty,foreground));
     var highlighted=new Trigger { Property=MenuItem.IsHighlightedProperty,Value=true };
     highlighted.Setters.Add(new Setter(Control.BackgroundProperty,hover));
     highlighted.Setters.Add(new Setter(Control.ForegroundProperty,hoverForeground));
-    itemStyle.Triggers.Add(highlighted);menu.Resources[typeof(MenuItem)]=itemStyle;menuThemeKey=key;
+    itemStyle.Triggers.Add(highlighted);menu.Resources[typeof(MenuItem)]=itemStyle;menuGeometry=geometry;menuThemeKey=key;
   }
   static bool ShowPet(IDictionary<string,object> cfg){return !cfg.ContainsKey("showPet")||Bool(cfg,"showPet");}
   void BindDrag(FrameworkElement target,bool interact){
@@ -238,4 +309,5 @@ public class KujiraPet : Window {
     }
   }
 }
+
 

@@ -12,7 +12,8 @@ $manifestInput = Join-Path $repoRoot 'pet/native/KujiraPet.manifest'
 $atlasInput = Join-Path $repoRoot 'pet/assets/gpt-core-v3.png'
 $qaInput = Join-Path $PSScriptRoot 'native-protocol-check.cs'
 $visibilityInput = Join-Path $PSScriptRoot 'native-visibility-check.cs'
-foreach ($inputFile in @($sourceInput, $manifestInput, $atlasInput, $qaInput, $visibilityInput)) {
+$menuGeometryInput = Join-Path $PSScriptRoot 'native-menu-geometry-check.cs'
+foreach ($inputFile in @($sourceInput, $manifestInput, $atlasInput, $qaInput, $visibilityInput, $menuGeometryInput)) {
   if (!(Test-Path -LiteralPath $inputFile -PathType Leaf)) { throw "Required repository input is missing: $inputFile" }
 }
 if (Test-Path -LiteralPath $qaRoot) {
@@ -40,11 +41,13 @@ $manifest = Join-Path $sourceDir 'KujiraPet.manifest'
 $atlas = Join-Path $qaRoot 'gpt-core-v3.png'
 $qaSource = Join-Path $scripts 'native-protocol-check.cs'
 $visibilitySource = Join-Path $scripts 'native-visibility-check.cs'
+$menuGeometrySource = Join-Path $scripts 'native-menu-geometry-check.cs'
 Copy-Item -LiteralPath $sourceInput -Destination $source
 Copy-Item -LiteralPath $manifestInput -Destination $manifest
 Copy-Item -LiteralPath $atlasInput -Destination $atlas
 Copy-Item -LiteralPath $qaInput -Destination $qaSource
 Copy-Item -LiteralPath $visibilityInput -Destination $visibilitySource
+Copy-Item -LiteralPath $menuGeometryInput -Destination $menuGeometrySource
 
 $exe = Join-Path $qaRoot 'KujiraPet.exe'
 & $csc /nologo /target:winexe /platform:x64 /optimize+ ('/win32manifest:' + $manifest) ('/out:' + $exe) @refs $source
@@ -59,6 +62,12 @@ $visibilityExe = Join-Path $qaRoot 'NativeVisibilityQa.exe'
 if ($LASTEXITCODE -ne 0) { throw "Visibility QA compile failed with code $LASTEXITCODE" }
 & $visibilityExe
 if ($LASTEXITCODE -ne 0) { throw "Native visibility QA failed with code $LASTEXITCODE" }
+$menuGeometryExe = Join-Path $qaRoot 'NativeMenuGeometryQa.exe'
+& $csc /nologo /target:exe /platform:x64 /optimize+ /main:NativeMenuGeometryQa ('/win32manifest:' + $manifest) ('/out:' + $menuGeometryExe) ('/r:' + $exe) @refs $menuGeometrySource
+if ($LASTEXITCODE -ne 0) { throw "Menu geometry QA compile failed with code $LASTEXITCODE" }
+& $menuGeometryExe $qaRoot
+if ($LASTEXITCODE -ne 0) { throw "Native menu geometry QA failed with code $LASTEXITCODE" }
+
 
 
 $checks = Get-Content -LiteralPath (Join-Path $qaRoot 'native-result.json') -Raw | ConvertFrom-Json
@@ -71,6 +80,7 @@ $metadata = [ordered]@{
   exeBytes = (Get-Item -LiteralPath $exe).Length
   compiler = (Get-Item -LiteralPath $csc).VersionInfo.FileVersion
   checks = $checks
+  menuGeometry = Get-Content -LiteralPath (Join-Path $qaRoot 'menu-geometry-result.json') -Raw | ConvertFrom-Json
 }
 $metadata | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $qaRoot 'build-result.json') -Encoding utf8
 if ($checks.ipc -eq 'skipped-existing-user-instance') {

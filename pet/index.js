@@ -85,7 +85,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         switch(endpoint){
           case 'state':value=c.snapshot();break
           case 'menu-theme':
-            if(['background','foreground','border','hover','hoverForeground'].every(key=>/^#[0-9a-f]{6}$/i.test(payload?.[key]??''))){menuTheme=Object.fromEntries(['background','foreground','border','hover','hoverForeground'].map(key=>[key,payload[key]]));if(rendererChoice==='desktop')native.send({...c.snapshot(),menuTheme})}
+            if(['background','foreground','border','hover','hoverForeground'].every(key=>/^#[0-9a-f]{6}$/i.test(payload?.[key]??''))){menuTheme=Object.fromEntries(['background','foreground','border','hover','hoverForeground'].map(key=>[key,payload[key]]));if(payload.geometry&&typeof payload.geometry==='object')menuTheme.geometry=Object.fromEntries(['surfaceRadius','surfacePadding','surfaceBorderWidth','surfaceMinWidth','itemRadius','itemPadding','itemMinHeight','fontFamily','fontSize','fontWeight','lineHeight'].map(key=>[key,payload.geometry[key]]));if(rendererChoice==='desktop')native.send({...c.snapshot(),menuTheme})}
             value=c.snapshot();break
           case 'config':value=await c.configure(payload??{});break
           case 'select':value=await c.select(payload??{});break

@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
   const React=require('react'),h=React.createElement
-  const {Menu}=require('@deepseek-ai/dsh-client-ui-primitives')
+  const {Menu,MenuSurface,MenuItemButton}=require('@deepseek-ai/dsh-client-ui-primitives')
   const {useEffect,useRef,useState,useSyncExternalStore}=React
   let spriteModule,spriteAttempt=0
   function apply(ctx){
-    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true,selectedSessionReady=null,clearSelection=()=>{},syncMenuTheme=()=>{}
+    let snapshot=null,stream=null,disposed=false,connectionGeneration=0,firstStreamState=true,selectedSessionReady=null,clearSelection=()=>{},syncMenuTheme=()=>{},menuThemeSample=null
     const listeners=new Set()
     const adopt=next=>{if(!disposed&&(!snapshot||next.revision>=snapshot.revision)){snapshot=next;for(const fn of listeners)fn()}}
     const subscribe=fn=>{listeners.add(fn);return()=>listeners.delete(fn)}
@@ -252,28 +252,46 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         h(Menu,{open:!!menu,anchor:null,portal:true,getAnchorRect:()=>new DOMRect(menu?.x??0,menu?.y??0,0,0),items:[{id:'pet',label:showPet?'隐藏桌宠':'显示桌宠'},{id:'bubble',label:s.config.bubble==='hidden'?'显示气泡':'隐藏气泡'},{id:'close',label:'全部关闭'}],onSelect:select,onClose:()=>setMenu(null)}))
     }
 
+    // Non-interactive public primitives only: a real Menu would install keyboard handlers.
+    function MenuThemeSample(){
+      const sample=useRef(null)
+      useEffect(()=>{const node=sample.current;node.inert=true;menuThemeSample=node;syncMenuTheme();return()=>{if(menuThemeSample===node)menuThemeSample=null}},[])
+      return h('div',{ref:sample,'aria-hidden':true,'data-kujira-menu-sample':'',style:{position:'fixed',left:-10000,top:0,visibility:'hidden',pointerEvents:'none'}},
+        h(MenuSurface,{style:{visibility:'hidden',padding:4,minWidth:144,boxSizing:'border-box','--dsw-elevation-stroke-color':'var(--dsw-alias-border-l1)',boxShadow:'var(--dsw-elevation-prominent)'}},h(MenuItemButton,{onSelect:()=>{}},'菜单样式')))
+    }
+
     // Read the host's resolved public menu tokens after ThemePresenter updates body.
-    // WPF cannot share the React Menu; only its palette crosses the existing bridge.
+    // WPF adapts the public primitives' resolved geometry and palette, not arbitrary CSS effects.
     ctx.inject(['theme'],scope=>{
       let frame,queued=null,sending=false,closed=false
       const send=async theme=>{queued=theme;if(sending)return;sending=true;try{while(queued&&!closed){const next=queued;queued=null;await call('menu-theme',next).catch(()=>{})}}finally{sending=false}}
-      const sync=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{
+      const sync=()=>{if(closed)return;cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{
+        const surface=menuThemeSample?.querySelector('[data-menu-material]'),item=menuThemeSample?.querySelector('[role=menuitem]');if(!surface||!item)return
         const probe=document.createElement('span'),canvas=document.createElement('canvas');canvas.width=canvas.height=1
         const paint=canvas.getContext('2d');if(!paint)return
         probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none';document.body.appendChild(probe)
         const color=token=>{probe.style.color='var('+token+')';return getComputedStyle(probe).color}
         const solid=(base,overlay)=>{paint.clearRect(0,0,1,1);paint.fillStyle=base;paint.fillRect(0,0,1,1);if(overlay){paint.fillStyle=overlay;paint.fillRect(0,0,1,1)}return '#'+Array.from(paint.getImageData(0,0,1,1).data).slice(0,3).map(v=>v.toString(16).padStart(2,'0')).join('')}
         try{
-          const background=solid(color('--dsw-alias-bg-base'),color('--dsw-menu-surface-fill')),foreground=solid(background,color('--dsw-alias-label-primary'))
-          void send({background,foreground,border:solid(background,color('--dsw-alias-border-l1')),hover:solid(background,color('--dsw-alias-interactive-bg-hover')),hoverForeground:foreground})
+          const surfaceStyle=getComputedStyle(surface),itemStyle=getComputedStyle(item)
+          const background=solid(color('--dsw-alias-bg-base'),getComputedStyle(surface.firstElementChild).backgroundColor),foreground=solid(background,itemStyle.color)
+          const edges=(style,prefix,suffix='')=>['Top','Right','Bottom','Left'].map(edge=>parseFloat(style[prefix+edge+suffix])||0)
+          const radii=el=>{const style=getComputedStyle(el),rect=el.getBoundingClientRect(),length=(value,size)=>parseFloat(value)*(value.endsWith('%')?size/100:1);return ['TopLeft','TopRight','BottomRight','BottomLeft'].map(corner=>{const parts=style['border'+corner+'Radius'].split(' ');return Math.min(length(parts[0],rect.width),length(parts[1]??parts[0],rect.height))})}
+          // Official Menu adds 4px inset/min-width 144px to MenuSurface. Its border
+          // is the zero-offset elevation hairline, not a CSS border-width.
+          const shadows=surfaceStyle.boxShadow.split(/,(?![^()]*\))/),stroke=shadows.map(value=>value.includes('inset')?[]:(value.match(/-?[\d.]+px/g)??[]).map(parseFloat)).find(values=>values.length>=4&&values.slice(0,3).every(value=>value===0))?.[3]??0
+          const geometry={surfaceRadius:radii(surface),surfacePadding:edges(surfaceStyle,'padding'),surfaceBorderWidth:edges(surfaceStyle,'border','Width').map(value=>value+Math.max(0,stroke)),surfaceMinWidth:parseFloat(surfaceStyle.minWidth)||0,itemRadius:radii(item),itemPadding:edges(itemStyle,'padding'),itemMinHeight:parseFloat(itemStyle.minHeight)||0,fontFamily:itemStyle.fontFamily,fontSize:parseFloat(itemStyle.fontSize),fontWeight:itemStyle.fontWeight==='bold'?700:parseFloat(itemStyle.fontWeight)||400,lineHeight:parseFloat(itemStyle.lineHeight)||item.firstElementChild.getBoundingClientRect().height}
+          void send({background,foreground,border:solid(background,color('--dsw-alias-border-l1')),hover:solid(background,color('--dsw-alias-interactive-bg-hover')),hoverForeground:foreground,geometry})
         }catch{}finally{probe.remove()}
       })}
-      const observer=new MutationObserver(sync);observer.observe(document.body,{attributes:true,attributeFilter:['style','data-ds-dark-theme']})
+      const observer=new MutationObserver(sync);observer.observe(document.body,{attributes:true,attributeFilter:['style','class','data-ds-dark-theme']})
+      const styles=new MutationObserver(sync);styles.observe(document.head,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['href','media','disabled']});document.head.addEventListener('load',sync,true)
       const visible=()=>{if(document.visibilityState!=='hidden')sync()}
       syncMenuTheme=sync;sync();scope.on('theme/change',sync);document.addEventListener('visibilitychange',visible)
-      scope.on('dispose',()=>{closed=true;queued=null;observer.disconnect();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visible);if(syncMenuTheme===sync)syncMenuTheme=()=>{}})
+      scope.effect(()=>()=>{closed=true;queued=null;observer.disconnect();styles.disconnect();document.head.removeEventListener('load',sync,true);cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',visible);if(syncMenuTheme===sync)syncMenuTheme=()=>{}})
     })
     ctx.slots.inject('settings.section',()=>ctx.slots.register({name:'settings.section',id:'kujira-persona',order:85,label:'Kujira · 人设',inject:()=>({})},Settings))
+    ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'kujira-menu-theme-sample',order:0,inject:()=>({})},MenuThemeSample))
     ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'kujira-one-pet',order:900},Pet))
     ctx.inject(['modelDirectories','sessions','remote','remote.session','uiSession'],scope=>{
       const selection=scope.uiSession.adapter.current
@@ -282,8 +300,9 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       scope.on('dispose',()=>{if(clearSelection===clear)clearSelection=()=>{};off();window.removeEventListener('focus',clear);document.removeEventListener('visibilitychange',clear)})
       return scope.slots.inject('conversation.input.overlay',()=>scope.slots.register({name:'conversation.input.overlay',id:'kujira-model-follow',order:990,inject:sessionId=>({sessionId,selection,getDirectory:()=>scope.modelDirectories.directoryFor(sessionId)})},RouteBinder))
     })
-    ctx.on('dispose',()=>{disposed=true;stream?.close();listeners.clear();style.remove()})
+    ctx.effect(()=>()=>{disposed=true;stream?.close();listeners.clear();style.remove()})
   }
   return {name:'kujira-pet-client',inject:['slots','connection','sessions','remote','remote.session'],apply}
 }})
+
 

@@ -59,7 +59,7 @@ export function applyDiaryIntegration(ctx, { diary, requests, forInvocation }) {
       try {
         const unregister = scope.tools.register({
           name: 'ai_diary',
-          description: '当前角色按天续写的独立日记。任何会话同角色同一天共用同一本长/短日记。长写入必须立刻同时提交 summary，不等睡眠。summary_pending 表示正文已保存：立即合并返回的最新 summary 和 pending_summaries，再 update_summary，不重复 append。read 的 date 可用 YYYY-MM-DD 或 legacy，kind 为 long/short/sleep；search 按日期可选、使用返回 cursor 翻页。自主决定何时检索、写什么，不必每轮查阅。search 按区分大小写的单行字面关键词查找，默认返回 20 处非重叠命中的行列与短摘录，同一行也可按 next_start_line/next_start_column 翻页。read 默认最多 80 行、8000 个字符，按同样的行列游标继续展开；full:true 可明确读取完整正文。日期仅作为原文关键词。append 必须同时提供正文 text 和立即整理好的完整简短 summary；update_summary 独立覆盖、修订或清空摘要。摘要待补时只补 summary，不重复 append。不能指定其它角色或任意路径。',
+          description: '当前角色按天续写的独立日记。任何会话同角色同一天共用同一本长/短日记。长写入必须立刻同时提交 summary，在当次写入时完成。summary_pending 表示正文已保存：立即合并返回的最新 summary 和 pending_summaries，再 update_summary，不重复 append。read 的 date 可用 YYYY-MM-DD 或 legacy，kind 为 long/short/sleep；search 按日期可选、使用返回 cursor 翻页。自主决定何时检索、写什么，不必每轮查阅。search 按区分大小写的单行字面关键词查找，默认返回 20 处非重叠命中的行列与短摘录，同一行也可按 next_start_line/next_start_column 翻页。read 默认最多 80 行、8000 个字符，按同样的行列游标继续展开；full:true 可明确读取完整正文。日期仅作为原文关键词。append 必须同时提供正文 text 和立即整理好的完整简短 summary；update_summary 独立覆盖、修订或清空摘要。摘要待补时只补 summary，不重复 append。不能指定其它角色或任意路径。',
           parameters: { type: 'object', properties: {
             action: { type: 'string', enum: ['read', 'search', 'append', 'update_summary'] },
             date: { type: 'string', description: 'read 默认今天，search 省略搜索全部；YYYY-MM-DD 或 legacy（未分日期的旧原文）。' },
@@ -73,7 +73,7 @@ export function applyDiaryIntegration(ctx, { diary, requests, forInvocation }) {
             max_results: { type: 'integer', description: 'search 本次最多返回多少处非重叠命中，默认 20。' },
             full: { type: 'boolean', description: '仅 read：true 明确读取全部正文；不能同时指定行、列或 max_chars。默认 false。' },
             text: { type: 'string', description: 'append 时由当前角色自行选择的详细 Diary 正文，形式与篇幅自由。' },
-            summary: { type: 'string', description: 'append 或 update_summary 必填：完整而简短的 Persona_diary 摘要；覆盖旧摘要，可删减、更正，空字符串表示清空。' },
+            summary: { type: 'string', description: 'append 或 update_summary 必填：完整而简短的日记摘要（Persona_diary）；只更新日记摘要，与原有 persona 档案并存、不替换它。可删减、更正，空字符串表示清空摘要。' },
           }, required: ['action'], additionalProperties: false },
           output: { schema: { type: 'object', properties: {
             action: { type: 'string', enum: ['read', 'search', 'append', 'update_summary'] }, owner: { type: 'string' }, label: { type: 'string' },

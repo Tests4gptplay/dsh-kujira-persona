@@ -172,11 +172,11 @@ export function apply(ctx, rawConfig) {
   if (config.allowAgentWrite) ctx.inject(['tools'], scope => {
     scope.tools.register({
       name: 'persona_edit',
-      description: '按用户要求读取或修改档案。scope=world 为所有角色共用的世界观/名录；scope=persona 为当前角色/明确指定的角色。category=world 默认选择全局。append/replace/delete 成功后缓存已自动更新，无需另行刷新。仅当使用其他文件工具修改后，调用一次 action=reload 重读受影响范围；不重启 DSH，不清理会话。',
+      description: '按用户要求读取或修改档案。scope=world 为所有角色共用的习惯、要求、项目共识、经用户确认的通用经验及公共背景/名录；scope=persona 为当前角色/明确指定角色的性格、交流方式、针对性纠正和个人记忆。个人经验未经用户确认不自行推广为共同规则。category=world 默认选择全局。append/replace/delete 成功后缓存已自动更新，无需另行刷新。仅当使用其他文件工具修改后，调用一次 action=reload 重读受影响范围；不重启 DSH，不清理会话。',
       parameters: {
         type: 'object', properties: {
           action: { type: 'string', enum: ['read', 'append', 'replace', 'delete', 'list', 'reload'] },
-          scope: { type: 'string', enum: ['world', 'persona'], description: '世界观和公开人物关系用 world；个人身份、习惯和记忆用 persona。' },
+          scope: { type: 'string', enum: ['world', 'persona'], description: '明确共同适用的习惯、项目共识、经用户确认的通用经验及公共背景用 world；角色性格、交流方式、针对性纠正和个人记忆用 persona。' },
           persona: { type: 'string', description: 'scope=persona 的已有角色 ID；省略则使用本次请求的角色。' },
           category: { type: 'string', enum: ['character', 'world', 'meme', 'memory'] },
           file: { type: 'string', description: '角色目录内 .md 文件名，不是路径；read 可省略以读取全部。' },

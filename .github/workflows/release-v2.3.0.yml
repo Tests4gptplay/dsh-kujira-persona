@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: 1efdfd811aaa0d3d10a4351b69f2d220e6ee78f7
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24.22.1'
@@ -58,6 +59,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: 1efdfd811aaa0d3d10a4351b69f2d220e6ee78f7
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24.22.1'
@@ -92,6 +94,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: 1efdfd811aaa0d3d10a4351b69f2d220e6ee78f7
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24.22.1'
@@ -128,6 +131,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: 1efdfd811aaa0d3d10a4351b69f2d220e6ee78f7
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '24.22.1'

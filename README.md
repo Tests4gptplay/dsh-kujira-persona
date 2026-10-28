@@ -2,9 +2,13 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **Kujira 2.3.0。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
+> **Kujira 2.3.1。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
 **Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+
+## 2.3.1 更新
+
+修复桌宠在 Windows 桌面与 DSH 页面内切换后消失的问题。直接修改显示位置即可切换，不需要取消后重新勾选“启用桌宠”；切换过程保留启用状态和当前会话。
 
 ## 世界观与人物
 
@@ -115,7 +119,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-当前正式版本为 **v2.3.0**。更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0)。
+当前正式版本为 **v2.3.1**。更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)。
 
 **更新前先关闭桌面上已显示的桌宠和提示气泡，再卸载旧包并安装新版。**
 
@@ -124,7 +128,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 打开 **插件 → 添加插件**，直接粘贴下面的正式安装包地址，无需先手动下载：
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/dsh-kujira-persona-2.3.0.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/dsh-kujira-persona-2.3.1.tgz
 ```
 
 ### DSH Web
@@ -132,7 +136,7 @@ https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/dsh
 在使用的 profile 中安装；例如 Web profile：
 
 ```bash
-dsh plugin --profile web add 'https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/dsh-kujira-persona-2.3.0.tgz'
+dsh plugin --profile web add 'https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/dsh-kujira-persona-2.3.1.tgz'
 ```
 
 Web 与 Desktop 分别安装。
@@ -141,9 +145,9 @@ Web 与 Desktop 分别安装。
 
 ### 备用方式
 
-- **本地文件安装：** 网络不便时，可从 [Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0) 下载 `.tgz`，再在“添加插件”中填写文件完整路径；Web 命令中的 URL 也可替换为本地文件路径。
-- **固定 Git 版本：** 也支持 `git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0`。
-- **可选校验：** [SHA256SUMS.txt](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/SHA256SUMS.txt) 可用于核对下载文件。
+- **本地文件安装：** 网络不便时，可从 [Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1) 下载 `.tgz`，再在“添加插件”中填写文件完整路径；Web 命令中的 URL 也可替换为本地文件路径。
+- **固定 Git 版本：** 也支持 `git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.1`。
+- **可选校验：** [SHA256SUMS.txt](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/SHA256SUMS.txt) 可用于核对下载文件。
 
 ### Windows 安装提示 EPERM
 
@@ -153,7 +157,7 @@ Web 与 Desktop 分别安装。
 
 ## 测试与验证
 
-本版本的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
+2.3.1 的显示位置切换回归见 [发布说明](docs/releases/v2.3.1.md)。基础功能的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
 
 ## 来源与更新记录
 

@@ -44,7 +44,9 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         await mkdir(home,{recursive:true});const temp=path+`.${process.pid}.tmp`;await writeFile(temp,JSON.stringify(value,null,2)+'\n');await rename(temp,path)
       }})
       function nativeStatus(renderer,error){if(closed)return;if(controller.renderer!==renderer||controller.nativeError!==error){controller.renderer=renderer;controller.nativeError=error;controller.publish()}}
-      native=new NativePet(HERE,nativeStatus,message=>{void applyNativeAction(controller,message)})
+      // A retired native child can exit after the page renderer is selected.
+      // Its status belongs to desktop mode, not the currently selected surface.
+      native=new NativePet(HERE,(renderer,error)=>{if(rendererChoice==='desktop')nativeStatus(renderer,error)},message=>{void applyNativeAction(controller,message)})
       function render(state){
         const target=!state.config.enabled?'none':state.config.display==='page'?'page':process.platform==='win32'?'desktop':state.config.display==='desktop'?'unsupported':'page'
         if(target!==rendererChoice){rendererChoice=target

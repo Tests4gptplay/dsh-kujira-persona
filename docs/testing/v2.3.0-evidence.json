@@ -1,0 +1,100 @@
+{
+  "version": "2.3.0",
+  "date_utc": "2026-10-28",
+  "environment": {
+    "host": "DeepSeek Harness 0.2.1rc2",
+    "platform": "Linux",
+    "model_mode": "deterministic synthetic test adapter",
+    "native_dependency": "fs-native-extensions 1.5.1"
+  },
+  "automated_tests": {
+    "regression": 292,
+    "anti_static_animation": 13,
+    "independent_frozen_source": 34,
+    "recovery_and_compatibility": 23,
+    "total": 362,
+    "passed": 362,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "host_tool_results": {
+    "total": 34,
+    "positive": 29,
+    "expected_negative": 5
+  },
+  "qwen_animation": {
+    "frames": 469,
+    "searchFrames": 383,
+    "searchSeconds": 34.901,
+    "transitions": 61,
+    "wrapTimes": [
+      12.099,
+      24.271
+    ],
+    "maxGapMs": 188
+  },
+  "source_sha256": {
+    "catalog.js": "49fa23bcb314b5c911b96244e10743dce62b2292f33edb24f359e88ca6336ab2",
+    "daily-diary.js": "d50573cf8c1efa4ea8d2223c3c3a9b315390d044611935bb3fad27656f19e2ac",
+    "diary-integration.js": "3992b5fc6bfa4c1c8cc0508c6a2e78c393b00cbea4a5942340a9afd3146daab0",
+    "diary-sleep.js": "cfff90df7a3d9ecbe1143735f8f46e4fbe127c5009319097811955f76445b46a",
+    "diary.js": "4bc85418202be522a506c11f3c6c43a4663da6ca87bc3f7ab4374d114911b792",
+    "dossier.js": "b752e7e33f1a33f3ede053399cd9fc31df7a2fe6f1d503a030a504a7a56c7b3c",
+    "index.js": "deeead96f8954decb594eba47feb41420e2d60225367c0f23f625c2c44e0eeab",
+    "persona-migration.js": "3e6977652ce511a2ac697243b4929725cd8b943c2e25e15d5b4c45790432f9b2"
+  },
+  "evidence_record_sha256": {
+    "FINAL_REGRESSION_292.log": "6128aa0c453056176d6ff1596d96157bc7c167962d0e088b705ac849b329e1c8",
+    "FINAL_ANTI_FREEZE_13.log": "bb933ee428e9e565cd01ade347bb297bf74f780655800f84206866cbb3d083ce",
+    "INDEPENDENT_FROZEN_34.tap": "a9d067de3a48d78494e4abd23f91bded4d94ce914f406a1aa787c1369ef7c238",
+    "FROZEN_ROOT_RECOVERY_23.log": "a918ddb7442863f0b238345b65c9466a5647ba1a21676dd3eedc6db9cd4410ce",
+    "HOST_FUNCTION_REPORT.md": "6afc49b614d6b4096dc66d627a6401ae1efa5380f6404d9061d6d483bb0c3c7c",
+    "RUNTIME_OBSERVATION_REPORT.md": "79e79e34c41430b2471099eb3ecdaf1260064140c0169ba8cd4ba3ad8749f777",
+    "tool-results-summary.json": "f3d6139f3557b3bab1368ac1b7c901f48cfc5d1d8ececa2529ec29563840d62b",
+    "summary.json": "f11444e5e58a7d4f94e62a9d0b8844b061fa0fcd08f6211ec0ed22e69e4c0dd5"
+  },
+  "evidence_note": "Hashes identify reviewed source records; full raw records are not published. This summary excludes test content and environment paths. Release archive checksums are published separately.",
+  "image_evidence": [
+    {
+      "file": "assets/qwen-search-contact.jpg",
+      "kind": "contact sheet of actual host screenshot regions",
+      "sha256": "fcce9a16eb71232bf40c3ac261c622e9a16d420e5c434cd47a6414e5b3ff6c8b",
+      "review": "Visually reviewed; contains public Qwen character and frame/time labels, no session titles, private text, accounts or credentials."
+    },
+    {
+      "file": "assets/gpt-menu-dark.jpg",
+      "kind": "unmodified browser region screenshot; static UI theme check",
+      "capture_date_utc": "2026-10-28",
+      "sha256": "73a4ebc78c6c916a4c535106bdf03f78ba3acc64c2ef9ed1d1022db854c0d441",
+      "review": "Visually reviewed; public GPT character and native context menu only."
+    },
+    {
+      "file": "assets/gpt-menu-light.jpg",
+      "kind": "unmodified browser region screenshot; static UI theme check",
+      "capture_date_utc": "2026-10-28",
+      "sha256": "a88001f51a6c17ea0c40e6d639455a3f5e07fdb0550e599d37a051baa1295f59",
+      "review": "Visually reviewed; public GPT character and native context menu only."
+    }
+  ],
+  "archives": {
+    "host_tested": {
+      "sha256": "cc0fc4dea06fdfd3c91101c2898592df480d742ffdda2ccdaf457d5e9dbe7c81",
+      "size_bytes": 198749016
+    },
+    "release": {
+      "sha256": "cb9af8e4202cec915ea5df32e9ee2ba7a3859e74aa2762fd19462ad769974ab9",
+      "size_bytes": 198764457
+    },
+    "file_count": 230,
+    "png_count": 144,
+    "changed_files": [
+      "README.md"
+    ],
+    "program_art_native_bytes_identical": true,
+    "post_document_update_regression": {
+      "passed": 292,
+      "failed": 0
+    }
+  }
+}

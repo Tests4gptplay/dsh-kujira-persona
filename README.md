@@ -2,7 +2,7 @@
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-> **Kujira 2.2.3。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
+> **Kujira 2.3.0。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
 **Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
 
@@ -66,7 +66,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 离线动作试玩
 
-离线试玩可从源码构建；当前 Release 提供插件 `.tgz` 和校验文件，不包含试玩 ZIP。安装 Node.js 后，在源码目录运行 `node scripts/qa/build-playable.mjs <空输出目录>`，保留生成的 `index.html` 和 `assets` 目录结构，双击 `index.html` 即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
+离线试玩可从源码构建；本次提供插件 `.tgz` 和校验文件，不包含试玩 ZIP。安装 Node.js 后，在源码目录运行 `node scripts/qa/build-playable.mjs <空输出目录>`，保留生成的 `index.html` 和 `assets` 目录结构，双击 `index.html` 即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
 
 试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/development/PROGRESS_20261024.md)。
 
@@ -88,31 +88,49 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-以下为 **v2.2.3** 的安装与升级方法。
+当前正式版本为 **v2.3.0**。安装包、SHA256 校验文件与更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0)。
 
 **更新前先关闭桌面上已显示的桌宠和提示气泡，再卸载旧包并安装新版。**
 
-DSH Desktop：打开 **插件 → 添加插件**，输入：
+从 [v2.3.0 Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0) 下载 `dsh-kujira-persona-2.3.0.tgz` 和 `SHA256SUMS.txt`，核对校验值后再安装。
+
+DSH Desktop：打开 **插件 → 添加插件**，输入该 `.tgz` 文件的完整路径，例如：
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.2.3
+E:\Downloads\dsh-kujira-persona-2.3.0.tgz
 ```
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内的 `.kujira-catalog.json`）。同时保留 DSH 数据目录中的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 及已配置的日记库；使用自定义路径时，以实际设置为准。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
 
-Web 版安装命令：
+Web 版安装命令（替换为实际文件路径和使用的 profile）：
 
 ```bash
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.2.3'
+dsh plugin --profile web add '/path/to/dsh-kujira-persona-2.3.0.tgz'
 ```
 
-Web 与 Desktop 分别安装。也可下载 [v2.2.3 `.tgz` 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.2.3/dsh-kujira-persona-2.2.3.tgz)；[本版发布页](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.2.3) 提供 SHA256 校验文件。
+Web 与 Desktop 分别安装。也可通过固定版本的 Git 地址安装：
+
+```text
+git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0
+```
+
+在 Desktop 的“添加插件”中输入上面的地址；Web 使用：
+
+```bash
+dsh plugin --profile web add 'git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0'
+```
+
+使用固定标签可避免跟随 `main` 的后续开发变更。
 
 ### Windows 安装提示 EPERM
 
 若出现 `dsh-kujira-persona_tmp_* -> dsh-kujira-persona` 重命名失败：取消安装，完全退出 DSH（含托盘），打开 `%USERPROFILE%\.dsh\profiles\desktop\node_modules`，只清理本插件失败安装的临时目录和确认损坏的半安装项，再重新安装。正常目录不需要删除；目录链接只处理链接本身。
 
 保留其他插件、profile 配置，以及上述人设和记忆目录，无需删除整个 `node_modules`、`package.json` 或 `pnpm-lock.yaml`。仍有问题可在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 附上脱敏错误日志。
+
+## 测试与验证
+
+本版本的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/v2.3.0/docs/testing/v2.3.0.md)。报告仅保留可公开的技术结论，不包含私密对话、个人档案、日记正文或凭据。
 
 ## 来源与更新记录
 

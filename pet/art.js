@@ -34,7 +34,7 @@ const stellaWork=frames('core',[[34,846,267,408,133.5,405],[340,846,273,408,136.
 export const ART = {
   gpt:buildStandardManifest({
     revision:'anatomy-fix-20261025-2',canvas:[320,380],
-    sheets:{core:'gpt-core-v3.png',research:'gpt-research-edit-v2.png',commands:'gpt-command-test-v2.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v2.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png'},
+    sheets:{core:'gpt-core-v3.png',research:'gpt-research-edit-v2.png',commands:'gpt-command-test-v2.png',results:'gpt-wait-success-v1.png',drag:'gpt-error-drag-v1.png',touch:'gpt-land-pat-v2.png',reactions:'gpt-poke-tail-v1.png',micro:'gpt-idle-micro-v1.png',"gpt_testing_check_v2_00":"gpt-testing-checklist-v2-00.png","gpt_testing_check_v2_01":"gpt-testing-checklist-v2-01.png","gpt_testing_check_v2_02":"gpt-testing-checklist-v2-02.png","gpt_testing_check_v2_03":"gpt-testing-checklist-v2-03.png"},
     stateMap:{idle:'idle',thinking:'thinking',working:'commanding',waiting:'waiting',success:'success',error:'error'},
     workingActivityMap:{searching:'searching',editing:'editing',commanding:'commanding',testing:'testing'},
     idleMicroClips:['stretch','yawn'],

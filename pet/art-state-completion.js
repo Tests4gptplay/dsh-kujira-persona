@@ -552,173 +552,173 @@ const ADDITIONS = {
       }
     },
     "responding": {
-      "sheet": "minimax-responding-v002.png",
+      "sheet": "minimax-responding-v003.png",
       "clip": {
         "frames": [
           {
-            "sheet": "authored_responding",
             "rect": [
               0,
               0,
-              400,
-              400
+              320,
+              380
             ],
             "at": [
-              -40,
+              0,
               0
             ],
             "size": [
-              400,
-              400
-            ]
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
           },
           {
-            "sheet": "authored_responding",
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
+          },
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
+          },
+          {
+            "rect": [
+              960,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
+          },
+          {
+            "rect": [
+              1280,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
+          },
+          {
             "rect": [
               1600,
               0,
-              400,
-              400
+              320,
+              380
             ],
             "at": [
-              -40,
+              0,
               0
             ],
             "size": [
-              400,
-              400
-            ]
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
           },
           {
-            "sheet": "authored_responding",
             "rect": [
-              1200,
+              1920,
               0,
-              400,
-              400
+              320,
+              380
             ],
             "at": [
-              -40,
+              0,
               0
             ],
             "size": [
-              400,
-              400
-            ]
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
           },
           {
-            "sheet": "authored_responding",
             "rect": [
-              400,
+              2240,
               0,
-              400,
-              400
+              320,
+              380
             ],
             "at": [
-              -40,
+              0,
               0
             ],
             "size": [
-              400,
-              400
-            ]
+              320,
+              380
+            ],
+            "sheet": "minimax_responding_v003_1828"
           },
           {
-            "sheet": "authored_responding",
             "rect": [
-              1200,
+              2560,
               0,
-              400,
-              400
+              320,
+              380
             ],
             "at": [
-              -40,
+              0,
               0
             ],
             "size": [
-              400,
-              400
-            ]
-          },
-          {
-            "sheet": "authored_responding",
-            "rect": [
-              1600,
-              0,
-              400,
-              400
+              320,
+              380
             ],
-            "at": [
-              -40,
-              0
-            ],
-            "size": [
-              400,
-              400
-            ]
-          },
-          {
-            "sheet": "authored_responding",
-            "rect": [
-              0,
-              0,
-              400,
-              400
-            ],
-            "at": [
-              -40,
-              0
-            ],
-            "size": [
-              400,
-              400
-            ]
-          },
-          {
-            "sheet": "authored_responding",
-            "rect": [
-              800,
-              0,
-              400,
-              400
-            ],
-            "at": [
-              -40,
-              0
-            ],
-            "size": [
-              400,
-              400
-            ]
-          },
-          {
-            "sheet": "authored_responding",
-            "rect": [
-              0,
-              0,
-              400,
-              400
-            ],
-            "at": [
-              -40,
-              0
-            ],
-            "size": [
-              400,
-              400
-            ]
+            "sheet": "minimax_responding_v003_1828"
           }
         ],
         "durations": [
-          820,
-          80,
-          180,
-          700,
-          100,
-          80,
-          700,
-          120,
-          500
+          900,
+          400,
+          550,
+          350,
+          1400,
+          350,
+          550,
+          400,
+          1400
         ],
         "loop": true
       }
@@ -1638,10 +1638,11 @@ const ADDITIONS = {
       }
     },
     "responding": {
-      "sheet": "kimi-responding-v001.png",
+      "sheet": "kimi-responding-stable-20261026-v2-f01.png",
       "clip": {
         "frames": [
           {
+            "sheet": "kimi_responding_stable_20261026_v2_01",
             "rect": [
               0,
               0,
@@ -1655,12 +1656,12 @@ const ADDITIONS = {
             "size": [
               360.9,
               360.9
-            ],
-            "sheet": "authored_responding"
+            ]
           },
           {
+            "sheet": "kimi_responding_stable_20261026_v2_02",
             "rect": [
-              700,
+              0,
               0,
               700,
               700
@@ -1672,12 +1673,12 @@ const ADDITIONS = {
             "size": [
               360.9,
               360.9
-            ],
-            "sheet": "authored_responding"
+            ]
           },
           {
+            "sheet": "kimi_responding_stable_20261026_v2_03",
             "rect": [
-              1400,
+              0,
               0,
               700,
               700
@@ -1689,12 +1690,12 @@ const ADDITIONS = {
             "size": [
               360.9,
               360.9
-            ],
-            "sheet": "authored_responding"
+            ]
           },
           {
+            "sheet": "kimi_responding_stable_20261026_v2_04",
             "rect": [
-              2100,
+              0,
               0,
               700,
               700
@@ -1706,8 +1707,7 @@ const ADDITIONS = {
             "size": [
               360.9,
               360.9
-            ],
-            "sheet": "authored_responding"
+            ]
           }
         ],
         "durations": [
@@ -2250,101 +2250,83 @@ const ADDITIONS = {
       }
     },
     "thinking": {
-      "sheet": "gemini-thinking-v1.png",
+      "sheet": "gemini-thinking-go-v4.png",
       "clip": {
         "frames": [
           {
-            "sheet": "authored_thinking",
             "rect": [
               0,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -82.33,
-              -61.95
+              0,
+              0
             ],
             "size": [
-              484.65,
-              484.65
-            ]
+              320,
+              380
+            ],
+            "sheet": "gemini_thinking_go_v4"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              1000,
+              320,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -82.33,
-              -61.95
+              0,
+              0
             ],
             "size": [
-              484.65,
-              484.65
-            ]
+              320,
+              380
+            ],
+            "sheet": "gemini_thinking_go_v4"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              2000,
+              640,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -82.33,
-              -61.95
+              0,
+              0
             ],
             "size": [
-              484.65,
-              484.65
-            ]
+              320,
+              380
+            ],
+            "sheet": "gemini_thinking_go_v4"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              3000,
+              320,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -82.33,
-              -61.95
+              0,
+              0
             ],
             "size": [
-              484.65,
-              484.65
-            ]
-          },
-          {
-            "sheet": "authored_thinking",
-            "rect": [
-              0,
-              0,
-              1000,
-              1000
+              320,
+              380
             ],
-            "at": [
-              -82.33,
-              -61.95
-            ],
-            "size": [
-              484.65,
-              484.65
-            ]
+            "sheet": "gemini_thinking_go_v4"
           }
         ],
         "durations": [
-          550,
-          500,
-          120,
-          450,
-          380
+          900,
+          1200,
+          1300,
+          1200
         ],
         "loop": true
       }
@@ -2534,11 +2516,11 @@ const ADDITIONS = {
       }
     },
     "searching": {
-      "sheet": "qwen-searching-v1.png",
+      "sheet": "qwen-searching-compare-return-v5-00.png",
       "clip": {
         "frames": [
           {
-            "sheet": "authored_searching",
+            "sheet": "qwen_compare_return_v5_00",
             "rect": [
               0,
               0,
@@ -2555,9 +2537,9 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_searching",
+            "sheet": "qwen_compare_return_v5_01",
             "rect": [
-              1000,
+              0,
               0,
               1000,
               1000
@@ -2572,9 +2554,9 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_searching",
+            "sheet": "qwen_compare_return_v5_02",
             "rect": [
-              2000,
+              0,
               0,
               1000,
               1000
@@ -2589,9 +2571,9 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_searching",
+            "sheet": "qwen_compare_return_v5_03",
             "rect": [
-              3000,
+              0,
               0,
               1000,
               1000
@@ -2606,7 +2588,296 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_searching",
+            "sheet": "qwen_compare_return_v5_04",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_05",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_06",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_07",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_08",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_09",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_10",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_11",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_12",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_13",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_14",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_15",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_16",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_17",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_18",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_19",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_20",
+            "rect": [
+              0,
+              0,
+              1000,
+              1000
+            ],
+            "at": [
+              -95.1,
+              -83.67
+            ],
+            "size": [
+              510.2,
+              510.2
+            ]
+          },
+          {
+            "sheet": "qwen_compare_return_v5_21",
             "rect": [
               0,
               0,
@@ -2624,21 +2895,38 @@ const ADDITIONS = {
           }
         ],
         "durations": [
-          480,
-          380,
-          480,
-          480,
-          380
+          1400,
+          1400,
+          600,
+          260,
+          300,
+          300,
+          340,
+          400,
+          600,
+          1200,
+          1600,
+          500,
+          420,
+          340,
+          340,
+          340,
+          340,
+          180,
+          270,
+          180,
+          270,
+          600
         ],
         "loop": true
       }
     },
     "testing": {
-      "sheet": "qwen-testing-v1.png",
+      "sheet": "qwen-testing-desk-v2.png",
       "clip": {
         "frames": [
           {
-            "sheet": "authored_testing",
+            "sheet": "qwen_testing_horizontal_desk_v2",
             "rect": [
               0,
               0,
@@ -2655,7 +2943,7 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_testing",
+            "sheet": "qwen_testing_horizontal_desk_v2",
             "rect": [
               1000,
               0,
@@ -2672,7 +2960,7 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_testing",
+            "sheet": "qwen_testing_horizontal_desk_v2",
             "rect": [
               2000,
               0,
@@ -2689,7 +2977,7 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_testing",
+            "sheet": "qwen_testing_horizontal_desk_v2",
             "rect": [
               3000,
               0,
@@ -2706,7 +2994,7 @@ const ADDITIONS = {
             ]
           },
           {
-            "sheet": "authored_testing",
+            "sheet": "qwen_testing_horizontal_desk_v2",
             "rect": [
               0,
               0,
@@ -3284,9 +3572,9 @@ const ADDITIONS = {
           }
         ],
         "durations": [
-          600,
-          400,
-          400
+          1800,
+          650,
+          1100
         ],
         "loop": true
       }
@@ -3852,10 +4140,21 @@ const ADDITIONS = {
       }
     },
     "editing": {
-      "sheet": "hunyuan-editing-v001.png",
+      "sheet": "hunyuan-editing-liftcheck-v2.png",
       "clip": {
+        "loop": true,
+        "durations": [
+          500,
+          320,
+          180,
+          400,
+          140,
+          560,
+          1000
+        ],
         "frames": [
           {
+            "sheet": "hunyuan_editing_liftcheck_v2",
             "rect": [
               0,
               0,
@@ -3869,10 +4168,10 @@ const ADDITIONS = {
             "size": [
               343.137,
               343.137
-            ],
-            "sheet": "authored_editing"
+            ]
           },
           {
+            "sheet": "hunyuan_editing_liftcheck_v2",
             "rect": [
               700,
               0,
@@ -3886,10 +4185,10 @@ const ADDITIONS = {
             "size": [
               343.137,
               343.137
-            ],
-            "sheet": "authored_editing"
+            ]
           },
           {
+            "sheet": "hunyuan_editing_liftcheck_v2",
             "rect": [
               1400,
               0,
@@ -3903,10 +4202,10 @@ const ADDITIONS = {
             "size": [
               343.137,
               343.137
-            ],
-            "sheet": "authored_editing"
+            ]
           },
           {
+            "sheet": "hunyuan_editing_liftcheck_v2",
             "rect": [
               2100,
               0,
@@ -3920,17 +4219,60 @@ const ADDITIONS = {
             "size": [
               343.137,
               343.137
+            ]
+          },
+          {
+            "sheet": "hunyuan_editing_liftcheck_v2",
+            "rect": [
+              1400,
+              0,
+              700,
+              700
             ],
-            "sheet": "authored_editing"
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ]
+          },
+          {
+            "sheet": "hunyuan_editing_liftcheck_v2",
+            "rect": [
+              2800,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ]
+          },
+          {
+            "sheet": "hunyuan_editing_liftcheck_v2",
+            "rect": [
+              3500,
+              0,
+              700,
+              700
+            ],
+            "at": [
+              -11.569,
+              39.118
+            ],
+            "size": [
+              343.137,
+              343.137
+            ]
           }
-        ],
-        "durations": [
-          500,
-          500,
-          600,
-          500
-        ],
-        "loop": true
+        ]
       }
     },
     "responding": {
@@ -4884,6 +5226,314 @@ const ADDITIONS = {
         ],
         "loop": true
       }
+    },
+    "using-tool": {
+      "sheet": "gpt-using-tool-typing-v4.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              0,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              325,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              0,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              650,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              0,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              325,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              0,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              650,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          },
+          {
+            "sheet": "authored_using-tool",
+            "rect": [
+              0,
+              0,
+              325,
+              354
+            ],
+            "at": [
+              23.5,
+              55.16
+            ],
+            "size": [
+              273,
+              297.36
+            ]
+          }
+        ],
+        "durations": [
+          160,
+          220,
+          100,
+          220,
+          100,
+          200,
+          100,
+          220,
+          600
+        ],
+        "loop": true
+      }
+    },
+    "testing": {
+      "sheet": "gpt-testing-checklist-v2-00.png",
+      "clip": {
+        "frames": [
+          {
+            "sheet": "gpt_testing_check_v2_02",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_03",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_01",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_00",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_01",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_03",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          },
+          {
+            "sheet": "gpt_testing_check_v2_02",
+            "rect": [
+              0,
+              0,
+              326,
+              356
+            ],
+            "at": [
+              23.08,
+              57.68
+            ],
+            "size": [
+              273.84,
+              299.04
+            ]
+          }
+        ],
+        "durations": [
+          900,
+          140,
+          170,
+          650,
+          170,
+          140,
+          630
+        ],
+        "loop": true
+      }
     }
   },
   "mistral": {
@@ -5190,67 +5840,67 @@ const ADDITIONS = {
       }
     },
     "thinking": {
-      "sheet": "mistral-thinking-v1.png",
+      "sheet": "mistral-thinking-lowtilt-v1-00.png",
       "clip": {
-        "frames": [
-          {
-            "rect": [
-              0,
-              0,
-              320,
-              380
-            ],
-            "at": [
-              0,
-              0
-            ],
-            "size": [
-              320,
-              380
-            ],
-            "sheet": "authored_thinking"
-          },
-          {
-            "rect": [
-              320,
-              0,
-              320,
-              380
-            ],
-            "at": [
-              0,
-              0
-            ],
-            "size": [
-              320,
-              380
-            ],
-            "sheet": "authored_thinking"
-          },
-          {
-            "rect": [
-              640,
-              0,
-              320,
-              380
-            ],
-            "at": [
-              0,
-              0
-            ],
-            "size": [
-              320,
-              380
-            ],
-            "sheet": "authored_thinking"
-          }
-        ],
         "durations": [
           1200,
           800,
           1100
         ],
-        "loop": true
+        "loop": true,
+        "frames": [
+          {
+            "sheet": "mistral_lowtilt_reader_F0",
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ]
+          },
+          {
+            "sheet": "mistral_lowtilt_reader_F1",
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ]
+          },
+          {
+            "sheet": "mistral_lowtilt_reader_F2",
+            "rect": [
+              0,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ]
+          }
+        ]
       }
     }
   },
@@ -5512,7 +6162,7 @@ const ADDITIONS = {
       }
     },
     "testing": {
-      "sheet": "stella-testing-v1.png",
+      "sheet": "stella-testing-fixed-page-v1.png",
       "clip": {
         "frames": [
           {
@@ -5530,7 +6180,7 @@ const ADDITIONS = {
               320,
               380
             ],
-            "sheet": "authored_testing"
+            "sheet": "stella_testing_page_fixed_v1"
           },
           {
             "rect": [
@@ -5547,7 +6197,7 @@ const ADDITIONS = {
               320,
               380
             ],
-            "sheet": "authored_testing"
+            "sheet": "stella_testing_page_fixed_v1"
           },
           {
             "rect": [
@@ -5564,7 +6214,7 @@ const ADDITIONS = {
               320,
               380
             ],
-            "sheet": "authored_testing"
+            "sheet": "stella_testing_page_fixed_v1"
           }
         ],
         "durations": [
@@ -6088,100 +6738,136 @@ const ADDITIONS = {
       }
     },
     "thinking": {
-      "sheet": "grok-thinking-v1.png",
+      "sheet": "grok-thinking-headhand-v3.png",
       "clip": {
         "frames": [
           {
-            "sheet": "authored_thinking",
             "rect": [
               0,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -109.3,
-              -107.81
+              0,
+              0
             ],
             "size": [
-              538.6,
-              538.6
-            ]
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              1000,
+              320,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -109.3,
-              -107.81
+              0,
+              0
             ],
             "size": [
-              538.6,
-              538.6
-            ]
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              2000,
+              640,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -109.3,
-              -107.81
+              0,
+              0
             ],
             "size": [
-              538.6,
-              538.6
-            ]
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
           },
           {
-            "sheet": "authored_thinking",
             "rect": [
-              3000,
+              960,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -109.3,
-              -107.81
+              0,
+              0
             ],
             "size": [
-              538.6,
-              538.6
-            ]
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
           },
           {
-            "sheet": "authored_thinking",
+            "rect": [
+              320,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
+          },
+          {
+            "rect": [
+              1280,
+              0,
+              320,
+              380
+            ],
+            "at": [
+              0,
+              0
+            ],
+            "size": [
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
+          },
+          {
             "rect": [
               0,
               0,
-              1000,
-              1000
+              320,
+              380
             ],
             "at": [
-              -109.3,
-              -107.81
+              0,
+              0
             ],
             "size": [
-              538.6,
-              538.6
-            ]
+              320,
+              380
+            ],
+            "sheet": "grok_thinking_headhand_v3"
           }
         ],
         "durations": [
-          550,
+          400,
+          150,
           500,
           120,
-          450,
+          150,
+          300,
           380
         ],
         "loop": true
@@ -6799,8 +7485,23 @@ export function applyStateArt(art) {
       workingActivityMap['using-tool'] = 'authored_working'
       delete fallbackSources['using-tool']
     } else if (clips.authored_commanding) {
-      const observed = clips.authored_commanding
-      clips.neutral_tool = {frames: [observed.frames.at(-1)], durations: [observed.durations.at(-1)], loop: false}
+      // Reuse sustained operations, not frozen command results.
+      const toolSources = {
+        qwen: 'working', kimi: 'authored_editing', glm: 'working',
+        minimax: 'authored_searching', llama: 'authored_testing',
+        doubao: 'authored_editing', mistral: 'working', deepseek: 'working',
+        claude: 'working', gemini: 'working', grok: 'authored_editing',
+        hunyuan: 'authored_editing', mimo: 'authored_commanding'
+      }
+      const source = clips[toolSources[id]] ?? clips[base.stateMap.working] ?? clips[base.stateMap.idle] ?? clips.authored_commanding
+      // MiMo's later poses show a result; retain only touch and withdrawal.
+      const operation = id === 'mimo' && source.frames.length > 1 ? {
+        frames: [source.frames[0], source.frames[1], source.frames[0]],
+        durations: [600, 240, 900], loop: true
+      } : source
+      clips.neutral_tool = {
+        frames: [...operation.frames], durations: [...operation.durations], loop: operation.loop
+      }
       workingActivityMap['using-tool'] = 'neutral_tool'
       delete fallbackSources['using-tool']
     }

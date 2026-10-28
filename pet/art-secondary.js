@@ -4,7 +4,30 @@ const DATA={
   "qwen": {
     "sheets": {
       "qwen-core-v1": "qwen-core-v1.png",
-      "qwen-status-v1": "qwen-status-v2.png"
+      "qwen-status-v1": "qwen-status-v2.png",
+      "qwen_testing_horizontal_desk_v2": "qwen-testing-desk-v2.png",
+      "qwen_compare_return_v5_00": "qwen-searching-compare-return-v5-00.png",
+      "qwen_compare_return_v5_01": "qwen-searching-compare-return-v5-01.png",
+      "qwen_compare_return_v5_02": "qwen-searching-compare-return-v5-02.png",
+      "qwen_compare_return_v5_03": "qwen-searching-compare-return-v5-03.png",
+      "qwen_compare_return_v5_04": "qwen-searching-compare-return-v5-04.png",
+      "qwen_compare_return_v5_05": "qwen-searching-compare-return-v5-05.png",
+      "qwen_compare_return_v5_06": "qwen-searching-compare-return-v5-06.png",
+      "qwen_compare_return_v5_07": "qwen-searching-compare-return-v5-07.png",
+      "qwen_compare_return_v5_08": "qwen-searching-compare-return-v5-08.png",
+      "qwen_compare_return_v5_09": "qwen-searching-compare-return-v5-09.png",
+      "qwen_compare_return_v5_10": "qwen-searching-compare-return-v5-10.png",
+      "qwen_compare_return_v5_11": "qwen-searching-compare-return-v5-08.png",
+      "qwen_compare_return_v5_12": "qwen-searching-compare-return-v5-12.png",
+      "qwen_compare_return_v5_13": "qwen-searching-compare-return-v5-06.png",
+      "qwen_compare_return_v5_14": "qwen-searching-compare-return-v5-05.png",
+      "qwen_compare_return_v5_15": "qwen-searching-compare-return-v5-04.png",
+      "qwen_compare_return_v5_16": "qwen-searching-compare-return-v5-03.png",
+      "qwen_compare_return_v5_17": "qwen-searching-compare-return-v5-17.png",
+      "qwen_compare_return_v5_18": "qwen-searching-compare-return-v5-18.png",
+      "qwen_compare_return_v5_19": "qwen-searching-compare-return-v5-19.png",
+      "qwen_compare_return_v5_20": "qwen-searching-compare-return-v5-02.png",
+      "qwen_compare_return_v5_21": "qwen-searching-compare-return-v5-00.png"
     },
     "clips": {
       "idle": {
@@ -235,7 +258,11 @@ const DATA={
   "kimi": {
     "sheets": {
       "kimi-core-v1": "kimi-core-v1.png",
-      "kimi-status-v1": "kimi-status-v2.png"
+      "kimi-status-v1": "kimi-status-v2.png",
+      "kimi_responding_stable_20261026_v2_01": "kimi-responding-stable-20261026-v2-f01.png",
+      "kimi_responding_stable_20261026_v2_02": "kimi-responding-stable-20261026-v2-f02.png",
+      "kimi_responding_stable_20261026_v2_03": "kimi-responding-stable-20261026-v2-f03.png",
+      "kimi_responding_stable_20261026_v2_04": "kimi-responding-stable-20261026-v2-f04.png"
     },
     "clips": {
       "idle": {
@@ -688,7 +715,8 @@ const DATA={
   "minimax": {
     "sheets": {
       "minimax-core-v1": "minimax-core-v1.png",
-      "minimax-status-v1": "minimax-status-v1.png"
+      "minimax-status-v1": "minimax-status-v1.png",
+      "minimax_responding_v003_1828": "minimax-responding-v003.png"
     },
     "clips": {
       "idle": {
@@ -1278,7 +1306,10 @@ const DATA={
   "mistral": {
     "sheets": {
       "mistral-core-v1": "mistral-core-v1.png",
-      "mistral-status-v1": "mistral-status-v2.png"
+      "mistral-status-v1": "mistral-status-v2.png",
+      "mistral_lowtilt_reader_F0": "mistral-thinking-lowtilt-v1-00.png",
+      "mistral_lowtilt_reader_F1": "mistral-thinking-lowtilt-v1-01.png",
+      "mistral_lowtilt_reader_F2": "mistral-thinking-lowtilt-v1-02.png"
     },
     "clips": {
       "idle": {
@@ -2102,7 +2133,8 @@ const DATA={
   "gemini": {
     "sheets": {
       "gemini-core-work-v1": "gemini-core-work-v1.png",
-      "gemini-status-v1": "gemini-status-v1.png"
+      "gemini-status-v1": "gemini-status-v1.png",
+      "gemini_thinking_go_v4": "gemini-thinking-go-v4.png"
     },
     "clips": {
       "idle": {
@@ -2333,7 +2365,8 @@ const DATA={
     "sheets": {
       "grok-core-v1": "grok-core-v1.png",
       "grok-work-v2": "grok-work-v3.png",
-      "grok-status-v1": "grok-status-v1.png"
+      "grok-status-v1": "grok-status-v1.png",
+      "grok_thinking_headhand_v3": "grok-thinking-headhand-v3.png"
     },
     "clips": {
       "idle": {
@@ -2548,7 +2581,8 @@ const DATA={
   "hunyuan": {
     "sheets": {
       "hunyuan-core-v1": "hunyuan-core-v1.png",
-      "hunyuan-status-v1": "hunyuan-status-v1.png"
+      "hunyuan-status-v1": "hunyuan-status-v1.png",
+      "hunyuan_editing_liftcheck_v2": "hunyuan-editing-liftcheck-v2.png"
     },
     "clips": {
       "idle": {
@@ -2730,7 +2764,8 @@ const DATA={
   "stella": {
     "sheets": {
       "stella-status-v1": "stella-status-v2.png",
-      "stella-core-v1": "stella-core-v1.png"
+      "stella-core-v1": "stella-core-v1.png",
+      "stella_testing_page_fixed_v1": "stella-testing-fixed-page-v1.png"
     },
     "clips": {
       "waiting": {

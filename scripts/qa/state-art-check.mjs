@@ -9,8 +9,8 @@ let entries=0
 for(const [role,states] of Object.entries(expected)){
  const a=ART[role], p=new AnimationPlayer(a,{now:0,random:()=>0})
  if(role==='gpt'){
-  assert.equal(a.workingActivityMap['using-tool'],a.stateMap.idle)
-  assert.equal(a.fallbackSources['using-tool'],a.stateMap.idle)
+  assert.equal(a.workingActivityMap['using-tool'],'authored_using-tool')
+  assert.equal(a.fallbackSources['using-tool'],undefined)
  }else if(role==='stella'){
   assert.equal(a.stateMap.working,'authored_working')
   assert.equal(a.workingActivityMap['using-tool'],'authored_working')
@@ -19,11 +19,14 @@ for(const [role,states] of Object.entries(expected)){
  }else{
   assert.equal(a.workingActivityMap['using-tool'],'neutral_tool')
   assert.equal(a.fallbackSources['using-tool'],undefined)
-  assert.equal(a.clips.neutral_tool.loop,false)
-  assert.deepEqual(a.clips.neutral_tool.frames,[a.clips.authored_commanding.frames.at(-1)])
+  assert.equal(a.clips.neutral_tool.loop,true)
+  const toolSources={qwen:'working',kimi:'authored_editing',glm:'working',minimax:'authored_searching',llama:'authored_testing',doubao:'authored_editing',mistral:'working',deepseek:'working',claude:'working',gemini:'working',grok:'authored_editing',hunyuan:'authored_editing',mimo:'authored_commanding'}
+  const expectedTool=role==='mimo'?{frames:[0,1,0].map(i=>a.clips.authored_commanding.frames[i]),durations:[600,240,900],loop:true}:a.clips[toolSources[role]]
+  assert.deepEqual(a.clips.neutral_tool,expectedTool)
+  assert(a.clips.neutral_tool.frames.length>=2)
   p.update({phase:'working',activity:'using-tool',signal:0},{},0)
   assert.equal(p.tick(60000).clip,'neutral_tool')
-  assert.equal(p.tick(60000).nextDelay,null)
+  assert(p.tick(60000).nextDelay>0)
  }
  for(const state of states){
   const phase=['responding','thinking','waiting'].includes(state)?state:'working'
@@ -53,7 +56,7 @@ for(const [role,states] of Object.entries(expected)){
   assert.equal(p.tick(130000).nextDelay,null)
  }
 }
-console.log(`PASS: 80 authored clip bindings (79 core + Stella neutral); ${entries} expanded playback entries; 14 command-once holds; 13 neutral observed-pose reuses, Stella authored neutral and GPT idle fallback; explicit asset whitelist`)
+console.log(`PASS: 80 authored clip bindings (79 core + Stella neutral); ${entries} expanded playback entries; 14 command-once holds; 13 sustained neutral operation cycles, Stella authored neutral and GPT typing generic tool; explicit asset whitelist`)
 
 for(const [role,a] of Object.entries(ART)){
  for(const state of ['thinking','responding','searching','editing','commanding','testing','waiting','success','error']){

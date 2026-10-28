@@ -1,0 +1,269 @@
+name: Kujira 2.3.1 verified release
+on:
+  push:
+    branches:
+      - release/v2.3.1-ci-20261028
+permissions:
+  contents: read
+jobs:
+  regressions:
+    outputs:
+      package-sha256: ${{ steps.package.outputs.sha256 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7b3674fec1600a7383a65ca92a3f46868182a8e8
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Syntax, AI diary, integration and existing DSH regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const p=require("./package.json"); if(p.version!=="2.3.1" || !p.dsh?.bundle?.patch)process.exit(1)'
+          find . -maxdepth 3 \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          SDK="$RUNNER_TEMP/kujira-session-sdk"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry https://registry.npmjs.org \
+            @deepseek-ai/dsh-session@0.2.1-rc.2 @deepseek-ai/dsh-session-query@0.2.1-rc.2 \
+            @deepseek-ai/dsh-session-projection@0.2.1-rc.2 @deepseek-ai/dsh-session-stats@0.2.1-rc.2 \
+            @deepseek-ai/dsh-system-prompt@0.2.1-rc.2 @deepseek-ai/dsh-tools@0.2.1-rc.2 \
+            @deepseek-ai/dsh-agent@0.2.1-rc.2 @deepseek-ai/dsh-llm@0.2.1-rc.2 @deepseek-ai/dsh-scope@0.2.1-rc.2 \
+            @deepseek-ai/cordis@4.0.5
+          npm install --no-save --package-lock=false --no-audit --no-fund --registry https://registry.npmjs.org fs-native-extensions@1.5.1
+          node -e 'require("fs-native-extensions")'
+          export DSH_TEST_ROOT="$SDK"
+          export NODE_PATH="$SDK/node_modules"
+          mapfile -t checks < <(find scripts/qa -maxdepth 1 -name '*-check.mjs' ! -name '*browser*' ! -name 'playable-check.mjs' | sort)
+          node --test --test-concurrency=1 --test-timeout=60000 *.test.js scripts/qa/*.test.mjs scripts/qa/diary-audit/*.test.mjs "${checks[@]}" scripts/qa/release230/*.test.mjs scripts/qa/release230/recovery/*.test.mjs scripts/qa/release230/independent/*.test.mjs
+      - name: Pack and verify every distribution file against exact source
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          test "$(git rev-parse HEAD)" = '7b3674fec1600a7383a65ca92a3f46868182a8e8'
+          git diff --exit-code d930b2adcc2aec932ad7d85576488f8fe75045c4 7b3674fec1600a7383a65ca92a3f46868182a8e8 -- pet/assets 'pet/art*.js'
+          test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = 'c2c8124e133450018374bc1e00a7e6519bda49eef711b010acf72c632f151663'
+          mkdir -p "$RUNNER_TEMP/kujira-package"
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/kujira-package"
+          PACKAGE="$RUNNER_TEMP/kujira-package/dsh-kujira-persona-2.3.1.tgz"
+          python - "$PACKAGE" <<'PYVERIFY'
+          import hashlib,json,pathlib,subprocess,sys,tarfile
+          expected=set(["CHANGELOG.md", "LICENSE", "NOTICE.md", "README.md", "catalog.js", "cordis.patch.yml", "daily-diary.js", "diary-integration.js", "diary-sleep.js", "diary.js", "dossier.js", "icon.svg", "index.js", "instructions/README.md", "locale/en.json", "locale/zh.json", "package.json", "persona-migration.js", "persona/00-身份.md", "persona/10-外观.md", "persona/20-性格.md", "persona/30-说话.md", "persona/40-世界观分层.md", "persona/50-关系.md", "persona/60-我们的原创设定.md", "persona/70-记忆协议.md", "persona/80-资料源.md", "persona/90-记忆.md", "persona/_编辑说明.md", "personas/claude/00-基础设定.md", "personas/claude/90-记忆.md", "personas/doubao/00-基础设定.md", "personas/doubao/90-记忆.md", "personas/gemini/00-基础设定.md", "personas/gemini/90-记忆.md", "personas/glm/00-基础设定.md", "personas/glm/90-记忆.md", "personas/gpt/00-身份.md", "personas/gpt/10-外观.md", "personas/gpt/20-性格与表达.md", "personas/gpt/70-学习规则.md", "personas/gpt/90-记忆.md", "personas/gpt/_来源说明.md", "personas/grok/00-基础设定.md", "personas/grok/90-记忆.md", "personas/hunyuan/00-基础设定.md", "personas/hunyuan/90-记忆.md", "personas/kimi/00-基础设定.md", "personas/kimi/90-记忆.md", "personas/llama/00-基础设定.md", "personas/llama/90-记忆.md", "personas/mimo/00-基础设定.md", "personas/mimo/90-记忆.md", "personas/minimax/00-基础设定.md", "personas/minimax/90-记忆.md", "personas/mistral/00-基础设定.md", "personas/mistral/90-记忆.md", "personas/qwen/00-基础设定.md", "personas/qwen/90-记忆.md", "personas/stella/00-基础设定.md", "personas/stella/90-记忆.md", "personas/stella/_来源说明.md", "pet/NOTICE.md", "pet/activity.js", "pet/animation.js", "pet/art-secondary.js", "pet/art-state-completion.js", "pet/art.js", "pet/assets/claude-commanding-v001.png", "pet/assets/claude-core-work-v2.png", "pet/assets/claude-responding-v001.png", "pet/assets/claude-searching-v001.png", "pet/assets/claude-status-v2.png", "pet/assets/claude-testing-v001.png", "pet/assets/claude-thinking-v001.png", "pet/assets/deepseek-commanding-v001.png", "pet/assets/deepseek-drag-land-v1.png", "pet/assets/deepseek-idle-think-v2.png", "pet/assets/deepseek-responding-v002.png", "pet/assets/deepseek-searching-v001.png", "pet/assets/deepseek-status-v1.png", "pet/assets/deepseek-testing-v002.png", "pet/assets/deepseek-work-wait-v1.png", "pet/assets/doubao-commanding-v1.png", "pet/assets/doubao-core-v1.png", "pet/assets/doubao-editing-v1.png", "pet/assets/doubao-responding-v1.png", "pet/assets/doubao-searching-v1.png", "pet/assets/doubao-status-v1.png", "pet/assets/doubao-testing-v1.png", "pet/assets/doubao-thinking-v1.png", "pet/assets/gemini-commanding-v1.png", "pet/assets/gemini-core-work-v1.png", "pet/assets/gemini-responding-v1.png", "pet/assets/gemini-searching-v1.png", "pet/assets/gemini-status-v1.png", "pet/assets/gemini-testing-v1.png", "pet/assets/gemini-thinking-go-v4.png", "pet/assets/glm-commanding-v001.png", "pet/assets/glm-core-v1.png", "pet/assets/glm-editing-v001.png", "pet/assets/glm-responding-v001.png", "pet/assets/glm-searching-v002.png", "pet/assets/glm-status-v1.png", "pet/assets/glm-testing-v002.png", "pet/assets/glm-thinking-v001.png", "pet/assets/gpt-command-test-v2.png", "pet/assets/gpt-core-v3.png", "pet/assets/gpt-error-drag-v1.png", "pet/assets/gpt-idle-micro-v1.png", "pet/assets/gpt-land-pat-v2.png", "pet/assets/gpt-poke-tail-v1.png", "pet/assets/gpt-research-edit-v2.png", "pet/assets/gpt-responding-v1.png", "pet/assets/gpt-testing-checklist-v2-00.png", "pet/assets/gpt-testing-checklist-v2-01.png", "pet/assets/gpt-testing-checklist-v2-02.png", "pet/assets/gpt-testing-checklist-v2-03.png", "pet/assets/gpt-using-tool-typing-v4.png", "pet/assets/gpt-wait-success-v1.png", "pet/assets/grok-commanding-v1.png", "pet/assets/grok-core-v1.png", "pet/assets/grok-editing-v1.png", "pet/assets/grok-responding-v1.png", "pet/assets/grok-status-v1.png", "pet/assets/grok-testing-v1.png", "pet/assets/grok-thinking-headhand-v3.png", "pet/assets/grok-work-v3.png", "pet/assets/hunyuan-commanding-v003.png", "pet/assets/hunyuan-core-v1.png", "pet/assets/hunyuan-editing-liftcheck-v2.png", "pet/assets/hunyuan-responding-v001.png", "pet/assets/hunyuan-searching-v001.png", "pet/assets/hunyuan-status-v1.png", "pet/assets/hunyuan-testing-v002.png", "pet/assets/hunyuan-thinking-v002.png", "pet/assets/kimi-commanding-v001.png", "pet/assets/kimi-core-v1.png", "pet/assets/kimi-editing-v001.png", "pet/assets/kimi-responding-stable-20261026-v2-f01.png", "pet/assets/kimi-responding-stable-20261026-v2-f02.png", "pet/assets/kimi-responding-stable-20261026-v2-f03.png", "pet/assets/kimi-responding-stable-20261026-v2-f04.png", "pet/assets/kimi-status-v2.png", "pet/assets/kimi-testing-v001.png", "pet/assets/kimi-thinking-v001.png", "pet/assets/llama-commanding-v001.png", "pet/assets/llama-core-v1.png", "pet/assets/llama-editing-v002.png", "pet/assets/llama-responding-v001.png", "pet/assets/llama-searching-v001.png", "pet/assets/llama-status-v1.png", "pet/assets/llama-testing-v001.png", "pet/assets/llama-thinking-v002.png", "pet/assets/mimo-commanding-v001.png", "pet/assets/mimo-editing-v001.png", "pet/assets/mimo-idle-v3.png", "pet/assets/mimo-responding-v001.png", "pet/assets/mimo-searching-v003.png", "pet/assets/mimo-status-v1.png", "pet/assets/mimo-testing-v001.png", "pet/assets/mimo-thinking-v002.png", "pet/assets/mimo-waiting-v001.png", "pet/assets/mimo-work-v3.png", "pet/assets/minimax-commanding-v001.png", "pet/assets/minimax-core-v1.png", "pet/assets/minimax-editing-v001.png", "pet/assets/minimax-responding-v003.png", "pet/assets/minimax-searching-v001.png", "pet/assets/minimax-status-v1.png", "pet/assets/minimax-testing-v001.png", "pet/assets/minimax-thinking-v001.png", "pet/assets/mistral-commanding-v1.png", "pet/assets/mistral-core-v1.png", "pet/assets/mistral-editing-v1.png", "pet/assets/mistral-responding-v1.png", "pet/assets/mistral-searching-v1.png", "pet/assets/mistral-status-v2.png", "pet/assets/mistral-testing-v1.png", "pet/assets/mistral-thinking-lowtilt-v1-00.png", "pet/assets/mistral-thinking-lowtilt-v1-01.png", "pet/assets/mistral-thinking-lowtilt-v1-02.png", "pet/assets/qwen-commanding-v1.png", "pet/assets/qwen-core-v1.png", "pet/assets/qwen-responding-v1.png", "pet/assets/qwen-searching-compare-return-v5-00.png", "pet/assets/qwen-searching-compare-return-v5-01.png", "pet/assets/qwen-searching-compare-return-v5-02.png", "pet/assets/qwen-searching-compare-return-v5-03.png", "pet/assets/qwen-searching-compare-return-v5-04.png", "pet/assets/qwen-searching-compare-return-v5-05.png", "pet/assets/qwen-searching-compare-return-v5-06.png", "pet/assets/qwen-searching-compare-return-v5-07.png", "pet/assets/qwen-searching-compare-return-v5-08.png", "pet/assets/qwen-searching-compare-return-v5-09.png", "pet/assets/qwen-searching-compare-return-v5-10.png", "pet/assets/qwen-searching-compare-return-v5-12.png", "pet/assets/qwen-searching-compare-return-v5-17.png", "pet/assets/qwen-searching-compare-return-v5-18.png", "pet/assets/qwen-searching-compare-return-v5-19.png", "pet/assets/qwen-status-v2.png", "pet/assets/qwen-testing-desk-v2.png", "pet/assets/qwen-thinking-v1.png", "pet/assets/stella-commanding-v1.png", "pet/assets/stella-core-v1.png", "pet/assets/stella-editing-v1.png", "pet/assets/stella-responding-v1.png", "pet/assets/stella-searching-v1.png", "pet/assets/stella-status-v2.png", "pet/assets/stella-testing-fixed-page-v1.png", "pet/assets/stella-thinking-v1.png", "pet/assets/stella-working-v1.png", "pet/client.js", "pet/controller.js", "pet/dsh-dafeiyu-LICENSE.txt", "pet/folders.js", "pet/index.js", "pet/model.js", "pet/native.js", "pet/native/win-x64/KujiraPet.exe", "pet/sprite-canvas.js", "pet/standard-manifest.js", "pet/stats.js", "pet/task.js", "pet/usage.js", "world/00-共同世界观.md", "world/10-公开角色名录.md", "world/12-星璃.md", "world/20-大家眼中的她们.md", "world/_资料来源.md"])
+          archive=pathlib.Path(sys.argv[1])
+          with tarfile.open(archive) as t:
+              entries=t.getmembers()
+              assert len(entries)==230 and all(m.isfile() for m in entries), 'unexpected entry type/count'
+              names=[m.name.removeprefix('package/') for m in entries]
+              assert all(m.name.startswith('package/') for m in entries), 'invalid prefix'
+              assert len(set(names))==230 and set(names)==expected, 'package whitelist mismatch'
+              assert sum(n.startswith('pet/assets/') and n.endswith('.png') for n in names)==144
+              for m,n in zip(entries,names):
+                  packed=t.extractfile(m).read()
+                  committed=subprocess.check_output(['git','show','7b3674fec1600a7383a65ca92a3f46868182a8e8:'+n])
+                  assert hashlib.sha256(packed).digest()==hashlib.sha256(committed).digest(), 'payload mismatch: '+n
+              manifest=json.loads(t.extractfile('package/package.json').read())
+              assert manifest['name']=='dsh-kujira-persona' and manifest['version']=='2.3.1' and manifest['dsh']['bundle']['patch']
+          print('Verified all 230 payload files against source commit; 144 PNGs; no extra files')
+          PYVERIFY
+          SHA="$(sha256sum "$PACKAGE" | cut -d ' ' -f1)"
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          printf '%s  dsh-kujira-persona-2.3.1.tgz\n' "$SHA" > "$RUNNER_TEMP/kujira-package/SHA256SUMS.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kujira-231-package-digest
+          path: ${{ runner.temp }}/kujira-package/SHA256SUMS.txt
+  browser-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7b3674fec1600a7383a65ca92a3f46868182a8e8
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Install isolated React and DSH menu fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="$RUNNER_TEMP/kujira-browser"
+          mkdir -p "$SDK"
+          cp scripts/qa/native-theme-browser-deps.json "$SDK/package.json"
+          npm install --prefix "$SDK" --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          "$SDK/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Run real DOM menu, skin, drag and layout tests
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-browser-report" node scripts/qa/pet-menu-browser-check.mjs
+      - name: Official primitive sampling and Cordis cleanup
+        shell: bash
+        run: |
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-browser" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/kujira-theme-report" node scripts/qa/native-theme-browser-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-231-browser-reports
+          path: |
+            ${{ runner.temp }}/kujira-browser-report/
+            ${{ runner.temp }}/kujira-theme-report/
+  windows-native:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7b3674fec1600a7383a65ca92a3f46868182a8e8
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Install native file-lock dependency and run portable diary recovery tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          npm install --no-save --package-lock=false --no-audit --no-fund --registry https://registry.npmjs.org fs-native-extensions@1.5.1
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          node -e 'require("fs-native-extensions")'
+          if ($LASTEXITCODE -ne 0) { throw 'Native file-lock dependency failed to load' }
+          $checks = @(Get-ChildItem scripts/qa/release230/recovery, scripts/qa/release230/independent -Filter *.test.mjs | Sort-Object FullName | ForEach-Object { $_.FullName })
+          node --test --test-concurrency=1 --test-timeout=60000 @checks
+          if ($LASTEXITCODE -ne 0) { throw 'Portable diary regression failed' }
+      - name: Build native desktop pet and verify WPF protocol and visibility
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./scripts/qa/verify-native.ps1 -OutputDirectory "$env:RUNNER_TEMP/kujira-native"
+          if ($LASTEXITCODE -ne 0) { throw "Native QA failed: $LASTEXITCODE" }
+      - name: Verify actual Windows packaged pet changes display surface without a stale window
+        shell: pwsh
+        env:
+          KUJIRA_NATIVE_TEST_OUTPUT: ${{ runner.temp }}/kujira-native/surface-switch
+        run: |
+          node --test --test-timeout=60000 scripts/qa/surface-switch-native-windows.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Real Windows surface-switch test failed' }
+          $resultPath = Join-Path $env:KUJIRA_NATIVE_TEST_OUTPUT 'surface-switch-native-result.json'
+          $result = Get-Content $resultPath -Raw | ConvertFrom-Json
+          if ($result.passed -ne $true -or $result.liveChildren -ne 0) { throw 'Native surface evidence did not confirm success and zero live children' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kujira-231-native-checks
+          path: ${{ runner.temp }}/kujira-native/
+
+  publish:
+    needs: [regressions, browser-menu, windows-native]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 7b3674fec1600a7383a65ca92a3f46868182a8e8
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Repack twice, match tested digest and verify all exact source payloads
+        shell: bash
+        env:
+          REGRESSION_PACKAGE_SHA: ${{ needs.regressions.outputs.package-sha256 }}
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          test "$(git rev-parse HEAD)" = '7b3674fec1600a7383a65ca92a3f46868182a8e8'
+          git diff --exit-code d930b2adcc2aec932ad7d85576488f8fe75045c4 7b3674fec1600a7383a65ca92a3f46868182a8e8 -- pet/assets 'pet/art*.js'
+          test "$(sha256sum pet/native/win-x64/KujiraPet.exe | cut -d ' ' -f1)" = 'c2c8124e133450018374bc1e00a7e6519bda49eef711b010acf72c632f151663'
+          mkdir -p dist "$RUNNER_TEMP/kujira-repack"
+          npm pack --ignore-scripts --pack-destination dist
+          npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP/kujira-repack"
+          PACKAGE="dist/dsh-kujira-persona-2.3.1.tgz"
+          cmp "$PACKAGE" "$RUNNER_TEMP/kujira-repack/dsh-kujira-persona-2.3.1.tgz"
+          test "$(sha256sum "$PACKAGE" | cut -d ' ' -f1)" = "$REGRESSION_PACKAGE_SHA"
+          python - "$PACKAGE" <<'PYVERIFY'
+          import hashlib,json,pathlib,subprocess,sys,tarfile
+          expected=set(["CHANGELOG.md", "LICENSE", "NOTICE.md", "README.md", "catalog.js", "cordis.patch.yml", "daily-diary.js", "diary-integration.js", "diary-sleep.js", "diary.js", "dossier.js", "icon.svg", "index.js", "instructions/README.md", "locale/en.json", "locale/zh.json", "package.json", "persona-migration.js", "persona/00-身份.md", "persona/10-外观.md", "persona/20-性格.md", "persona/30-说话.md", "persona/40-世界观分层.md", "persona/50-关系.md", "persona/60-我们的原创设定.md", "persona/70-记忆协议.md", "persona/80-资料源.md", "persona/90-记忆.md", "persona/_编辑说明.md", "personas/claude/00-基础设定.md", "personas/claude/90-记忆.md", "personas/doubao/00-基础设定.md", "personas/doubao/90-记忆.md", "personas/gemini/00-基础设定.md", "personas/gemini/90-记忆.md", "personas/glm/00-基础设定.md", "personas/glm/90-记忆.md", "personas/gpt/00-身份.md", "personas/gpt/10-外观.md", "personas/gpt/20-性格与表达.md", "personas/gpt/70-学习规则.md", "personas/gpt/90-记忆.md", "personas/gpt/_来源说明.md", "personas/grok/00-基础设定.md", "personas/grok/90-记忆.md", "personas/hunyuan/00-基础设定.md", "personas/hunyuan/90-记忆.md", "personas/kimi/00-基础设定.md", "personas/kimi/90-记忆.md", "personas/llama/00-基础设定.md", "personas/llama/90-记忆.md", "personas/mimo/00-基础设定.md", "personas/mimo/90-记忆.md", "personas/minimax/00-基础设定.md", "personas/minimax/90-记忆.md", "personas/mistral/00-基础设定.md", "personas/mistral/90-记忆.md", "personas/qwen/00-基础设定.md", "personas/qwen/90-记忆.md", "personas/stella/00-基础设定.md", "personas/stella/90-记忆.md", "personas/stella/_来源说明.md", "pet/NOTICE.md", "pet/activity.js", "pet/animation.js", "pet/art-secondary.js", "pet/art-state-completion.js", "pet/art.js", "pet/assets/claude-commanding-v001.png", "pet/assets/claude-core-work-v2.png", "pet/assets/claude-responding-v001.png", "pet/assets/claude-searching-v001.png", "pet/assets/claude-status-v2.png", "pet/assets/claude-testing-v001.png", "pet/assets/claude-thinking-v001.png", "pet/assets/deepseek-commanding-v001.png", "pet/assets/deepseek-drag-land-v1.png", "pet/assets/deepseek-idle-think-v2.png", "pet/assets/deepseek-responding-v002.png", "pet/assets/deepseek-searching-v001.png", "pet/assets/deepseek-status-v1.png", "pet/assets/deepseek-testing-v002.png", "pet/assets/deepseek-work-wait-v1.png", "pet/assets/doubao-commanding-v1.png", "pet/assets/doubao-core-v1.png", "pet/assets/doubao-editing-v1.png", "pet/assets/doubao-responding-v1.png", "pet/assets/doubao-searching-v1.png", "pet/assets/doubao-status-v1.png", "pet/assets/doubao-testing-v1.png", "pet/assets/doubao-thinking-v1.png", "pet/assets/gemini-commanding-v1.png", "pet/assets/gemini-core-work-v1.png", "pet/assets/gemini-responding-v1.png", "pet/assets/gemini-searching-v1.png", "pet/assets/gemini-status-v1.png", "pet/assets/gemini-testing-v1.png", "pet/assets/gemini-thinking-go-v4.png", "pet/assets/glm-commanding-v001.png", "pet/assets/glm-core-v1.png", "pet/assets/glm-editing-v001.png", "pet/assets/glm-responding-v001.png", "pet/assets/glm-searching-v002.png", "pet/assets/glm-status-v1.png", "pet/assets/glm-testing-v002.png", "pet/assets/glm-thinking-v001.png", "pet/assets/gpt-command-test-v2.png", "pet/assets/gpt-core-v3.png", "pet/assets/gpt-error-drag-v1.png", "pet/assets/gpt-idle-micro-v1.png", "pet/assets/gpt-land-pat-v2.png", "pet/assets/gpt-poke-tail-v1.png", "pet/assets/gpt-research-edit-v2.png", "pet/assets/gpt-responding-v1.png", "pet/assets/gpt-testing-checklist-v2-00.png", "pet/assets/gpt-testing-checklist-v2-01.png", "pet/assets/gpt-testing-checklist-v2-02.png", "pet/assets/gpt-testing-checklist-v2-03.png", "pet/assets/gpt-using-tool-typing-v4.png", "pet/assets/gpt-wait-success-v1.png", "pet/assets/grok-commanding-v1.png", "pet/assets/grok-core-v1.png", "pet/assets/grok-editing-v1.png", "pet/assets/grok-responding-v1.png", "pet/assets/grok-status-v1.png", "pet/assets/grok-testing-v1.png", "pet/assets/grok-thinking-headhand-v3.png", "pet/assets/grok-work-v3.png", "pet/assets/hunyuan-commanding-v003.png", "pet/assets/hunyuan-core-v1.png", "pet/assets/hunyuan-editing-liftcheck-v2.png", "pet/assets/hunyuan-responding-v001.png", "pet/assets/hunyuan-searching-v001.png", "pet/assets/hunyuan-status-v1.png", "pet/assets/hunyuan-testing-v002.png", "pet/assets/hunyuan-thinking-v002.png", "pet/assets/kimi-commanding-v001.png", "pet/assets/kimi-core-v1.png", "pet/assets/kimi-editing-v001.png", "pet/assets/kimi-responding-stable-20261026-v2-f01.png", "pet/assets/kimi-responding-stable-20261026-v2-f02.png", "pet/assets/kimi-responding-stable-20261026-v2-f03.png", "pet/assets/kimi-responding-stable-20261026-v2-f04.png", "pet/assets/kimi-status-v2.png", "pet/assets/kimi-testing-v001.png", "pet/assets/kimi-thinking-v001.png", "pet/assets/llama-commanding-v001.png", "pet/assets/llama-core-v1.png", "pet/assets/llama-editing-v002.png", "pet/assets/llama-responding-v001.png", "pet/assets/llama-searching-v001.png", "pet/assets/llama-status-v1.png", "pet/assets/llama-testing-v001.png", "pet/assets/llama-thinking-v002.png", "pet/assets/mimo-commanding-v001.png", "pet/assets/mimo-editing-v001.png", "pet/assets/mimo-idle-v3.png", "pet/assets/mimo-responding-v001.png", "pet/assets/mimo-searching-v003.png", "pet/assets/mimo-status-v1.png", "pet/assets/mimo-testing-v001.png", "pet/assets/mimo-thinking-v002.png", "pet/assets/mimo-waiting-v001.png", "pet/assets/mimo-work-v3.png", "pet/assets/minimax-commanding-v001.png", "pet/assets/minimax-core-v1.png", "pet/assets/minimax-editing-v001.png", "pet/assets/minimax-responding-v003.png", "pet/assets/minimax-searching-v001.png", "pet/assets/minimax-status-v1.png", "pet/assets/minimax-testing-v001.png", "pet/assets/minimax-thinking-v001.png", "pet/assets/mistral-commanding-v1.png", "pet/assets/mistral-core-v1.png", "pet/assets/mistral-editing-v1.png", "pet/assets/mistral-responding-v1.png", "pet/assets/mistral-searching-v1.png", "pet/assets/mistral-status-v2.png", "pet/assets/mistral-testing-v1.png", "pet/assets/mistral-thinking-lowtilt-v1-00.png", "pet/assets/mistral-thinking-lowtilt-v1-01.png", "pet/assets/mistral-thinking-lowtilt-v1-02.png", "pet/assets/qwen-commanding-v1.png", "pet/assets/qwen-core-v1.png", "pet/assets/qwen-responding-v1.png", "pet/assets/qwen-searching-compare-return-v5-00.png", "pet/assets/qwen-searching-compare-return-v5-01.png", "pet/assets/qwen-searching-compare-return-v5-02.png", "pet/assets/qwen-searching-compare-return-v5-03.png", "pet/assets/qwen-searching-compare-return-v5-04.png", "pet/assets/qwen-searching-compare-return-v5-05.png", "pet/assets/qwen-searching-compare-return-v5-06.png", "pet/assets/qwen-searching-compare-return-v5-07.png", "pet/assets/qwen-searching-compare-return-v5-08.png", "pet/assets/qwen-searching-compare-return-v5-09.png", "pet/assets/qwen-searching-compare-return-v5-10.png", "pet/assets/qwen-searching-compare-return-v5-12.png", "pet/assets/qwen-searching-compare-return-v5-17.png", "pet/assets/qwen-searching-compare-return-v5-18.png", "pet/assets/qwen-searching-compare-return-v5-19.png", "pet/assets/qwen-status-v2.png", "pet/assets/qwen-testing-desk-v2.png", "pet/assets/qwen-thinking-v1.png", "pet/assets/stella-commanding-v1.png", "pet/assets/stella-core-v1.png", "pet/assets/stella-editing-v1.png", "pet/assets/stella-responding-v1.png", "pet/assets/stella-searching-v1.png", "pet/assets/stella-status-v2.png", "pet/assets/stella-testing-fixed-page-v1.png", "pet/assets/stella-thinking-v1.png", "pet/assets/stella-working-v1.png", "pet/client.js", "pet/controller.js", "pet/dsh-dafeiyu-LICENSE.txt", "pet/folders.js", "pet/index.js", "pet/model.js", "pet/native.js", "pet/native/win-x64/KujiraPet.exe", "pet/sprite-canvas.js", "pet/standard-manifest.js", "pet/stats.js", "pet/task.js", "pet/usage.js", "world/00-共同世界观.md", "world/10-公开角色名录.md", "world/12-星璃.md", "world/20-大家眼中的她们.md", "world/_资料来源.md"])
+          archive=pathlib.Path(sys.argv[1])
+          with tarfile.open(archive) as t:
+              entries=t.getmembers()
+              assert len(entries)==230 and all(m.isfile() for m in entries), 'unexpected entry type/count'
+              names=[m.name.removeprefix('package/') for m in entries]
+              assert all(m.name.startswith('package/') for m in entries), 'invalid prefix'
+              assert len(set(names))==230 and set(names)==expected, 'package whitelist mismatch'
+              assert sum(n.startswith('pet/assets/') and n.endswith('.png') for n in names)==144
+              for m,n in zip(entries,names):
+                  packed=t.extractfile(m).read()
+                  committed=subprocess.check_output(['git','show','7b3674fec1600a7383a65ca92a3f46868182a8e8:'+n])
+                  assert hashlib.sha256(packed).digest()==hashlib.sha256(committed).digest(), 'payload mismatch: '+n
+              manifest=json.loads(t.extractfile('package/package.json').read())
+              assert manifest['name']=='dsh-kujira-persona' and manifest['version']=='2.3.1' and manifest['dsh']['bundle']['patch']
+          print('Verified all 230 payload files against source commit; 144 PNGs; no extra files')
+          PYVERIFY
+          (cd dist && sha256sum dsh-kujira-persona-2.3.1.tgz > SHA256SUMS.txt && sha256sum --check SHA256SUMS.txt)
+          cp docs/releases/v2.3.1.md dist/RELEASE_NOTES.md
+          test -s dist/RELEASE_NOTES.md
+      - name: Fast-forward tested source to main with unchanged-base guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT_MAIN="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if test "$CURRENT_MAIN" = 'd930b2adcc2aec932ad7d85576488f8fe75045c4'; then
+            git push origin '7b3674fec1600a7383a65ca92a3f46868182a8e8:refs/heads/main'
+          elif test "$CURRENT_MAIN" != '7b3674fec1600a7383a65ca92a3f46868182a8e8'; then
+            echo 'main advanced independently; refusing to overwrite unrelated changes'
+            exit 1
+          fi
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = '7b3674fec1600a7383a65ca92a3f46868182a8e8'
+      - name: Read version-specific release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp docs/releases/v2.3.1.md dist/RELEASE_NOTES.md
+          test -s dist/RELEASE_NOTES.md
+      - name: Publish v2.3.1 tag and tested assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v2.3.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'v2.3.1 already exists; preserving existing published assets'
+            exit 0
+          fi
+          gh release create v2.3.1 dist/dsh-kujira-persona-2.3.1.tgz dist/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target '7b3674fec1600a7383a65ca92a3f46868182a8e8' \
+            --title 'Kujira 2.3.1 — 桌宠显示模式原位切换修复' \
+            --notes-file dist/RELEASE_NOTES.md \
+            --latest
+
+      - name: Download and verify the published installation package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/published-release"
+          gh release download v2.3.1 --repo "$GITHUB_REPOSITORY" \
+            --pattern dsh-kujira-persona-2.3.1.tgz --pattern SHA256SUMS.txt \
+            --dir "$RUNNER_TEMP/published-release"
+          (cd "$RUNNER_TEMP/published-release" && sha256sum --check SHA256SUMS.txt)
+          cmp dist/dsh-kujira-persona-2.3.1.tgz "$RUNNER_TEMP/published-release/dsh-kujira-persona-2.3.1.tgz"
+          tar -xOf "$RUNNER_TEMP/published-release/dsh-kujira-persona-2.3.1.tgz" package/package.json \
+            | node -e 'let x="";process.stdin.on("data",b=>x+=b).on("end",()=>{const p=JSON.parse(x);if(p.version!=="2.3.1"||p.name!=="dsh-kujira-persona"||!p.dsh?.bundle?.patch)process.exit(1)})'
+
+
+
+          gh release view v2.3.1 --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,tagName > "$RUNNER_TEMP/published-release/release-state.json"
+          node -e 'const r=require(process.argv[1]);if(r.isDraft||r.isPrerelease||r.tagName!=="v2.3.1")process.exit(1)' "$RUNNER_TEMP/published-release/release-state.json"
+          TAG_COMMIT="$(git ls-remote origin 'refs/tags/v2.3.1^{}' | cut -f1)"
+          if test -z "$TAG_COMMIT"; then TAG_COMMIT="$(git ls-remote origin refs/tags/v2.3.1 | cut -f1)"; fi
+          test "$TAG_COMMIT" = '7b3674fec1600a7383a65ca92a3f46868182a8e8'
+

@@ -4,8 +4,6 @@
 
 > **Kujira 2.3.1。** 随 DSH 模型切换 AI 角色，保存共同世界观和独立记忆，并提供可选的模型联动桌宠。
 
-**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
-
 ## 2.3.1 更新
 
 修复桌宠在 Windows 桌面与 DSH 页面内切换后消失的问题。直接修改显示位置即可切换，不需要取消后重新勾选“启用桌宠”；切换过程保留启用状态和当前会话。

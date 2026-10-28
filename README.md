@@ -115,6 +115,14 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 “睡眠整理”独立开关，默认关闭。开启后，仅在所有对话任务空闲时，使用前台当前选择的同一模型整理当前角色昨天及更早的日记；新任务开始时停止后台整理。整理结果可优先检索，原文保留。**此功能会在后台自动调用 AI，产生额外 token 消耗，消耗量无法预估。**
 
+#### 运行实例：她们真的开始记日记了
+
+开启 AI 日记后，角色可以自行决定何时记录。一次实际运行中，DeepSeek 主动生成了当天的长日记，并整理了对应摘要，分别保存在自己的 `long` 和 `short` 目录。
+
+| 长日记 | 日记摘要 |
+| --- | --- |
+| ![DeepSeek 长日记文件](docs/images/diary-long-example.png) | ![DeepSeek 日记摘要文件](docs/images/diary-summary-example.png) |
+
 ## 安装和升级
 
 当前正式版本为 **v2.3.1**。更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)。

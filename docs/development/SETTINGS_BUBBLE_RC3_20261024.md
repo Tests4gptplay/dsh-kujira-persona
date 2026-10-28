@@ -16,7 +16,7 @@
 ## 验证
 
 - `node --test`：4 个本地集成／组件／文件夹用例通过；另有 `scripts/qa/settings-rc3-check.mjs` 两个针对性回归用例通过。
-- Chromium：从 0.8 调至 1.4 时，气泡整体、标题、工作统计及余额区宽高比例均为 **1.75**；截图和临时视觉测试保留在助手 QA 工作区。
+- Chromium：从 0.8 调至 1.4 时，气泡整体、标题、工作统计及余额区宽高比例均为 **1.75**。
 - Host RPC 模拟：真实文件大小统计、返回数据、非法路径拒绝和请求响应协议通过。
 - npm 打包检查：**121** 个运行文件，**40** 张角色图集、Windows EXE、许可保留；无旧版平面 SVG/PNG、QA 或临时测试文件。
 - 开发分支实际源码与候选包的 6 个修改文件 Git blob SHA 一致。
@@ -28,4 +28,3 @@
 - SHA256：`10993a3e747e64f4af41174c4a62c8c09e1df236c7d82934d12aa70269358f47`
 - 包含 `pet/folders.js` 新增文件。
 - 本轮运行验证在 Linux Node.js 与 Chromium 完成；Windows 文件管理器的真实弹窗和完整 Desktop 宿主呈现留待 Windows DSH 实机核对。已有 Windows 原生桌宠 EXE 沿用当前候选，没有重新编译。
-- 正式 `main`、Release 和插件市场保持原状。

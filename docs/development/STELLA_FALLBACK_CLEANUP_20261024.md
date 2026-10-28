@@ -33,4 +33,4 @@
 - `Kujira_v2_Stella_Clean_Playable_20261024.zip`：83,567,098 bytes；SHA256 `0ef68dbbc6bf50ddfc2d515823fe3f2f0d01d943f388751cba4d0ffacef94bf2`。
 - 旧候选压缩包保留历史文件名供追溯；测试和更新以本轮新候选为准。
 
-测试环境：独立 Node.js 与 Chromium 浏览器组件验证；原有真实 DSH 联动结果见 `REMOTE_DSH_QA_20261024.json`。本次没有写入已安装的用户 DSH profile。正式 main、Release 和市场版本保持原状态。
+测试环境：独立 Node.js 与 Chromium 浏览器组件验证；原有真实 DSH 联动结果见 `REMOTE_DSH_QA_20261024.json`。

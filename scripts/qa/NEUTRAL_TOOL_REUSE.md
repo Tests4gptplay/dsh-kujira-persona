@@ -18,6 +18,6 @@
 |Grok|持资料板停手，观察任务|neutral_tool|
 |Doubao|手离开触发位置，持板观察|neutral_tool|
 
-每个neutral_tool.frames[0]等于同角色authored_commanding.frames最后一项，时长沿用该末帧。测试验证首次显示即为停手姿态，并在60秒后仍保持该姿态。复用项单独统计，不增加新绘图集数。
+每个neutral_tool.frames[0]等于同角色authored_commanding.frames最后一项，时长沿用该末帧。测试验证首次显示即为停手姿态，并在60秒后仍保持该姿态。
 
 Stella使用新绘authored_working：专注工作面，包含短眨眼的3姿态循环，同时作为generic working与using-tool。GPT沿用中性idle。

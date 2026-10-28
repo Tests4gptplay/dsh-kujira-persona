@@ -1,11 +1,11 @@
 # Kujira 2.0.0-alpha.2 人物预设与目录验收
 
-日期：2026-10-25。执行范围：2.0.0 开发分支；正式 main／Release／市场版本未修改。
+日期：2026-10-25。验证范围：2.0.0 开发分支。
 
 ## 人物档案
 
-- 已清理原先由助手自行加入的非星璃角色固定性格、口癖、自称昵称和关系。GPT、DeepSeek、Gemini、Claude 等保留有来源的外形和社区资料；个人性格空白由用户通过对话养成。
-- 共享世界观保留 DeepSeek 的“大肥鱼／蓝色大肥鱼”、Gemini 的“猫猫／哈基米”，以及有出处的作品互动。DeepSeek 默认使用 DeepSeek，Gemini 默认使用 Gemini；“星猫”为用户指定的界面显示名。
+- 已清理原先的非星璃角色固定性格、口癖、自称昵称和关系。GPT、DeepSeek、Gemini、Claude 等保留有来源的外形和社区资料；个人性格空白由用户通过对话养成。
+- 共享世界观保留 DeepSeek 的“大肥鱼／蓝色大肥鱼”、Gemini 的“猫猫／哈基米”，以及有出处的作品互动。DeepSeek 默认使用 DeepSeek，Gemini 默认使用 Gemini；“星猫”为项目界面显示名。
 - 星璃的原创人物与视觉资产未改；用户自己修改的人设、记忆、模型绑定不作为批量清理目标。
 - 资料依据：[ai-gijinka 社区记录](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/main/COMMUNITY_IMPRESSIONS.md)、[来源台账](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/main/research/2026-10-24/SOURCE_LEDGER.md)。
 
@@ -22,7 +22,7 @@
 - `node --test scripts/qa/persona-defaults-check.mjs`：3 个聚焦案例通过（15 角色初始化、共享世界观注入、自称、一次性迁移与删除保护、默认性格清理、打包白名单）。
 - JS 语法检查：19 个源码 JS 文件通过。
 - 使用 npm 生成并解开候选运行包：122 个运行文件、40 张 PNG 图集、迁移模块齐全，没有打入 QA 文件。
-- 本轮运行验证采用隔离 Node.js 测试宿主和文件操作；此前真实 DSH Web 链路的验证记录保留在 `REMOTE_DSH_QA_20261024.json`。这次没有改动任何用户已安装的 DSH profile。
+- 本轮运行验证采用隔离 Node.js 测试宿主和文件操作；此前真实 DSH Web 链路的验证记录保留在 `REMOTE_DSH_QA_20261024.json`。
 
 ## 本轮包内核对
 

@@ -93,7 +93,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 离线试玩可从源码构建；本次提供插件 `.tgz` 和校验文件，不包含试玩 ZIP。安装 Node.js 后，在源码目录运行 `node scripts/qa/build-playable.mjs <空输出目录>`，保留生成的 `index.html` 和 `assets` 目录结构，双击 `index.html` 即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
 
-试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。源码仓库提供 [试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/scripts/qa/build-playable.mjs)（Node.js），如需重新制作试玩，可在源码目录运行。功能检查与环境记录见 [开发进度](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/development/PROGRESS_20261024.md)。
+试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。[试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/scripts/qa/build-playable.mjs)与[功能检查记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/development/PROGRESS_20261024.md)可在源码仓库查看。
 
 ## 2.3.0：人物档案与实验性日记
 

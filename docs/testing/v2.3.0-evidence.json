@@ -54,27 +54,24 @@
     "tool-results-summary.json": "f3d6139f3557b3bab1368ac1b7c901f48cfc5d1d8ececa2529ec29563840d62b",
     "summary.json": "f11444e5e58a7d4f94e62a9d0b8844b061fa0fcd08f6211ec0ed22e69e4c0dd5"
   },
-  "evidence_note": "Hashes identify reviewed source records; full raw records are not published. This summary excludes test content and environment paths. Release archive checksums are published separately.",
+  "evidence_note": "Hashes identify source records; full raw records are not published. Release archive checksums are published separately.",
   "image_evidence": [
     {
       "file": "assets/qwen-search-contact.jpg",
       "kind": "contact sheet of actual host screenshot regions",
-      "sha256": "fcce9a16eb71232bf40c3ac261c622e9a16d420e5c434cd47a6414e5b3ff6c8b",
-      "review": "Visually reviewed; contains public Qwen character and frame/time labels, no session titles, private text, accounts or credentials."
+      "sha256": "fcce9a16eb71232bf40c3ac261c622e9a16d420e5c434cd47a6414e5b3ff6c8b"
     },
     {
       "file": "assets/gpt-menu-dark.jpg",
       "kind": "unmodified browser region screenshot; static UI theme check",
       "capture_date_utc": "2026-10-28",
-      "sha256": "73a4ebc78c6c916a4c535106bdf03f78ba3acc64c2ef9ed1d1022db854c0d441",
-      "review": "Visually reviewed; public GPT character and native context menu only."
+      "sha256": "73a4ebc78c6c916a4c535106bdf03f78ba3acc64c2ef9ed1d1022db854c0d441"
     },
     {
       "file": "assets/gpt-menu-light.jpg",
       "kind": "unmodified browser region screenshot; static UI theme check",
       "capture_date_utc": "2026-10-28",
-      "sha256": "a88001f51a6c17ea0c40e6d639455a3f5e07fdb0550e599d37a051baa1295f59",
-      "review": "Visually reviewed; public GPT character and native context menu only."
+      "sha256": "a88001f51a6c17ea0c40e6d639455a3f5e07fdb0550e599d37a051baa1295f59"
     }
   ],
   "archives": {

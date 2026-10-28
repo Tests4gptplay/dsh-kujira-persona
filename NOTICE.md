@@ -4,7 +4,7 @@ Kujira 是基于 AI 娘化社区设定制作的同人项目。角色预设、对
 
 ## 角色与文字资料
 
-DeepSeek 鲸鱼娘保留原有署名链：上善无形的鲸鱼娘原型「溟月」→ ZipZipPipe 的 DeepSeek 女仆二创 → 本插件文字整理和用户私设。原有角色条件及 CC BY-NC-SA 4.0 保留。
+DeepSeek 鲸鱼娘保留原有署名链：上善无形的鲸鱼娘原型「溟月」→ ZipZipPipe 的 DeepSeek 女仆二创 → 本插件文字整理与自定义设定。原有角色条件及 CC BY-NC-SA 4.0 保留。
 
 GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包／Seed 的视觉母题来自 ZipZipPipe [《AI娘化》](https://www.pixiv.net/artworks/148186519)。相关角色图号分别为 p03、p04、p02、p07、p06、p05、p12、p15、p13、p10。
 
@@ -24,7 +24,7 @@ GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包／Se
 
 ## 2.0.0 动画图集
 
-角色图集依据本轮提供的参考图，以及 `ai-gijinka-art-world` [固定快照 `d858777`](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/d8587770c24ce684427f5b5f9ad4ca09289aba8e) 的角色资料，通过 AI 生成与整理。GPT 主要参照用户提供的三张 Q 版角色图；其他角色分别沿用自己的发型、服饰、配件和外形母题。
+角色图集依据角色参考图及 `ai-gijinka-art-world` [固定快照 `d858777`](https://github.com/Tests4gptplay/ai-gijinka-art-world/tree/d8587770c24ce684427f5b5f9ad4ca09289aba8e) 的角色资料，通过 AI 生成与整理。GPT 主要参照三张 Q 版角色图；其他角色分别沿用自己的发型、服饰、配件和外形母题。
 
 多帧图集经过选帧、裁切和时间线编排，用于桌宠的待机、工作、等待、结果及交互动作。部分功能阶段共用中性动作。动画素材与播放方式见 [桌宠说明](pet/NOTICE.md)。
 

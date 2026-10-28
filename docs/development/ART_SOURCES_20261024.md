@@ -13,7 +13,7 @@
 | [shuaizenge/ai-girls catalog](https://github.com/shuaizenge/ai-girls/blob/dcd69f5f4f2dff1a9c0031e82deb49e0fe949c76/catalog.json) | `dcd69f5f4f2dff1a9c0031e82deb49e0fe949c76` | 作者、作品编号、页码与图像归档交叉核对 |
 | [SelinLee/ai-moe-atlas：Seed 归档](https://github.com/SelinLee/ai-moe-atlas/blob/018bc3ca6c8d946006dacfc0bca7bf65a6dff4d6/public/collected/zipzippipe-doubao/manifest.json) | `018bc3ca6c8d946006dacfc0bca7bf65a6dff4d6` | Seed/豆包版本和 p10 索引冲突核对 |
 
-GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以用户提供的三张 GPT 参考图为优先依据。社区龙娘资料用于核对身份；本轮连续帧由项目按这些造型参考制作。
+GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以三张 GPT 参考图为优先依据。社区龙娘资料用于核对身份；本轮连续帧由项目按这些造型参考制作。
 
 其他角色先锁定各自原图中的发型、耳尾、服饰结构、标志和道具，再统一为细线稿、柔和上色的 Q 版桌宠。GPT 的参考只统一美术处理，不把龙角、膜翼、裙装或性格转移给其他角色。新增动作保留所选版本，不以换发色的同一底模替代各个人物。
 
@@ -36,7 +36,7 @@ GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以�
 | 角色及固定档案 | 作者／选定版本 | 必须保留的身份特征和区别 |
 | --- | --- | --- |
 | [DeepSeek](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/deepseek.md) | 上善无形的鲸鱼娘原型 → ZipZipPipe 的 DeepSeek 女仆二创；S2 的小 DeepSeek 与已有笔记本变体 | 深蓝至浅蓝长发、蓝眼、鳍耳、白褶边头饰及画面右侧蓝蝴蝶结、深蓝白金女仆裙、鲸形围裙标记、平滑宽大双叶鲸尾。笔记本与笔有变体依据；不凭空补单片眼镜。 |
-| [GPT](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/gpt.md) | ZipZipPipe S1 p03 龙娘身份；本轮最新三张用户参考优先控制样式 | 银白长发、淡紫瞳、分节龙角、浅紫膜翼、分节鳞尾、完整白紫银层叠裙、固定在画面右侧的非对称旋结发饰。不得镜像徽记或把膜翼改成羽翼。 |
+| [GPT](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/gpt.md) | ZipZipPipe S1 p03 龙娘身份；三张 GPT 参考图用于确定样式 | 银白长发、淡紫瞳、分节龙角、浅紫膜翼、分节鳞尾、完整白紫银层叠裙、固定在画面右侧的非对称旋结发饰。不得镜像徽记或把膜翼改成羽翼。 |
 | [Gemini](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/gemini.md) | ZipZipPipe S1 p04；不用身份有争议的 p10 | 蓝紫粉渐变发、猫耳和单条猫尾、星形饰物、紫色短裙及白色内层；画面左眼粉紫、右眼金黄，眼色不得交换。 |
 | [Claude](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/claude.md) | ZipZipPipe S1 p02 | 橙发、日轮／菊状发饰、米白橙黑长裙、带放射纹的深色书本。书本校对动作保留原服饰分区；不默认使用处罚牌。 |
 | [GLM](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/characters/glm.md) | ZipZipPipe S1 p06 | 黑长发、黑白狐耳与蓬松狐尾、黑白裙、书本、银色配饰及 Z 标记。耳尾按狐娘处理，不混同 Gemini 的猫耳猫尾。 |
@@ -52,7 +52,7 @@ GPT 的画风、头身比例、完整白紫裙装和非对称旋结徽记，以�
 
 ### Seed／豆包 p10 的归档冲突
 
-同一张原图在 shuaizenge/ai-girls 中被列为 Gemini 变体，在 SelinLee/ai-moe-atlas 中归为 Seed/豆包。本轮按用户 gijinka 库的 SEED 图像证据选用豆包版本，并在来源记录中保留不同目录的分类差异。用于核对同图的原始文件 SHA-256 为 `a923dd580c161ecb0f869b8c0457deaece480a74d0f0f00e4abadf55521d99ce`。Gemini 本轮始终使用 p04，因此两个角色不共享这张身份参考。[固定来源台账](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/research/2026-10-24/SOURCE_LEDGER.md)
+同一张原图在 shuaizenge/ai-girls 中被列为 Gemini 变体，在 SelinLee/ai-moe-atlas 中归为 Seed/豆包。本轮按 ai-gijinka-art-world 的 SEED 图像证据选用豆包版本，并在来源记录中保留不同目录的分类差异。用于核对同图的原始文件 SHA-256 为 `a923dd580c161ecb0f869b8c0457deaece480a74d0f0f00e4abadf55521d99ce`。Gemini 本轮始终使用 p04，因此两个角色不共享这张身份参考。[固定来源台账](https://github.com/Tests4gptplay/ai-gijinka-art-world/blob/d8587770c24ce684427f5b5f9ad4ca09289aba8e/research/2026-10-24/SOURCE_LEDGER.md)
 
 ## 4. 人格、动作和世界观边界
 

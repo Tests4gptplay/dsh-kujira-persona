@@ -96,5 +96,53 @@
       "passed": 292,
       "failed": 0
     }
+  },
+  "ci": {
+    "test_evidence_run_id": 40626809571,
+    "linux": {
+      "passed": 362,
+      "failed": 0,
+      "skipped": 0
+    },
+    "windows": {
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "mode": "automated diary and independent I/O tests",
+      "coverage": [
+        "diary recovery",
+        "cross-process file locking",
+        "independent I/O"
+      ]
+    },
+    "manual_windows_gui": "not performed",
+    "url": "https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571",
+    "conclusion": "success",
+    "workflow_commit_sha": "13403bb4710ec266a1b258fbdcacbde7cea90533",
+    "tested_source_commit_sha": "1efdfd811aaa0d3d10a4351b69f2d220e6ee78f7",
+    "tag": "v2.3.0",
+    "native_smoke": {
+      "platform": "Windows",
+      "conclusion": "success",
+      "coverage": [
+        "WPF menu surface",
+        "hover",
+        "geometry",
+        "typography",
+        "raster",
+        "actions",
+        "native protocol",
+        "native visibility"
+      ]
+    },
+    "browser": {
+      "platform": "Ubuntu Linux",
+      "browser": "Chromium",
+      "conclusion": "success",
+      "coverage": [
+        "browser menu",
+        "browser theme"
+      ]
+    }
   }
 }

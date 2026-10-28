@@ -130,7 +130,7 @@ dsh plugin --profile web add 'git+https://github.com/Tests4gptplay/dsh-kujira-pe
 
 ## 测试与验证
 
-本版本的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/v2.3.0/docs/testing/v2.3.0.md)。报告仅保留可公开的技术结论，不包含私密对话、个人档案、日记正文或凭据。
+本版本的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
 
 ## 来源与更新记录
 

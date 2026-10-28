@@ -88,39 +88,35 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-当前正式版本为 **v2.3.0**。安装包、SHA256 校验文件与更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0)。
+当前正式版本为 **v2.3.0**。更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0)。
 
 **更新前先关闭桌面上已显示的桌宠和提示气泡，再卸载旧包并安装新版。**
 
-从 [v2.3.0 Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0) 下载 `dsh-kujira-persona-2.3.0.tgz` 和 `SHA256SUMS.txt`，核对校验值后再安装。
+### DSH Desktop
 
-DSH Desktop：打开 **插件 → 添加插件**，输入该 `.tgz` 文件的完整路径，例如：
+打开 **插件 → 添加插件**，直接粘贴下面的正式安装包地址，无需先手动下载：
 
 ```text
-E:\Downloads\dsh-kujira-persona-2.3.0.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/dsh-kujira-persona-2.3.0.tgz
 ```
+
+### DSH Web
+
+在使用的 profile 中安装；例如 Web profile：
+
+```bash
+dsh plugin --profile web add 'https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/dsh-kujira-persona-2.3.0.tgz'
+```
+
+Web 与 Desktop 分别安装。
 
 安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内的 `.kujira-catalog.json`）。同时保留 DSH 数据目录中的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 及已配置的日记库；使用自定义路径时，以实际设置为准。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
 
-Web 版安装命令（替换为实际文件路径和使用的 profile）：
+### 备用方式
 
-```bash
-dsh plugin --profile web add '/path/to/dsh-kujira-persona-2.3.0.tgz'
-```
-
-Web 与 Desktop 分别安装。也可通过固定版本的 Git 地址安装：
-
-```text
-git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0
-```
-
-在 Desktop 的“添加插件”中输入上面的地址；Web 使用：
-
-```bash
-dsh plugin --profile web add 'git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0'
-```
-
-使用固定标签可避免跟随 `main` 的后续开发变更。
+- **本地文件安装：** 网络不便时，可从 [Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.0) 下载 `.tgz`，再在“添加插件”中填写文件完整路径；Web 命令中的 URL 也可替换为本地文件路径。
+- **固定 Git 版本：** 也支持 `git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.0`。
+- **可选校验：** [SHA256SUMS.txt](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.0/SHA256SUMS.txt) 可用于核对下载文件。
 
 ### Windows 安装提示 EPERM
 

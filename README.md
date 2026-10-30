@@ -1,4 +1,4 @@
-> **当前候选：2.3.1-acceptance.20261030.13**。本候选尚未正式发布；本轮新增默认设定一次性迁移通知，增量实机要求见 [验证清单](docs/testing/LOCAL-VALIDATION.md)。
+> **当前已发布候选：2.3.1-acceptance.20261030.13**。基础更新包 Windows 增量验证 7/7 通过；这是限定范围结果，不代表累计功能全量验收。见 [本候选验证摘要](docs/testing/CANDIDATE13-WINDOWS.md) 和 [发布范围与剩余边界](docs/testing/RELEASE-READINESS.md)。
 
 # Kujira · AI 角色与世界
 
@@ -18,7 +18,7 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 完成修改、保存并重新读取确认后，通过 `delete_update` 精确清理本次更新包，再仅删除本条通知；未完成或中断时留包继续。不会删除整个更新目录、其他更新包或未列入本包清单的用户文件。普通重启不重复创建已发出的同次更新，通知/包写入失败仍保留当前档案可读。关闭 AI 编辑权限时保留待处理，不绕过权限。独立记忆、日记和美术资源不随此功能重写。
 
-12 候选已由本候选替代，勿再安装或发布其旧迁移方案。云端测试不等于 Windows 实机验证；只补 [13 候选增量清单](docs/testing/LOCAL-VALIDATION.md) 的新增行为。
+12 候选已由本候选替代，勿再安装或发布其旧迁移方案。本候选基础更新包已完成 Windows 实机增量验证 7/7；已通过项不重复测试。其余累计功能的历史边界见 [验证范围](docs/testing/RELEASE-READINESS.md)，不把本轮结果扩大为全平台或全功能通过。
 
 ## 2.3.1 更新
 
@@ -133,7 +133,9 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz`。目前处于打包/审核阶段，尚未发布候选附件；使用审核交付的同名本地 TGZ，并以随包提供的 `SHA256SUMS.txt` 核对身份。发布后计划使用下面的候选附件地址，**只有 Release 实际存在同名附件后才能下载**，不把计划地址写成已经可用：
+固定安装包源码：`654a65816573f02e0799466a81c23ff863ad7596`。本次仅更新验证与发布准备文档，不重打TGZ、不移动tag；文档最新提交不是安装包源码提交。
+
+本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz`。候选附件现已发布，使用下面的固定版本地址，并以同一 Release 的 `SHA256SUMS.txt` 核对身份。这仍是预发布候选，不替代正式 latest：
 
 ```text
 https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261030.13/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz
@@ -158,6 +160,8 @@ Web与Desktop分别安装，启用后正常重启DSH。**保留 `.dsh/world`、`
 保留其他插件、profile 配置，以及上述人设和记忆目录，无需删除整个 `node_modules`、`package.json` 或 `pnpm-lock.yaml`。仍有问题可在 [Issues](https://github.com/Tests4gptplay/dsh-kujira-persona/issues) 附上脱敏错误日志。
 
 ## 测试与验证
+
+当前候选的 [Windows 增量摘要](docs/testing/CANDIDATE13-WINDOWS.md) 记录 7/7 限定用例通过；[发布准备边界](docs/testing/RELEASE-READINESS.md) 区分已关闭事项、历史未验范围与下一正式版本需作出的范围决定。原云端针对性结果继续采用，不把工具调用次数当作测试用例数。
 
 2.3.1 的显示位置切换回归见 [发布说明](docs/releases/v2.3.1.md)。基础功能的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
 

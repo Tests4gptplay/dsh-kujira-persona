@@ -6,7 +6,7 @@
 
 ## 获取状态
 
-当前打包/审核阶段尚未发布候选附件。可以使用审核交付的本地同名 TGZ。计划发布地址如下，只有候选 Release 实际上传同名附件后才可下载，当前不声称此地址已经可用：
+候选附件已发布并通过匿名完整下载核验。以下为固定版本下载地址；仍为prerelease，不替代正式latest：
 
 ```text
 https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261030.13/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz
@@ -26,6 +26,8 @@ Web 和 Desktop 分别安装，启用后正常重启 DSH。首次安装和升级
 
 ## 验证范围
 
-云端已通过相关44项、实际入口3项、最终TGZ生命周期15项。扩大日记/睡眠矩阵的旧文案断言失败单独记录，不宣称全矩阵通过。Windows 尚需 [13 候选的六项增量检查](../docs/testing/LOCAL-VALIDATION.md)；最新11候选已通过项直接采用，不重跑旧全表。
+云端已通过相关44项、实际入口3项、最终TGZ生命周期15项。扩大日记/睡眠矩阵的旧文案断言失败单独记录，不宣称全矩阵通过。Windows 10 x64 / DSH Desktop 0.2.1-rc.5 已完成 [13候选规定7项增量](../docs/testing/CANDIDATE13-WINDOWS.md)，7/7通过；无需重复本轮，历史已通过项继续采用。其他历史范围见 [发布准备判断](../docs/testing/RELEASE-READINESS.md)，不是自动新增的任务清单。
 
-[11 候选历史验收记录](../docs/testing/ACCEPTANCE.md)和[历史用例证据](../docs/testing/CASEBOOK.md)不是本候选的安装入口，也不证明13已完成实机验收。当前行为变化见 [改动说明](../docs/testing/CHANGES.md)。
+[11 候选历史验收记录](../docs/testing/ACCEPTANCE.md)和[历史用例证据](../docs/testing/CASEBOOK.md)不是本候选的安装入口，也不替代13限定范围的最新验证摘要。当前行为变化见 [改动说明](../docs/testing/CHANGES.md)。
+
+固定安装包源码为 `654a65816573f02e0799466a81c23ff863ad7596`。本页及其他后续文档修订不改变已发布TGZ、tag或其源码身份；不要把最新文档提交当成安装包源码提交。

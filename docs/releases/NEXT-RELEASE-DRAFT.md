@@ -14,10 +14,14 @@
 
 基础更新包在 Windows 10 x64 / DSH Desktop 0.2.1-rc.5 完成限定7项增量验证，全部通过；内容保留、精确清理后重启、中断接续、禁写和多范围隔离均有实际工具与文件证据。固定候选安装248文件与包一致，未用运行补丁修正测试结果。
 
-相对现main的累计版本还包含桌宠、跨平台伴随窗口、账户适配及睡眠整理变化。它们的已验与未验范围另见 [发布准备边界](../testing/RELEASE-READINESS.md)；不将7项更新包结果写成全部累计功能或所有系统通过。
+相对正式 2.3.1 的累计版本还包含桌宠、跨平台伴随窗口、账户适配及睡眠整理变化。它们的已验与未验范围另见 [发布准备边界](../testing/RELEASE-READINESS.md)；不将7项更新包结果写成全部累计功能或所有系统通过。
 
 ## 升级
 
 关闭桌宠及气泡后正常安装经校验的版本，保留现有设定、记忆、日记和自定义目录。不要手工把新版整套基础覆盖进当前档案；按更新通知进行小增量合并。已经完成的更新包验证无需重复。
 
 正式附件身份待正式版本确定后另列；当前可核验的预发布候选见 [13候选Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1-acceptance.20261030.13)。本稿不宣布main合并、正式latest或市场发布。
+
+## 桌面平台支持与验证边界
+
+除页面内显示外，当前实现提供 Windows x64 原生后端（.NET Framework 4.8）和 Linux/macOS Electron 伴随窗口适配。后两者使用 PATH 中的 `electron` 或 `KUJIRA_ELECTRON_EXECUTABLE` 指定的运行时（macOS 支持 Electron.app 路径），安装包不内置 Electron。实现见 [`launch-spec.mjs`](../../pet/companion/launch-spec.mjs) 与 [`platform.cjs`](../../pet/companion/platform.cjs)。Linux Web 已验子项不能替代 Linux 原生 Desktop 整体挂接和 macOS 原生窗口的目标系统实机验证；这些待验边界不表述为平台不支持，也不扩大本轮 7 项结果。

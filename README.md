@@ -56,7 +56,7 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 已接入 DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包、Mistral、混元和 MiMo。
 
-桌宠默认关闭，可以在 DSH 设置 → Kujira · 人设中开启“启用桌宠”。用户明确绑定的角色优先。支持页面内显示与 Windows x64 原生桌面窗口（需要 .NET Framework 4.8）；页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
+桌宠默认关闭，可以在 DSH 设置 → Kujira · 人设中开启“启用桌宠”。用户明确绑定的角色优先。支持页面内显示、Windows x64 原生桌面窗口（需要 .NET Framework 4.8），以及 Linux/macOS 的 Electron 伴随窗口适配。Linux/macOS 需要可用的 Electron 运行时：默认使用 PATH 中的 `electron`，也可通过 `KUJIRA_ELECTRON_EXECUTABLE` 指定可执行文件（macOS 支持 Electron.app 路径）；安装包不内置 Electron。页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
 
 在桌宠或气泡上点击右键，可分别显示／隐藏桌宠、显示／隐藏气泡，或同时关闭两者。只显示气泡时仍可拖动；全部隐藏后，可从 Kujira 设置页重新显示。页面菜单使用 DSH 官方菜单组件；Windows 原生菜单同步当前皮肤的圆角、字体、间距、边框与配色。
 
@@ -152,6 +152,8 @@ dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.
 ```
 
 Web与Desktop分别安装，启用后正常重启DSH。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内 `.kujira-catalog.json`），以及DSH数据目录的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 与已配置日记库；自定义路径以实际设置为准。** 已编辑档案不会被新版预设覆盖。
+
+Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 macOS 原生窗口仍需目标系统实机验证；现有 Linux Web 测试不替代这些原生窗口验证。平台选择与启动实现见 [`launch-spec.mjs`](pet/companion/launch-spec.mjs)，已验范围见 [改动与依据](docs/testing/CHANGES.md)。
 
 ### Windows 安装提示 EPERM
 

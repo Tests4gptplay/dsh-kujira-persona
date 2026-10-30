@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "AI Gijinka · Shared World, Individual Personas",
-    "description": "Personas follow the selected DSH model, with shared world lore and preferences plus separate personalities, memories and model-specific guidance. Edit files, create characters or change bindings through conversation. Versions in one model family share a character and memories by default; presets and bindings are customizable.\n\nOptional experimental AI diaries and idle-time consolidation are enabled separately and use model tokens to record and revisit each character’s experiences.\n\nThe companion is an independent optional display: in-page or a Windows x64 native window, with foreground task animations, statistics and balance/plan data available from the connected provider. Personas work without the companion."
+    "description": "Characters follow the selected DSH model, with shared world lore and preferences, individual personalities and memories, and separate optional AI diaries. Create or edit characters and model bindings through conversation; versions in one model family share their character and memories by default. Your customizations take priority during updates.\n\nOptional experimental diaries record each character’s experiences. Idle-time consolidation reviews earlier diary entries and, when AI editing is allowed, the current character’s own dossier. Diaries and consolidation are enabled separately and consume model tokens, including background usage.\n\nThe optional cross-platform pet follows the foreground model and task, with character animations, themes, speech bubbles, interaction, work statistics, and balance or plan data where the provider makes it available. Use it inside DSH or on the desktop; personas work without the pet. English and Chinese settings and status messages are available. See installation instructions for desktop platform requirements."
   },
   "ui": {
     "settings.title": "Kujira · Personas & Pet",
     "settings.nav": "Kujira · Personas",
-    "settings.description": "The AI character follows the selected model.",
+    "settings.description": "Model-linked characters, shared world and separate memories; optional diaries, idle consolidation and a cross-platform task pet with themes and usage statistics. Updates preserve customizations.",
     "pet.enabled": "Enable pet",
     "pet.visible": "Show pet character",
     "pet.display": "Display location",
-    "pet.display.auto": "Automatic (Windows desktop / in-page on other systems)",
-    "pet.display.desktop": "Desktop window (Windows)",
+    "pet.display.auto": "Automatic (desktop on Windows/Linux/macOS; in-page on other systems)",
+    "pet.display.desktop": "Desktop window (Windows / Linux / macOS)",
     "pet.display.page": "Inside DSH",
     "pet.scale": "Character size",
     "pet.bubbleScale": "Bubble size",

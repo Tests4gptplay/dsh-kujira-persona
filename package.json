@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "2.3.1-acceptance.20261030.13",
-  "description": "DSH 模型联动人设：共享世界观与通用偏好、独立可编辑记忆，可选 AI 日记、空闲整理与任务联动桌宠。",
+  "version": "2.4.0",
+  "description": "DSH 模型联动角色与共享世界：独立人设和记忆、可选 AI 日记与睡眠整理，中英文界面、跨平台任务桌宠、主题和用量统计，更新保留用户自定义。",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",
@@ -198,7 +198,8 @@
     "pet/assets/qwen-searching-compare-return-v5-17.png",
     "pet/assets/qwen-searching-compare-return-v5-18.png",
     "pet/assets/qwen-searching-compare-return-v5-19.png",
-    "pet/companion/*"
+    "pet/companion/*",
+    "docs/releases/v2.4.0.md"
   ],
   "dsh": {
     "bundle": {

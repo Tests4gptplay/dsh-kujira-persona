@@ -1,0 +1,1 @@
+ee0b284ebb602e5f4135dddb6d919015542e1254e893208cf260aa3eb20ee689  dsh-kujira-persona-2.4.0.tgz

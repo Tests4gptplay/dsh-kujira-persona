@@ -1,24 +1,24 @@
-> **当前已发布候选：2.3.1-acceptance.20261030.13**。基础更新包 Windows 增量验证 7/7 通过；这是限定范围结果，不代表累计功能全量验收。见 [本候选验证摘要](docs/testing/CANDIDATE13-WINDOWS.md) 和 [发布范围与剩余边界](docs/testing/RELEASE-READINESS.md)。
-
 # Kujira · AI 角色与世界
+
+版本 **2.4.0** · [安装与升级](#安装和升级) · [本版更新](docs/releases/v2.4.0.md)
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
 Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、可选的 AI 日记分层保存，随 DSH 已选模型和前台任务联动。可以通过对话创建角色、修改档案和调整绑定；同模型家族的版本默认延续同一角色与记忆。
 
-桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的 Persona，保存修改前备份并检查写入冲突。
+设置、状态和错误提示支持中英文。可选桌宠提供角色动作、主题、气泡互动、工作统计和服务可提供的余额／套餐信息，支持页面内和跨平台桌面显示；具体使用条件见安装说明。更新保留已有档案，用户自定义优先。
 
-**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的档案（Persona），保存修改前备份并检查写入冲突。
 
-## 13 候选：基础更新包，不硬覆盖已有档案
+**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/SPONSOR.md)
 
-新版基础设定放在各角色或共同世界观目录的 `更新/defaults-20261030-v2/`，不在启动时覆盖当前档案，也不把包内全文自动注入为活动人设。根目录通知指向简短清单及可通过 `persona_edit` 列出、读取的新版参照；可靠旧基础存在时一并提供，无法恢复时明确注明，不凭混合正文猜测。
+## 2.4.0：更新保留你的角色与设定
 
-以用户现有档案为主体，把新版基础内容小增量合并进去，只替换对应旧默认片段；不要把用户积累搬到另起的新档案。不要修改用户自定义设定，发生矛盾时以自定义为主，无法判断是否自定义的内容优先保留。首次安装也先提供更新包；空目录可把基础内容创建到对应活动文件，不覆盖已存在的同名内容。
+新版基础内容不会在启动时覆盖现有档案。更新时，请让 AI 阅读档案里的升级通知，以你的现有设定为主体补充新版内容；遇到矛盾时以用户自定义为主，无法确认来源的内容优先保留。首次安装也按通知创建基础档案，无需手动覆盖人设目录。
 
-完成修改、保存并重新读取确认后，通过 `delete_update` 精确清理本次更新包，再仅删除本条通知；未完成或中断时留包继续。不会删除整个更新目录、其他更新包或未列入本包清单的用户文件。普通重启不重复创建已发出的同次更新，通知/包写入失败仍保留当前档案可读。关闭 AI 编辑权限时保留待处理，不绕过权限。独立记忆、日记和美术资源不随此功能重写。
+未完成的更新可以稍后继续；保存并重新读取确认后，再清理本次更新内容与通知。已经完成的更新不会因普通重启重复出现；关闭 AI 编辑时保留待处理事项，不绕过你的权限设置。独立记忆、日记和美术资源不会因此重写。
 
-12 候选已由本候选替代，勿再安装或发布其旧迁移方案。本候选基础更新包已完成 Windows 实机增量验证 7/7；已通过项不重复测试。其余累计功能的历史边界见 [验证范围](docs/testing/RELEASE-READINESS.md)，不把本轮结果扩大为全平台或全功能通过。
+工具、目录与恢复机制的技术说明见 [改动与依据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CHANGES.md)。
 
 ## 2.3.1 更新
 
@@ -133,27 +133,27 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-固定安装包源码：`654a65816573f02e0799466a81c23ff863ad7596`。本次仅更新验证与发布准备文档，不重打TGZ、不移动tag；文档最新提交不是安装包源码提交。
+安装包与源码版本均为 **2.4.0**；请核对文件名和同一版本提供的校验值，避免安装旧包。
 
-本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz`。候选附件现已发布，使用下面的固定版本地址，并以同一 Release 的 `SHA256SUMS.txt` 核对身份。这仍是预发布候选，不替代正式 latest：
+2.4.0 安装包为 `dsh-kujira-persona-2.4.0.tgz`。使用下面的固定版本地址，并以同一 Release 的 `SHA256SUMS.txt` 核对身份：
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261030.13/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.0/dsh-kujira-persona-2.4.0.tgz
 ```
 
-步骤见 [13 候选安装说明](test-artifacts/INSTALL.md)。11 候选 copyclarity 包、12 候选及旧正式 v2.3.1 均不是本次安装包；旧验收页只作历史证据，不沿用其包名、大小、SHA 或安装命令。
+本版功能与升级注意事项见 [2.4.0 更新说明](docs/releases/v2.4.0.md)。
 
 **更新前，在桌宠右键菜单选择“全部关闭”，关闭已显示的桌宠与提示气泡；再正常卸载旧包、安装新版。**
 
-DSH Desktop：插件 → 添加插件，填写下载后候选 `.tgz` 的完整本地路径。Web在对应profile执行：
+DSH Desktop：插件 → 添加插件，填写下载后 `.tgz` 的完整本地路径。Web在对应profile执行：
 
 ```bash
-dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz'
+dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.4.0.tgz'
 ```
 
 Web与Desktop分别安装，启用后正常重启DSH。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内 `.kujira-catalog.json`），以及DSH数据目录的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 与已配置日记库；自定义路径以实际设置为准。** 已编辑档案不会被新版预设覆盖。
 
-Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 macOS 原生窗口仍需目标系统实机验证；现有 Linux Web 测试不替代这些原生窗口验证。平台选择与启动实现见 [`launch-spec.mjs`](pet/companion/launch-spec.mjs)，已验范围见 [改动与依据](docs/testing/CHANGES.md)。
+Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 macOS 原生窗口仍需目标系统实机验证；现有 Linux Web 测试不替代这些原生窗口验证。平台选择与启动实现见 [`launch-spec.mjs`](pet/companion/launch-spec.mjs)，已验范围见 [改动与依据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CHANGES.md)。
 
 ### Windows 安装提示 EPERM
 
@@ -163,9 +163,9 @@ Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 
 
 ## 测试与验证
 
-当前候选的 [Windows 增量摘要](docs/testing/CANDIDATE13-WINDOWS.md) 记录 7/7 限定用例通过；[发布准备边界](docs/testing/RELEASE-READINESS.md) 区分已关闭事项、历史未验范围与下一正式版本需作出的范围决定。原云端针对性结果继续采用，不把工具调用次数当作测试用例数。
+运行基线候选的 [Windows 增量摘要](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CANDIDATE13-WINDOWS.md) 记录 7/7 限定用例通过；[发布准备边界](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/RELEASE-READINESS.md) 区分已关闭事项、历史未验范围与历史覆盖边界。原云端针对性结果继续采用，不把工具调用次数当作测试用例数。
 
-2.3.1 的显示位置切换回归见 [发布说明](docs/releases/v2.3.1.md)。基础功能的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
+2.3.1 的显示位置切换回归见 [发布说明](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/releases/v2.3.1.md)。基础功能的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
 
 ## 来源与更新记录
 
@@ -185,4 +185,4 @@ In **Account & model pricing**, settings apply to the selected provider/model, n
 
 Manual per-million-token rates are reference prices, not actual bills. OpenRouter additionally exposes exact-model catalog pricing. Kujira does not multiply a current-model price by a whole session's potentially mixed-model token total. This release's automated adapter tests use synthetic credentials; real-account connectivity depends on the user's endpoint, account and permissions.
 
-逐项查验：[用例步骤、预期、实际结果与公开证据](docs/testing/CASEBOOK.md)。
+逐项查验：[用例步骤、预期、实际结果与公开证据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CASEBOOK.md)。

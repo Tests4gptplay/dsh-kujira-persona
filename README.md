@@ -4,6 +4,8 @@
 
 Kujira 为 DeepSeek Harness（DSH）提供随模型联动的 Persona：共享世界观、模型对应的独立人设，以及可选的自主 AI 日记。既能用来塑造鲜明的 AI 角色，也能长期保存通用偏好、针对不同模型调整行为，让日常对话与实际工作更合拍。还可以开启随任务状态变化的 AI 桌宠。
 
+人物档案、日记与桌宠是互相配合但可独立使用的能力：关闭桌宠不关闭人设；AI 日记与睡眠整理需分别开启。模型联动跟随 DSH 已选中的模型和前台任务；余额或套餐信息按相应接入可提供的接口展示。
+
 ## 三层 Persona：共同认知、个体差异与自主积累
 
 | 层级 | 保存与处理的内容 | 作用范围 |
@@ -135,3 +137,4 @@ DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶
 ## 支持项目
 
 [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+

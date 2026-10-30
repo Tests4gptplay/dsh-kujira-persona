@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "AI Gijinka · Shared World, Individual Personas",
-    "description": "Characters follow your selected DSH model, and you can choose your own character.\n\nWORLD: Shared names, impressions, jokes and relationships.\nCHARACTERS: Individual personalities, preferences and memories. Versions in one family share a character.\n\nAdd lore, edit personas, create characters or assign a model by talking to the AI in DSH chat.\n\nOPTIONAL PET: Enable one model-linked companion in the settings below to display work status, statistics and available balance or plan information. Personas can also be used on their own.\n\nPresets are only a starting point. Your choices come first."
+    "description": "Personas follow the selected DSH model, with shared world lore and preferences plus separate personalities, memories and model-specific guidance. Edit files, create characters or change bindings through conversation. Versions in one model family share a character and memories by default; presets and bindings are customizable.\n\nOptional experimental AI diaries and idle-time consolidation are enabled separately and use model tokens to record and revisit each character’s experiences.\n\nThe companion is an independent optional display: in-page or a Windows x64 native window, with foreground task animations, statistics and balance/plan data available from the connected provider. Personas work without the companion."
   }
 }

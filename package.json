@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
   "version": "2.3.1",
-  "description": "DSH 人设与可选单只桌宠：模型联动、共享世界观、独立记忆与对话扩充",
+  "description": "DSH 模型联动人设：共享世界观与通用偏好、独立可编辑记忆，可选 AI 日记、空闲整理与任务联动桌宠。",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",

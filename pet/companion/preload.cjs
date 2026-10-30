@@ -1,0 +1,1 @@
+const{contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('kujiraDesktop',{layout:v=>ipcRenderer.send('kujira:layout',v),drag:v=>ipcRenderer.send('kujira:drag',v),action:v=>ipcRenderer.send('kujira:action',v),onState:f=>{const h=(_e,s)=>f(s);ipcRenderer.on('kujira:state',h);return()=>ipcRenderer.removeListener('kujira:state',h)}});

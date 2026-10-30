@@ -1,3 +1,4 @@
+import { ui, uiError } from './ui-messages.js'
 import { NAMES,settings,emptyTask,reduceTask,unknownUsage } from './model.js'
 import { workStats,STATS_EVENTS } from './stats.js'
 import { modelFamily } from '../catalog.js'
@@ -32,12 +33,12 @@ export class PetController {
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.readSession=readSession;this.stats=null
     this.route={provider:'',model:'',family:'none',persona:'stella',name:NAMES.stella,art:'stella',sessionId:''}
     this.sessionStates=new Map();this.presentation=presentation()
-    this.usage=unknownUsage('usage','选择模型后显示对应的用量')
+    this.usage=unknownUsage('usage','选择模型后显示对应的用量',ui('usage.selectModel'))
     this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
   get task(){return this.presentation.task}
   get assistantStream(){return this.presentation.assistantStream}
-  snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,revision:this.revision}}
+  snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,nativeErrorUi:this.nativeErrorUi,revision:this.revision}}
   publish(){this.revision++;const state=this.snapshot();for(const fn of this.listeners){try{fn(state)}catch{}}return this.snapshot()}
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
   async configure(patch){
@@ -45,16 +46,17 @@ export class PetController {
       const next=settings({...this.config,...patch});
       try{await this.persist(next)}catch(error){
         const reason=typeof error?.code==='string'&&/^[A-Z0-9_]+$/.test(error.code)?error.code:''
-        const message=['EACCES','EPERM','EROFS'].includes(reason)?'设置文件无法保存：请检查 DSH 配置目录的写入权限。':reason==='ENOSPC'?'设置文件无法保存：磁盘空间不足，请释放空间。':reason==='EBUSY'?'设置文件正在被占用，请关闭占用它的程序后再操作。':'设置文件无法保存'+(reason?'（'+reason+'）':'')+'，请检查配置目录与磁盘状态。'
-        const failure=new Error(message);failure.code='kujira-config-save';throw failure
+        const failure=uiError(['EACCES','EPERM','EROFS'].includes(reason)?'error.savePermission':reason==='ENOSPC'?'error.saveSpace':reason==='EBUSY'?'error.saveBusy':'error.save',{reason:reason?'（'+reason+'）':''});failure.code='kujira-config-save';throw failure
       }
+      const queryChanged=JSON.stringify(next.usageProfiles)!==JSON.stringify(this.config.usageProfiles)||JSON.stringify(next.modelPrices)!==JSON.stringify(this.config.modelPrices)
       const wasEnabled=this.config.enabled;const was=this.config.enabled&&this.config.showUsage;this.config=next
+      if(queryChanged)this.cancelQuery()
       if(!next.enabled||!next.showUsage)this.cancelQuery()
       if(!next.enabled){this.sessionStates.clear();this.presentation=presentation()}
       if(next.enabled&&!wasEnabled&&this.route.sessionId){this.sessionStates.set(this.route.sessionId,this.presentation);void this.hydrate(this.route.sessionId)}
       this.updateStats()
       const snapshot=this.publish()
-      if(next.enabled&&next.showUsage){if(!was)void this.refresh();else this.schedule()}
+      if(next.enabled&&next.showUsage){if(!was||queryChanged)void this.refresh();else this.schedule()}
       return snapshot
     });this.writeTail=work.catch(()=>{});return work
   }
@@ -91,7 +93,7 @@ export class PetController {
     const art=Object.hasOwn(NAMES,family)?family:'stella'
     this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
     if(!sameSession){this.presentation=this.sessionStates.get(sessionId)??presentation();if(sessionId)this.sessionStates.set(sessionId,this.presentation)}
-    this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入');this.publish()
+    this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入',ui('usage.reading'));this.publish()
     await Promise.all([this.refreshPersona(),this.hydrate(sessionId)])
     if(id!==this.routeVersion||this.closed)return this.snapshot()
     if(this.config.enabled&&this.config.showUsage)void this.refresh()
@@ -145,11 +147,11 @@ export class PetController {
     // Cancelling optional usage must release UI callers even if a provider ignores its signal.
     let onAbort
     const aborted=new Promise((_,reject)=>{onAbort=()=>reject(signal.reason);if(signal.aborted)onAbort();else signal.addEventListener('abort',onAbort,{once:true})})
-    const query=Promise.resolve().then(()=>{signal.throwIfAborted();return this.queryUsage(route,signal)})
+    const query=Promise.resolve().then(()=>{signal.throwIfAborted();return this.queryUsage(route,signal,this.config)})
     const pending=Promise.race([query,aborted]).then(usage=>{
       if(version===this.queryVersion&&!this.closed){this.usage={...usage,checkedAt:this.now()};this.publish()}
     }).catch(()=>{
-      if(version===this.queryVersion&&!this.closed){this.usage=['ready','stale'].includes(this.usage.status)?{...this.usage,status:'stale',lines:[...this.usage.lines.filter(line=>line!=='上次查询；暂时无法刷新'),'上次查询；暂时无法刷新']}:unknownUsage(route.provider==='codex-local'?'codex':route.family==='deepseek'?'balance':'usage','暂时无法查询，请稍后刷新');this.publish()}
+      if(version===this.queryVersion&&!this.closed){this.usage=['ready','stale'].includes(this.usage.status)?{...this.usage,status:'stale',lines:[...this.usage.lines.filter((line,i)=>this.usage.linesUi?.[i]?.key!=='usage.stale'),'上次查询；暂时无法刷新'],linesUi:[...this.usage.lines.map((_,i)=>this.usage.linesUi?.[i]??null).filter(d=>d?.key!=='usage.stale'),ui('usage.stale')]}:{...unknownUsage(route.provider==='codex-local'?'codex':route.family==='deepseek'?'balance':'usage','暂时无法查询，请稍后刷新',ui('usage.retry')),status:'error'};this.publish()}
     }).finally(()=>{signal.removeEventListener('abort',onAbort);if(version===this.queryVersion){this.pending=null;this.abort=null;this.schedule()}}).then(()=>this.snapshot())
     this.pending=pending;return pending
   }

@@ -44,7 +44,7 @@ export function apply(ctx, rawConfig) {
   if (!config.enabled) return
   const catalog = openCatalog(config)
   const diary = openDiary({ home: HOME, worldDir: config.worldDir, personasDir: config.personasDir, personaDir: config.personaDir, sharedDir: config.sharedDir })
-  const sleep = applyDiarySleep(ctx, { diary, catalog, personaContext: async entry => (await dossier(entry).compose()).text })
+  const sleep = applyDiarySleep(ctx, { diary, catalog, personaContext: async entry => (await dossier(entry).compose()).text, personaDossier: async entry => config.allowAgentWrite ? dossier(entry) : null })
   const deepseekDir = join(config.personasDir, 'deepseek')
   let migrationReady,seedReady
   function ensureMigration() {

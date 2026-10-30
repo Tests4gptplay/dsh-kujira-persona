@@ -1,3 +1,4 @@
+import { ui, uiError } from './ui-messages.js'
 /** On-demand local persona folder browser. No watchers or background traversal. */
 import { mkdir, readdir, lstat } from 'node:fs/promises'
 import { join, resolve, sep } from 'node:path'
@@ -29,8 +30,8 @@ export async function directoryBytes(directory){
 
 function openInFileManager(path,{platform=process.platform,launch=spawn}={}){
   const command=platform==='win32'?'explorer.exe':platform==='darwin'?'open':'xdg-open'
-  if(!['win32','darwin','linux'].includes(platform))throw new Error('当前系统暂无文件夹打开方式，可复制路径后打开。')
-  if(platform==='linux'&&!process.env.DISPLAY&&!process.env.WAYLAND_DISPLAY)throw new Error('当前宿主没有图形桌面；请在运行 DSH 的电脑上查看此路径。')
+  if(!['win32','darwin','linux'].includes(platform))throw uiError('folder.unsupported')
+  if(platform==='linux'&&!process.env.DISPLAY&&!process.env.WAYLAND_DISPLAY)throw uiError('folder.noDesktop')
   return new Promise((resolve,reject)=>{
     let child
     try{child=launch(command,[path],{detached:true,stdio:'ignore',windowsHide:false})}catch(e){reject(e);return}
@@ -72,9 +73,9 @@ export function createFolderBrowser({worldDir,personasDir,sharedDir='',catalog,e
     const total=overlap?await Promise.all(unique.map(directoryBytes)).then(x=>x.reduce((a,b)=>a+b,0)):world+personas+shared
     return {
       groups:[
-        {id:'world',label:'共同世界观',path:roots.world,bytes:world},
-        {id:'personas',label:'全部人物档案',path:roots.personas,bytes:personas},
-        ...(roots.shared?[{id:'shared',label:'共享偏好',path:roots.shared,bytes:shared}]:[]),
+        {id:'world',label:'共同世界观',labelUi:ui('folder.world'),path:roots.world,bytes:world},
+        {id:'personas',label:'全部人物档案',labelUi:ui('folder.personas'),path:roots.personas,bytes:personas},
+        ...(roots.shared?[{id:'shared',label:'共享偏好',labelUi:ui('folder.shared'),path:roots.shared,bytes:shared}]:[]),
       ],
       characters:rows.map((row,i)=>({...row,bytes:values[base+i]})),
       totalBytes:total,
@@ -83,11 +84,11 @@ export function createFolderBrowser({worldDir,personasDir,sharedDir='',catalog,e
   async function open(id){
     await ensureSeeded?.()
     const destination=resolveFolder(id)
-    if(!destination)throw new Error('无效的文件夹入口')
+    if(!destination)throw uiError('folder.invalid')
     if(id.startsWith('role:')){
       const role=id.slice(5)
       const listed=await characterRows()
-      if(!listed.some(r=>r.id===id))throw new Error('当前角色不在角色目录中')
+      if(!listed.some(r=>r.id===id))throw uiError('folder.roleMissing')
       await ensureFolder?.(role)
     }else if(id==='world'||id==='persona')await ensureFolder?.(id)
     await mkdir(destination,{recursive:true})

@@ -1,0 +1,186 @@
+{
+  "version": "2.3.1-acceptance.20261029.11",
+  "stage": "BOUNDED_RUN_CLOSED_NOT_FULL_MATRIX_PASS",
+  "counts": {
+    "PASS": 13,
+    "PARTIAL": 18,
+    "NOT_RUN": 2
+  },
+  "rows": [
+    {
+      "id": "H01",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H02",
+      "status": "NOT_RUN",
+      "remaining": "English and return Chinese across all UI"
+    },
+    {
+      "id": "H03",
+      "status": "PARTIAL",
+      "remaining": "RepeatedOFF/ON and orphan ownership"
+    },
+    {
+      "id": "H04",
+      "status": "PARTIAL",
+      "remaining": "Direct Desktop transitions and repetitions"
+    },
+    {
+      "id": "H05",
+      "status": "PARTIAL",
+      "remaining": "Always/Tasks/Hidden full combinations"
+    },
+    {
+      "id": "H06",
+      "status": "PARTIAL",
+      "remaining": "Native three-action menu full set"
+    },
+    {
+      "id": "H07",
+      "status": "PARTIAL",
+      "remaining": "Default restoration and min readability/full footprint final check"
+    },
+    {
+      "id": "H08",
+      "status": "PARTIAL",
+      "remaining": "Reset and Host stop/start persistence"
+    },
+    {
+      "id": "H09",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H10",
+      "status": "PARTIAL",
+      "remaining": "Quiet,reduced-motion,sound paths and restart persistence"
+    },
+    {
+      "id": "H11",
+      "status": "PARTIAL",
+      "remaining": "Other13 visible families/unknown mappings/hidden-list UI"
+    },
+    {
+      "id": "H12",
+      "status": "PARTIAL",
+      "remaining": "Tool-specific animation transients were missed,not backfilled"
+    },
+    {
+      "id": "H13",
+      "status": "PARTIAL",
+      "remaining": "Selected-session role/status/stats repeated visual behavior not fully observed"
+    },
+    {
+      "id": "H14",
+      "status": "PARTIAL",
+      "remaining": "Retry and interruptedreply variants"
+    },
+    {
+      "id": "H15",
+      "status": "PARTIAL",
+      "remaining": "Toggle/manual/refresh choices and supported accounts"
+    },
+    {
+      "id": "H16",
+      "status": "NOT_RUN",
+      "remaining": "World/profile folder UI sizes/refresh/nativeopen"
+    },
+    {
+      "id": "H17",
+      "status": "PARTIAL",
+      "remaining": "Import-specific route andB role"
+    },
+    {
+      "id": "H18",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H19",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H20",
+      "status": "PARTIAL",
+      "remaining": "Nativeopen-library UI andfinal readbackvisual"
+    },
+    {
+      "id": "H21",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H22",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H23",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H24",
+      "status": "PARTIAL",
+      "remaining": "LongUnicodepaging coverage"
+    },
+    {
+      "id": "H25",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H26",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H27",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H28",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H29",
+      "status": "PARTIAL",
+      "remaining": "Retrieval precedence ON organized vs OFF normal long not yet verified"
+    },
+    {
+      "id": "H30",
+      "status": "PASS",
+      "remaining": ""
+    },
+    {
+      "id": "H31",
+      "status": "PARTIAL",
+      "remaining": "Exact candidate reinstall and full no-duplicate-pet behavior not yet exercised"
+    },
+    {
+      "id": "H32",
+      "status": "PARTIAL",
+      "remaining": "Fullrun incomplete; raw/private logs prohibited"
+    },
+    {
+      "id": "H33",
+      "status": "PASS",
+      "remaining": ""
+    }
+  ],
+  "additionalUnverified": [
+    "allowAgentWrite OFF and sleep_persona backup failure/symlink finer boundaries not all actual Host executed",
+    "real provider/account integration",
+    "Windows/macOS/Wayland/multiple-display native bindings"
+  ],
+  "normalAndAbruptExitRecovery": "actual PASS; completed entries retained, unfinished source reread/recomputed",
+  "finalHostStopped": true,
+  "sleepOffSettingWritten": false,
+  "noNewScreenshotRequired": true,
+  "noFullLocalRerunRequired": true
+}

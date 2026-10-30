@@ -1,6 +1,6 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "2.3.1",
+  "version": "2.3.1-acceptance.20261029.11",
   "description": "DSH 模型联动人设：共享世界观与通用偏好、独立可编辑记忆，可选 AI 日记、空闲整理与任务联动桌宠。",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
@@ -196,7 +196,8 @@
     "pet/assets/qwen-searching-compare-return-v5-12.png",
     "pet/assets/qwen-searching-compare-return-v5-17.png",
     "pet/assets/qwen-searching-compare-return-v5-18.png",
-    "pet/assets/qwen-searching-compare-return-v5-19.png"
+    "pet/assets/qwen-searching-compare-return-v5-19.png",
+    "pet/companion/*"
   ],
   "dsh": {
     "bundle": {
@@ -206,11 +207,13 @@
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-client-ui-plugin-manager",
-        "@deepseek-ai/dsh-client-ui-model-selection"
+        "@deepseek-ai/dsh-client-ui-model-selection",
+        "@deepseek-ai/dsh-client-locale"
       ]
     }
   },
   "dependencies": {
     "fs-native-extensions": "1.5.1"
-  }
+  },
+  "private": true
 }

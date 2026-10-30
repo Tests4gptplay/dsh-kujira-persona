@@ -1,3 +1,4 @@
+import { uiError } from './pet/ui-messages.js'
 /** Experimental, on-demand role diaries. No model calls, timers, or shared dossier writes. */
 import { mkdir, readFile, writeFile, rename, lstat, realpath, unlink, readdir } from 'node:fs/promises'
 import { createReadStream } from 'node:fs'
@@ -70,8 +71,8 @@ function excerpt(line, index) {
 }
 
 function launchFolder(directory, { platform, launch }) {
-  if (!['win32', 'darwin', 'linux'].includes(platform)) throw new Error('当前系统暂无文件夹打开方式，可复制路径后打开。')
-  if (platform === 'linux' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY && launch === spawn) throw new Error('当前宿主没有图形桌面；请在运行 DSH 的电脑上查看此路径。')
+  if (!['win32', 'darwin', 'linux'].includes(platform)) throw uiError('folder.unsupported')
+  if (platform === 'linux' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY && launch === spawn) throw uiError('folder.noDesktop')
   const command = platform === 'win32' ? 'explorer.exe' : platform === 'darwin' ? 'open' : 'xdg-open'
   return new Promise((done, reject) => {
     let child
@@ -94,15 +95,15 @@ export function openDiary({ home, worldDir, personasDir, personaDir, sharedDir, 
   const enqueue = operation => { const work = tail.then(operation); tail = work.then(() => undefined, () => undefined); return work }
 
   async function validateDirectory(value) {
-    if (typeof value !== 'string' || !value.trim() || value.includes('\0')) throw new Error('请填写有效的日记文件夹路径')
+    if (typeof value !== 'string' || !value.trim() || value.includes('\0')) throw uiError('diary.path')
     const directory = resolve(value.trim()), actual = await canonicalPath(directory)
     for (const protectedRoot of protectedRoots) {
       const protectedActual = await canonicalPath(protectedRoot)
       for (const [a, b] of [[directory, protectedRoot], [actual, protectedActual]]) {
-        if (inside(pathKey(a), pathKey(b))) throw new Error('日记文件夹必须独立于世界观、人物档案和共享偏好目录，不能与其重叠')
+        if (inside(pathKey(a), pathKey(b))) throw uiError('diary.overlap')
       }
     }
-    try { if (!(await lstat(actual)).isDirectory()) throw new Error('日记文件夹路径不是目录') }
+    try { if (!(await lstat(actual)).isDirectory()) throw uiError('diary.notDirectory') }
     catch (error) { if (!missing(error)) throw error }
     return directory
   }
@@ -239,8 +240,8 @@ export function openDiary({ home, worldDir, personasDir, personaDir, sharedDir, 
       if (disabling) { pendingDisables++; publish() }
       return enqueue(async () => {
         await ready
-        if (!patch || typeof patch !== 'object' || Array.isArray(patch) || Object.keys(patch).some(key => !['enabled', 'directory'].includes(key))) throw new Error('无效的日记设置')
-        if (Object.hasOwn(patch, 'enabled') && typeof patch.enabled !== 'boolean') throw new Error('日记开关必须是布尔值')
+        if (!patch || typeof patch !== 'object' || Array.isArray(patch) || Object.keys(patch).some(key => !['enabled', 'directory'].includes(key))) throw uiError('diary.invalidSettings')
+        if (Object.hasOwn(patch, 'enabled') && typeof patch.enabled !== 'boolean') throw uiError('diary.invalidSwitch')
         const next = { enabled: patch.enabled ?? state.enabled, directory: await validateDirectory(patch.directory ?? state.directory) }
         await mkdir(root, { recursive: true })
         await atomicWrite(settingsFile, JSON.stringify({ v: 1, ...next }, null, 2) + '\n')

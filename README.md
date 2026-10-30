@@ -1,122 +1,139 @@
+> **当前候选：2.3.1-acceptance.20261029.11**。本分支候选不是正式Release；安装及实测范围见 [安装说明](test-artifacts/INSTALL.md) 和 [验收记录](docs/testing/ACCEPTANCE.md)。
+
 # Kujira · AI 角色与世界
 
-**让不同模型拥有各自的角色，也让 AI 在日常相处中逐渐了解你的习惯。**
+**随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
-Kujira 为 DeepSeek Harness（DSH）提供随模型联动的 Persona：共享世界观、模型对应的独立人设，以及可选的自主 AI 日记。既能用来塑造鲜明的 AI 角色，也能长期保存通用偏好、针对不同模型调整行为，让日常对话与实际工作更合拍。还可以开启随任务状态变化的 AI 桌宠。
+Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、可选的 AI 日记分层保存，随 DSH 已选模型和前台任务联动。可以通过对话创建角色、修改档案和调整绑定；同模型家族的版本默认延续同一角色与记忆。
 
-人物档案、日记与桌宠是互相配合但可独立使用的能力：关闭桌宠不关闭人设；AI 日记与睡眠整理需分别开启。模型联动跟随 DSH 已选中的模型和前台任务；余额或套餐信息按相应接入可提供的接口展示。
+桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的 Persona，保存修改前备份并检查写入冲突。
 
-## 三层 Persona：共同认知、个体差异与自主积累
+**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
 
-| 层级 | 保存与处理的内容 | 作用范围 |
-| --- | --- | --- |
-| **共同世界观 `world`** | 共享背景、人物称呼与关系；所有角色共同遵循的沟通习惯、工作约定、项目共识 | 所有角色共享 |
-| **个体档案 `persona`** | 每个角色的身份、性格、喜好、个人记忆，以及针对对应模型的表达方式和行为纠正 | 随角色和模型切换 |
-| **自主 AI 日记 `diary`（实验性）** | 角色自主选择记录的经历、交流观察、主观认识及后续修订；生成简短摘要供日后回顾 | 各角色独立积累 |
+## 2.3.1 更新
 
-前两层负责保留共同设定和各自的长期要求，第三层则让角色在交流中主动记录、回顾和调整自己的认识。三者相互配合：共同约定保持一致，个体特点继续发展，日记中的个人观察也不会自动成为其他角色的共同规则。
+修复桌宠在 Windows 桌面与 DSH 页面内切换后消失的问题。直接修改显示位置即可切换，不需要取消后重新勾选“启用桌宠”；切换过程保留启用状态和当前会话。
 
-共同设定也包含交流与公开的边界：私人对话按私密内容处理，公开引用和发布遵循明确授权。
+## 世界观与人物
 
-### 从角色扮演（RP）看
+**世界观**是大家共用的称呼、社区印象、梗和人物关系，让角色认识彼此。比如与 DeepSeek 聊天时，她也知道“猫猫”通常指 Gemini、“白龙”指 GPT。故事发生在哪里、角色如何相处，都可以由你继续设定。
 
-共同世界观让不同 AI 认识同一套背景和人物关系，各自的 Persona 则决定她们如何说话、怎样看待彼此、喜欢什么、记得哪些经历。角色可以随对话不断调整性格、称呼和故事；AI 日记进一步保存角色自己的经历与感想，让后续互动能接续过去的认识。
+**人物**是每个角色自己的性格、喜好和记忆。切换模型家族时切换角色；同一家族的不同版本默认共用一个角色和已有记忆。内置多种 AI 角色基础预设，也支持通过对话创建与调整自己的角色。
 
-内置 DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包、Mistral、混元和 MiMo 等模型家族对应的角色基础资料，也提供原创角色星璃。共同世界观包含可核实的社区称呼和人物印象，例如 Gemini 的「猫猫」「哈基米」（项目显示名为「星猫」）。角色日常自然使用「我」，需要介绍身份时使用对应模型名或用户指定的名字。外观与关系设定都可以继续养成。
+默认自然说“我”，介绍时使用 DeepSeek、GPT、Gemini 等名字；Gemini 在社区也被称为猫猫、哈基米；项目显示名为星猫。外观细节用于美术表达。你另起名字或使用自定义角色时，就按你选定的称呼来。
 
-**切换 DSH 当前会话的模型，就切换对应角色。** 同一家族的不同模型版本默认共用角色及记忆；用户指定的绑定优先，也能为自定义模型创建角色。已有设定、个人修改与记忆会持续保留。
+预设只是起点。称呼、性格、关系和模型对应的角色都能改；与你的要求不同，就按你的来。
 
-### 从日常使用看
+内置角色的基础资料会在插件启动时准备到人物目录，设置页无需逐个点击初始化。DeepSeek 也位于统一的 `personas/deepseek` 目录；从旧版 `persona` 位置迁移时保留原有文件和备份，已保存的人设及记忆优先。角色的默认性格留给用户自行养成，社区称呼和有出处的外形资料放在共同世界观与基础档案中。
 
-Kujira 的 Persona 同样用于保存**交流习惯和模型专属的行为调整**。例如，所有 AI 都应采用的术语、文档格式与协作方式，可以写进共同世界观；希望某个模型调整回答详略、减少重复步骤，或者采用另一种解释方式，则只写入对应个体档案。之后再使用这个模型时，相关要求仍然生效；换用别的模型，各自的习惯不受牵连。
+### 当前默认规则：共同设定、个人记忆与隐私
 
-这种划分也适用于长期反馈：通用要求统一维护，模型表现上的差异分别调校，角色本身的性格和表达方式仍可按个人喜好发展。用户当前明确的要求始终优先于预设；修改已有档案时，先读取、合并或更新相应内容。
+2.3.0 延续共同世界观、角色档案和独立日记的分层：
 
-**共同认知带来连续性，独立人设保留差异性。** 日常使用可以侧重工作习惯和行为纠正；喜欢 RP 的用户则可以在同一套机制上继续经营角色关系和个性。
+- **共同世界观 `world`：** 公共人物背景，以及明确适用于所有角色的共同习惯、项目共识和经确认可共享的经验；共同要求与人物背景分开记录。
+- **角色档案 `persona`：** 当前角色的性格、表达方式、个人偏好、针对性纠正和记忆；范围不明的要求先保留在当前角色，不自动推广到其他角色。
+- **独立日记：** 各角色自己的记录、摘要和检索，与共同设定和人设档案分开保存；不会把全部日记正文作为共同背景注入。
 
-## 实验性 AI 日记：让互动经验逐渐积累
+默认共同规则包含“隐私与公开边界”：私聊和私人上下文默认私密，执行任务不等于获得公开披露授权；公开内容限于已获授权的作品事实、来源与署名。它是所有角色共同遵循的默认协作原则，不抹平个人差异。
 
-开启 AI 日记后，角色可以自主决定何时记录、记录什么，以及何时回顾自己的日记。除了经历和感想，角色也可以记录对用户交流偏好、做事习惯和相处方式的观察，再在后续互动中回顾、修订这些印象，逐步形成更贴合长期交互的表达和协作方式。
+长期偏好与行为纠正按适用范围保存；先读取、合并或更新已有 Markdown，不把临时要求或推测当成长期记忆。已有设定、个人修改和记忆继续优先保留。
 
-这是一种**由 AI 主动参与的交互体验积累**：角色不必等待逐条指定「记住这件事」，可以自己选取值得保留的片段；同时，这些主观观察保存在对应角色的日记中，并不直接替代已经明确保存的用户要求或个人设定。
+规则原文见 [共同世界观与隐私边界](world/00-共同世界观.md#隐私与公开边界)、[分层与长期偏好保存说明](instructions/README.md)及各角色的学习规则与记忆文件（如 [GPT 学习规则](personas/gpt/70-学习规则.md)）。这些规则是当前版本沿用的默认设置；**AI 日记与睡眠整理仍是两个独立、默认关闭的选项，需分别勾选开启相应功能。**
 
-日记按角色和日期续写，支持关键词搜索、分段读取。每次写入时，AI 同步整理一份简短摘要；后续对话使用当前角色的摘要，需要了解细节时再检索长日记。不同角色可积累不同的经历与理解，各自独立保存。
+## 2.3.0：模型联动桌宠与新版动作
 
-**睡眠整理**是另一个独立选项：所有对话任务空闲时，可使用前台当前选择的模型整理当前角色昨天及更早的日记，保留原文并提供整理后的内容供后续检索。新任务开始时停止整理。
+只显示一只桌宠：切换当前前台对话的模型，就让这一只换成对应形象；同一家族的不同版本沿用同一人物。用户明确指定的角色优先，通过对话修改模型绑定后，桌宠会跟随更新。其他会话和后台子代理的活动不会接管前台桌宠。
 
-在 **设置 → Kujira · 人设 → 实验性功能** 中分别开启「AI 日记」与「睡眠整理」，两项默认关闭。它们会产生额外 Token 消耗，具体用量取决于实际记录与整理内容。设置页可指定和打开日记库。
+已接入 DeepSeek、GPT、Gemini、Claude、Grok、GLM、Kimi、Qwen、MiniMax、Llama、豆包、Mistral、混元和 MiMo。
 
-### 实际运行中的日记
+桌宠默认关闭，可以在 DSH 设置 → Kujira · 人设中开启“启用桌宠”。用户明确绑定的角色优先。支持页面内显示与 Windows x64 原生桌面窗口（需要 .NET Framework 4.8）；页面位置和桌面位置分别保存。设置包括角色与气泡大小、活动程度、减少动态、提示音、位置重置，以及余额／套餐和工作统计各自的显示开关。关闭桌宠后，原有人设、世界观和对话修改功能仍可使用。
 
-在一次实际运行中，DeepSeek 自主写下当天的长日记，并生成相应的摘要，分别保存到自己的日记目录。下方展示保存后的文件：
+在桌宠或气泡上点击右键，可分别显示／隐藏桌宠、显示／隐藏气泡，或同时关闭两者。只显示气泡时仍可拖动；全部隐藏后，可从 Kujira 设置页重新显示。页面菜单使用 DSH 官方菜单组件；Windows 原生菜单同步当前皮肤的圆角、字体、间距、边框与配色。
 
-| 长日记 | 日记摘要 |
-| --- | --- |
-| ![DeepSeek 长日记文件](docs/images/diary-long-example.png) | ![DeepSeek 日记摘要文件](docs/images/diary-summary-example.png) |
+### 2.3.0 动作更新
 
-## 直接通过对话塑造角色
+相较 2.2.3，本版共**新增与修整 25 项状态动画**：其中 **13 项通用工具动作由静态改为持续循环**，另有 **12 项测试、检索、思考、编辑、回复等专用动作更新**。
 
-扩充世界观、保存长期习惯、纠正某个模型的表达方式，或创建角色和修改模型绑定，都可以在 DSH 聊天框中完成。例如：
+- **Qwen：** 阅读检索动作加入翻页、对照、回翻与继续阅读的完整往返。
+- **GPT：** 通用工具状态使用连续打字动作，测试状态更新为检查单动作。
+- **Gemini、Mistral：** 改善低头棋盘操作与读书思考时的视线、手部和道具表现。
+- **MiniMax、混元：** 修整回复时的手部方向与连续性，以及编辑动作中的抬起检查表现。
 
-> 把这套文件命名规则作为所有角色共同遵循的工作习惯。
+全部图集做无损体积优化，保持像素、透明度、色彩信息和尺寸；原有互动、状态切换及减少动态设置继续保留。
 
-> 让当前模型在回答前先给出结论，把这个偏好保存在她自己的档案里。
+### 任务状态与动作
 
-> 新建一个温和、好奇的角色，绑定到我指定的模型。
+桌宠跟随待机、思考、查找、编辑、执行命令、检查、等待确认、完成和出错等阶段。暂时失败的工具会触发短暂反应，之后继续跟随当前工作；整轮任务终止出错时保留错误状态。需要用户回答或批准时，等待状态会持续到相应条件解除。
 
-设定保存后，后续对话就会使用更新的内容。人物基础档案、共享世界观与个人记忆也可以从设置页直接打开，查看和编辑本机文件。原有文件优先保留，已存档的个人差异不会被预设覆盖。
+页面桌宠和 Windows 桌宠共用动作时间线，逐帧播放角色姿态，常规动作采用单层逐帧播放，状态改变时即时切换。拖起与落地即时切换；减少动态时保持静止待机图，任务文字继续更新。GPT 支持摸头、戳一下、碰尾巴、拖放和随机待机小动作；其他角色按各自动作提供相应反应。
 
-[共同设定与个人记忆规则](instructions/README.md) · [共同世界观](world/00-共同世界观.md) · [角色学习规则示例](personas/gpt/70-学习规则.md)
+各角色都有待机、工作、等待和结果反应。部分角色的思考、查找、编辑等阶段共用中性工作动作；性格尚未明确的角色采用阅读、工作、等待等标准功能动作。
 
-## 可选桌宠：让角色跟随 AI 一起工作
+GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也依照自身图集表现不同任务阶段。新图集按不同人物的动作特点分别编排。
 
-同一时间只显示一只模型联动桌宠。当前前台会话切换模型时，桌宠随角色更换形象；后台子代理不会接管。她会跟随待机、思考、查找、编辑、执行命令、测试、等待确认、完成和出错等工作状态播放动画，也支持拖放和各角色提供的互动动作。
+动画图集依据 AI-gijinka 资料库和角色参考，通过 AI 生成与整理，保留各角色的发型、服饰、配件和识别特征。来源与使用条件见 [桌宠说明](pet/NOTICE.md)。
 
-支持 **DSH 页面内显示**和 **Windows x64 原生桌面窗口**（需要 .NET Framework 4.8）。在 DSH 设置 → Kujira · 人设中开启，可调整位置、大小、活动程度、提示音、减少动态、余额／套餐和工作统计显示；页面位置与桌面位置分别记忆。桌宠或气泡的右键菜单可分别显示／隐藏两者，或选择「全部关闭」。
+### 工作气泡里的统计
 
-工作气泡可以显示任务状态及当前会话的**轮次、步骤、生成速度、累计 Token、缓存命中和上下文占用比例**。余额／套餐信息可按已接入服务查询，DeepSeek 显示余额，Codex Native 显示套餐窗口余量。统计基于 DSH 当前提供的会话数据。
+启用“显示工作统计”后，工作气泡分三行显示当前前台会话的读数：**轮次与步骤、生成速度；累计 Token 与缓存命中；上下文已用比例**。显示内容随 DSH 提供的数据更新。完成后可以继续看到本会话统计，切到新会话时使用新会话的数字。
 
-**v2.3.0 动画更新：** 新增与修整 25 项状态动画，其中 13 项通用工具动作由静态改为持续循环，另有 12 项思考、检索、测试、编辑和回复等动作更新。Qwen 加入阅读检索时的翻页与对照，GPT 增加连续打字与检查动作，Gemini、Mistral、MiniMax、混元等角色改进了工作动作表现。图集经过无损体积优化，动画沿用各角色的识别特征。素材来源见 [桌宠说明](pet/NOTICE.md)。
+这些数字采用 DSH 底栏的统计口径：轮次和步骤按会话累计，生成速度根据解码时间与输出 Token 计算；缓存读、缓存写、未缓存输入与输出按各自类别计数。
 
-**v2.3.1 更新：** 修复桌宠在 Windows 桌面与 DSH 页面之间切换显示位置后消失的问题。现在可直接切换显示位置，保留启用状态与当前会话。[更新说明](docs/releases/v2.3.1.md)
+“上下文已用比例”表示当前上下文窗口的占用情况。任务状态、任务清单进度与账户信息分别显示。DeepSeek 接入显示余额，Codex Native 接入显示套餐窗口余量；各账户按 DSH 提供的接口展示相应数据。
+
+工作统计直接使用 DSH 已有的会话数据。余额／套餐有独立的查询与刷新设置；临时查询失败时，会保留并标明上次结果。
+
+## 扩充和修改，直接在 DSH 聊天框里说
+
+补充世界观、修改人物性格、创建原创角色、给自定义模型指定角色，都可以通过对话让 AI 完成，不必手动编辑文件。例如：
+
+> 把白龙的语气改得活泼一点，保存到她的人设里。
+
+> 把“白龙和猫猫每周五一起做甜点”补进大家共同知道的设定。
+
+> 创建一个我自己的角色，性格温柔、说话简洁，让当前模型使用。
+
+之后还可以继续修改角色的名字、性格和故事，或让其他模型也使用同一角色。通过对话保存后，后续聊天就会使用更新的设定，无须另外刷新或重启。
+
+这里添加的是角色和模型之间的对应关系；尚未接入 DSH 的模型，先在 DSH 的模型设置中接入。
 
 ## 离线动作试玩
 
-可从源码构建离线试玩页面：安装 Node.js 后，在项目目录执行 `node scripts/qa/build-playable.mjs <空输出目录>`，保留生成的 `index.html` 和 `assets` 目录，双击 `index.html` 即可使用。可以切换角色、查看任务状态、播放或暂停动画、调整背景和大小，以及点击、拖动角色。
+离线试玩可从源码构建；本次提供插件 `.tgz` 和校验文件，不包含试玩 ZIP。安装 Node.js 后，在源码目录运行 `node scripts/qa/build-playable.mjs <空输出目录>`，保留生成的 `index.html` 和 `assets` 目录结构，双击 `index.html` 即可体验。支持切换角色、预览任务阶段、播放或暂停动作、调整大小和背景，也可以点击、拖动角色。
 
-离线试玩与插件共用动画图集和播放器；插件正式运行时由 DSH 的真实任务状态驱动。[试玩脚本](scripts/qa/build-playable.mjs) · [功能检查记录](docs/development/PROGRESS_20261024.md)
+试玩使用与插件一致的播放器和动画图集，提供任务阶段的交互预览；插件在 DSH 中接收实际任务状态。[试玩构建脚本](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/scripts/qa/build-playable.mjs)与[功能检查记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/development/PROGRESS_20261024.md)可在源码仓库查看。
+
+## 2.3.0：人物档案与实验性日记
+
+在 DSH **设置 → Kujira · 人设** 中统一调整桌宠，打开共同世界观、基础人设和每个角色的本机档案文件夹。页面显示各目录的占用大小及档案总计；进入该页或点击“刷新文件夹大小”时统计，不持续扫描磁盘。
+
+修改世界观、人物性格、记忆、角色绑定或档案存放位置，请在 DSH 对话中直接告诉 AI。气泡大小滑块按比例缩放整个信息气泡，包括标题、任务、进度、统计和账户信息。
+
+### 实验性功能：AI 日记
+
+2.3.0 修复并发追加时的摘要竞争，并加强中断重试的恢复记录：同一操作重试不重复追加正文，尚未提交的摘要保留待整理。
+
+在设置页最下方的 **实验性功能 → AI 日记** 中开启，默认关闭。各角色拥有独立日记，AI 自主决定何时记录与检索。大日记按角色与日期续写，支持关键词搜索和分段读取；每次写入后由 AI 整理简短摘要，摘要随当前角色上下文使用。
+
+**会产生额外 token 消耗，消耗量不可控、无法预估。**
+
+使用“设置日记库”保存目录位置，或点击“打开日记库”查看文件。
+
+“睡眠整理”独立开关，默认关闭。开启后，仅在所有对话任务空闲时，使用前台当前选择的同一模型整理当前角色昨天及更早的日记；新任务开始时停止后台整理。整理结果可优先检索，原文保留。**此功能会在后台自动调用 AI，产生额外 token 消耗，消耗量无法预估。**
 
 ## 安装和升级
 
-当前正式版本为 **v2.3.1**。更新说明见 [GitHub Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)。
+本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz`（198,790,063 字节），通过随交付提供的私有 Library 文件下载；该包超过普通 Git blob 大小上限，不在本分支存放。哈希及步骤见[安装说明](test-artifacts/INSTALL.md)。历史正式v2.3.1仍见[Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)，不要将旧正式包当作本候选。
 
-**更新前先关闭桌面上已显示的桌宠和提示气泡，再卸载旧包并安装新版。**
+**更新前，在桌宠右键菜单选择“全部关闭”，关闭已显示的桌宠与提示气泡；再正常卸载旧包、安装新版。**
 
-### DSH Desktop
-
-打开 **插件 → 添加插件**，直接粘贴下面的正式安装包地址，无需先手动下载：
-
-```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/dsh-kujira-persona-2.3.1.tgz
-```
-
-### DSH Web
-
-在使用的 profile 中安装；例如 Web profile：
+DSH Desktop：插件 → 添加插件，填写下载后候选 `.tgz` 的完整本地路径。Web在对应profile执行：
 
 ```bash
-dsh plugin --profile web add 'https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/dsh-kujira-persona-2.3.1.tgz'
+dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz'
 ```
 
-Web 与 Desktop 分别安装。
-
-安装、启用后重启 DSH 一次。已有旧版时，先在插件列表卸载旧包，再安装新版。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内的 `.kujira-catalog.json`）。同时保留 DSH 数据目录中的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 及已配置的日记库；使用自定义路径时，以实际设置为准。**你已经修改过的档案不会被新版预设覆盖，可以通过对话选择如何补充新内容。无需 npm 账号。
-
-### 备用方式
-
-- **本地文件安装：** 网络不便时，可从 [Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1) 下载 `.tgz`，再在“添加插件”中填写文件完整路径；Web 命令中的 URL 也可替换为本地文件路径。
-- **固定 Git 版本：** 也支持 `git+https://github.com/Tests4gptplay/dsh-kujira-persona.git#v2.3.1`。
-- **可选校验：** [SHA256SUMS.txt](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1/SHA256SUMS.txt) 可用于核对下载文件。
+Web与Desktop分别安装，启用后正常重启DSH。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内 `.kujira-catalog.json`），以及DSH数据目录的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 与已配置日记库；自定义路径以实际设置为准。** 已编辑档案不会被新版预设覆盖。
 
 ### Windows 安装提示 EPERM
 
@@ -134,7 +151,14 @@ Web 与 Desktop 分别安装。
 
 DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶丶。其余来源与署名见 [NOTICE.md](NOTICE.md) 和 [资料来源](world/_资料来源.md)，许可见 [LICENSE](LICENSE)。版本变化见 [CHANGELOG.md](CHANGELOG.md)。
 
-## 支持项目
+### 余额、费用与单价 / Account queries and prices
 
-[GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+Kujira 设置中的「账户与模型单价」按当前 **provider/model 接入**配置，不按 AI 娘名字猜账户。普通余额适配可复用 DSH 的 API Key 设置；组织管理、云账单或套餐查询需要独立凭据引用（环境变量名），不要把明文 Key 填入 Kujira。云账单余额属于整个云账户，不等于当前模型余额。
 
+支持 DeepSeek、OpenAI/Anthropic 组织费用与用量、xAI 团队、Mistral 企业预算、Moonshot 中国、OpenRouter、GLM Coding、MiniMax Token Plan，以及另配云凭据的阿里云/腾讯云/火山云只读查询。不同接入可查询的项目不同；没有支持的接口、权限不足、暂时失败与余额为零会分开处理。MiniMax 现金余额、MiMo、Gemini 等尚无本版本已验证的通用余额适配，仍可配置手动参考单价；未知代理不会自动把凭据发给官方站点。DeepSeek-compatible 代理需显式选择且只查询已配置的同源地址。
+
+模型单价可按当前接入/模型保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。手动参考价不是实际账单，整段会话可能混用模型，因此不会简单拿当前模型价格乘会话总 token。余额、消费金额、token 用量和套餐/预算额度是不同项目。
+
+In **Account & model pricing**, settings apply to the selected provider/model, not the character. Normal key-based balance adapters can reuse DSH credentials. Admin, management, cloud-billing and plan queries require explicit credential references, never plaintext keys in Kujira. Available capabilities vary by provider. A cloud-account balance, monthly billed usage, token count, plan quota and budget remainder are distinct. Unsupported, permission-needed and failed queries are not shown as zero. Unknown proxies never send credentials to a guessed official endpoint; DeepSeek-compatible proxies require explicit same-origin opt-in.
+
+Manual per-million-token rates are reference prices, not actual bills. OpenRouter additionally exposes exact-model catalog pricing. Kujira does not multiply a current-model price by a whole session's potentially mixed-model token total. This release's automated adapter tests use synthetic credentials; real-account connectivity depends on the user's endpoint, account and permissions.

@@ -1,3 +1,4 @@
+import { ui } from './ui-messages.js'
 /** Read-only presentation of DSH's existing whole-session projections. */
 export const STATS_KEYS = ['sessionStats', 'tokenUsage', 'contextPressure']
 export const STATS_EVENTS = new Set([
@@ -37,13 +38,18 @@ export function workStats(views = {}) {
   const contextWindow = count(pressure?.contextWindow)
   const contextPercent = contextUsedTokens !== null && contextWindow > 0
     ? Math.min(100, Math.round(contextUsedTokens / contextWindow * 100)) : null
-  const lines = []
+  const lines = [], linesUi = []
   const activityLine = []
   if (steps > 0 && turns !== null) activityLine.push(`${turns} 轮 ${steps} 步`)
   if (tokensPerSecond !== null) activityLine.push(`${tokensPerSecond >= 10 ? Math.round(tokensPerSecond) : Math.round(tokensPerSecond * 10) / 10} tok/s`)
-  if (activityLine.length) lines.push(activityLine.join(' · '))
-  if (totalTokens > 0) lines.push(`${compact(totalTokens)} tok${cacheHitPercent === null ? '' : ` · 缓存命中 ${cacheHitPercent}%`}`)
-  if (contextPercent !== null) lines.push(`上下文已用 ${contextPercent}%`)
+  if (activityLine.length) {
+    lines.push(activityLine.join(' · '))
+    const activity=steps>0&&turns!==null?ui('stats.turnsSteps',{turns,steps}):null
+    const speed=tokensPerSecond===null?null:tokensPerSecond>=10?Math.round(tokensPerSecond):Math.round(tokensPerSecond*10)/10
+    linesUi.push(activity&&speed!==null?ui('stats.activity',{activity,speed}):activity)
+  }
+  if (totalTokens > 0) {linesUi.push(cacheHitPercent===null?null:ui('stats.cache',{tokens:compact(totalTokens),percent:cacheHitPercent}));lines.push(`${compact(totalTokens)} tok${cacheHitPercent === null ? '' : ` · 缓存命中 ${cacheHitPercent}%`}`)}
+  if (contextPercent !== null) {lines.push(`上下文已用 ${contextPercent}%`);linesUi.push(ui('stats.context',{percent:contextPercent}))}
   return lines.length ? { turns, steps, tokensPerSecond, totalTokens, cacheHitPercent,
-    contextPercent, contextUsedTokens, contextWindow, lines } : null
+    contextPercent, contextUsedTokens, contextWindow, lines, linesUi } : null
 }

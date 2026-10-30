@@ -1,0 +1,11 @@
+/** Wrap existing sprite and DSH menu DOM. Do not run old in-page drag handler too. */
+import{shadowInsets,paintRect}from'./shadow.mjs';
+export function attachDesktopBridge({root,canvas,interactiveElements,bridge=window.kujiraDesktop}){
+ let stopped=false,frame=0,last='',dragging=false,alphaKey='',alphaRegions=[];
+ const rect=el=>{const b=el.getBoundingClientRect();return{x:b.x,y:b.y,width:b.width,height:b.height}};
+ function measure(){if(stopped)return;const r=rect(root),regions=[],paintRegions=[];for(const el of interactiveElements())if(el?.getClientRects().length){const box=rect(el);regions.push(box);paintRegions.push(paintRect(box,shadowInsets(getComputedStyle(el).boxShadow,box.width/(el.offsetWidth||box.width||1))))}
+ if(canvas?.getClientRects().length){const c=rect(canvas),key=JSON.stringify([canvas.dataset.clip,canvas.dataset.frame,c,canvas.width,canvas.height]);if(key!==alphaKey){const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;alphaRegions=[];for(let y=0;y<canvas.height;y++){let start=-1;for(let x=0;x<=canvas.width;x++){const painted=x<canvas.width&&pixels[(y*canvas.width+x)*4+3]>0;if(painted&&start<0)start=x;if(!painted&&start>=0){alphaRegions.push({x:c.x+start*c.width/canvas.width,y:c.y+y*c.height/canvas.height,width:(x-start)*c.width/canvas.width,height:c.height/canvas.height});start=-1}}}alphaKey=key}regions.push(...alphaRegions);paintRegions.push(...alphaRegions)}
+ const extent=regions.reduce((e,b)=>({width:Math.max(e.width,b.x+b.width),height:Math.max(e.height,b.y+b.height)}),{width:r.width,height:r.height}),value={...extent,regions,paintRegions},key=JSON.stringify(value);if(key!==last){last=key;bridge.layout(value)}frame=requestAnimationFrame(measure)}
+ const down=e=>{if(e.button!==0||e.target.closest('button,[role="menuitem"]'))return;e.preventDefault();dragging=true;e.currentTarget.setPointerCapture(e.pointerId);bridge.drag(true)},up=()=>{if(dragging){dragging=false;bridge.drag(false)}};
+ root.addEventListener('pointerdown',down);for(const e of ['pointerup','pointercancel','lostpointercapture'])root.addEventListener(e,up);measure();return()=>{stopped=true;cancelAnimationFrame(frame);up();root.removeEventListener('pointerdown',down);for(const e of ['pointerup','pointercancel','lostpointercapture'])root.removeEventListener(e,up)};
+}

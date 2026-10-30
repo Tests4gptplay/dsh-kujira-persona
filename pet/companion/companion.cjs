@@ -1,0 +1,9 @@
+/** Companion stdio protocol matches existing NativePet; Windows WPF remains separate. */
+const{app,BrowserWindow,screen,ipcMain}=require('electron'),{createInterface}=require('node:readline'),path=require('node:path'),{pathToFileURL}=require('node:url'),{createPetWindow}=require('./main-hook.cjs');
+const{prepareApp}=require('./platform.cjs');
+if(process.platform==='linux')app.disableHardwareAcceleration();
+const emit=value=>process.stdout.write(JSON.stringify(value)+'\n');let pet,latestState,latestFrame,lastPosition='',inputEnded=false;
+const{applyPosition}=require('./window-controller.cjs');
+function position(s){lastPosition=applyPosition(pet,s?.config,lastPosition)}
+const input=createInterface({input:process.stdin});input.on('line',line=>{try{const value=JSON.parse(line);if(value.type==='frame'){latestFrame={...value,layers:(value.layers??[value]).map(l=>({...l,image:pathToFileURL(l.image).href}))};pet?.update(latestFrame)}else{latestState=value;position(value);pet?.update(value)}}catch(error){process.stderr.write('Companion input: '+error.message+'\n')}});input.on('close',()=>{inputEnded=true;app.quit()});
+app.whenReady().then(async()=>{if(inputEnded)return;prepareApp(app,process.platform);pet=createPetWindow({electron:{BrowserWindow,screen,ipcMain},url:pathToFileURL(path.join(__dirname,'companion.html')).href,onAction:action=>{if(action.action==='drag-end'){emit({type:'action',action:'drag-end'});emit({type:'action',action:'position',x:action.bounds.x,y:action.bounds.y})}else emit({type:'action',...action})},onFault:f=>process.stderr.write(JSON.stringify(f)+'\n')});await pet.ready;if(latestState){lastPosition='';position(latestState);pet.update(latestState)};if(latestFrame)pet.update(latestFrame);emit({type:'ready'});pet.window.webContents.on('console-message',e=>{if(e.level==='error'||e.level==='warning')process.stderr.write(e.message+'\n')})});app.on('window-all-closed',()=>app.quit());

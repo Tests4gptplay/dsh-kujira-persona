@@ -7,9 +7,16 @@ const root=fileURLToPath(new URL('../../../../',import.meta.url));
 const base=await mkdtemp(join(tmpdir(),'kujira-synthetic-'));
 const text=p=>readFile(p,'utf8');const hash=s=>createHash('sha256').update(s).digest('hex');
 const config=(id,dir,packagedDir)=>({id,label:id,personaDir:dir,memoryFile:join(dir,'90-记忆.md'),packagedDir,seed:true,sync:true,extraText:''});
-test('all 15 real packaged presets: seed, user edit, delete tombstone, restart, sync retain bytes',async t=>{
+async function initializeFromUpdate(d){
+ const pkg='更新/defaults-20261030-v2'
+ const list=await d.edit({action:'list',file:pkg})
+ for(const {file} of list.files.filter(x=>x.file.includes('/新版/'))){const source=await d.read(file);await d.edit({action:'create',file:file.split('/').at(-1),text:source.text})}
+ await d.edit({action:'delete_update',file:pkg});await d.edit({action:'delete',file:'98-升级迁移通知-20261030-v2.md'})
+}
+
+test('all 15 real presets: explicit update initialization, user edit, tombstone, restart retain bytes',async t=>{
  for(const {id} of BUILTINS)await t.test(id,async()=>{
-  const dir=join(base,'presets',id),pack=join(root,id==='deepseek'?'persona':'personas/'+id),c=config(id,dir,pack),d=openDossier(c);await d.compose();
+  const dir=join(base,'presets',id),pack=join(root,id==='deepseek'?'persona':'personas/'+id),c=config(id,dir,pack),d=openDossier(c);await d.compose();await initializeFromUpdate(d);
   const names=(await readdir(pack)).filter(n=>n.endsWith('.md'));for(const n of names)assert.equal(await text(join(dir,n)),await text(join(pack,n)));
   const identity=names.find(n=>n.startsWith('00-')),deleted=identity;
   const user='SYNTH_USER_OVERRIDE_'+id+'\n';await writeFile(join(dir,identity),user);await d.reload();assert.match((await d.compose()).text,new RegExp('SYNTH_USER_OVERRIDE_'+id));
@@ -18,8 +25,8 @@ test('all 15 real packaged presets: seed, user edit, delete tombstone, restart, 
   assert.equal(JSON.parse(await text(join(dir,'.kujira-state.json'))).files[deleted].source,'deleted');
  });
 });
-test('preset version update changes only tracked untouched seed and archives exact prior bytes',async()=>{
- const pack=join(base,'version-pack'),dir=join(base,'version-target');await mkdir(pack);await writeFile(join(pack,'00-test.md'),'V1');const c=config('version',dir,pack);await openDossier(c).compose();await writeFile(join(pack,'00-test.md'),'V2');const d=openDossier(c);await d.compose();assert.equal(await text(join(dir,'00-test.md')),'V2');assert.equal(await text(join(dir,'.kujira-backup','00-test.md.'+hash('V1').slice(0,16)+'.bak')),'V1');await writeFile(join(dir,'00-test.md'),'USER');await writeFile(join(pack,'00-test.md'),'V3');await openDossier(c).compose();assert.equal(await text(join(dir,'00-test.md')),'USER');
+test('preset update stages tracked old default and preserves active bytes plus exact baseline',async()=>{
+ const pack=join(base,'version-pack'),dir=join(base,'version-target');await mkdir(pack);await mkdir(dir);await writeFile(join(pack,'00-test.md'),'V2');await writeFile(join(dir,'00-test.md'),'V1');await writeFile(join(dir,'.kujira-state.json'),JSON.stringify({files:{'00-test.md':{source:'seed',hash:hash('V1')}}}));const c=config('version',dir,pack),d=openDossier(c);await d.compose();assert.equal(await text(join(dir,'00-test.md')),'V1');assert.equal((await d.read('更新/defaults-20261030-v2/旧版/00-test.md')).text,'V1');assert.equal((await d.read('更新/defaults-20261030-v2/新版/00-test.md')).text,'V2');await writeFile(join(dir,'00-test.md'),'USER');await openDossier(c).compose();assert.equal(await text(join(dir,'00-test.md')),'USER');
 });
 test('real custom import/create retries preserve orphan files, bindings and memory across restart/unbind',async()=>{
  const dir=join(base,'custom'),c={personasDir:dir,mode:'auto',modelRules:[]};const cat=openCatalog(c);await mkdir(join(dir,'synthetic'),{recursive:true});await writeFile(join(dir,'synthetic','00-用户设定.md'),'EXISTING_ORPHAN');await writeFile(join(dir,'synthetic','90-记忆.md'),'EXISTING_MEMORY');await cat.change({action:'create',persona:'synthetic',name:'Fictional',text:'MUST_NOT_OVERWRITE',model:'fiction-*'},{});assert.equal(await text(join(dir,'synthetic','00-用户设定.md')),'EXISTING_ORPHAN');assert.equal(await text(join(dir,'synthetic','90-记忆.md')),'EXISTING_MEMORY');assert.equal((await openCatalog(c).resolve({model:'fiction-v2'})).id,'synthetic');await assert.rejects(cat.change({action:'create',persona:'synthetic',text:'NO'},{}),/已存在/);await cat.change({action:'unbind',model:'fiction-*'},{});assert.equal(await text(join(dir,'synthetic','90-记忆.md')),'EXISTING_MEMORY');assert.equal((await openCatalog(c).resolve({model:'fiction-v2'})).id,'stella');

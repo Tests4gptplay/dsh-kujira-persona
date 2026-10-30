@@ -1,3 +1,5 @@
+> **历史记录：11 候选。** 下文版本、包身份、矩阵计数和当时停止点仅记录原验证，不是当前13候选安装/待办。当前安装见 [13候选说明](../../test-artifacts/INSTALL.md)，最新Windows采用状态与本轮六项增量见 [LOCAL-VALIDATION](LOCAL-VALIDATION.md)。不要据此页的旧包信息安装当前候选。
+
 # 可查验用例与结果
 
 候选 `2.3.1-acceptance.20261029.11`，2026-10-30；自有云端 Linux、官方 DSH Web Host、独立空 profile、合成模型/日记/人物文件，执行真实插件工具与落盘，不使用真实账号账单。包247文件身份见[manifest](../../test-artifacts/manifest.json)。完整33行仍为 **13通过、18部分完成、2项列入实机要求**，下列通过不泛化整包。

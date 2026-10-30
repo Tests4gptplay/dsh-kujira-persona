@@ -1,4 +1,4 @@
-> **当前候选：2.3.1-acceptance.20261029.11**。本分支候选不是正式Release；安装及实测范围见 [安装说明](test-artifacts/INSTALL.md) 和 [验收记录](docs/testing/ACCEPTANCE.md)。
+> **当前候选：2.3.1-acceptance.20261030.13**。本候选尚未正式发布；本轮新增默认设定一次性迁移通知，增量实机要求见 [验证清单](docs/testing/LOCAL-VALIDATION.md)。
 
 # Kujira · AI 角色与世界
 
@@ -9,6 +9,16 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的 Persona，保存修改前备份并检查写入冲突。
 
 **Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+
+## 13 候选：基础更新包，不硬覆盖已有档案
+
+新版基础设定放在各角色或共同世界观目录的 `更新/defaults-20261030-v2/`，不在启动时覆盖当前档案，也不把包内全文自动注入为活动人设。根目录通知指向简短清单及可通过 `persona_edit` 列出、读取的新版参照；可靠旧基础存在时一并提供，无法恢复时明确注明，不凭混合正文猜测。
+
+以用户现有档案为主体，把新版基础内容小增量合并进去，只替换对应旧默认片段；不要把用户积累搬到另起的新档案。不要修改用户自定义设定，发生矛盾时以自定义为主，无法判断是否自定义的内容优先保留。首次安装也先提供更新包；空目录可把基础内容创建到对应活动文件，不覆盖已存在的同名内容。
+
+完成修改、保存并重新读取确认后，通过 `delete_update` 精确清理本次更新包，再仅删除本条通知；未完成或中断时留包继续。不会删除整个更新目录、其他更新包或未列入本包清单的用户文件。普通重启不重复创建已发出的同次更新，通知/包写入失败仍保留当前档案可读。关闭 AI 编辑权限时保留待处理，不绕过权限。独立记忆、日记和美术资源不随此功能重写。
+
+12 候选已由本候选替代，勿再安装或发布其旧迁移方案。云端测试不等于 Windows 实机验证；只补 [13 候选增量清单](docs/testing/LOCAL-VALIDATION.md) 的新增行为。
 
 ## 2.3.1 更新
 
@@ -123,14 +133,20 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz`（198,790,063 字节），从[候选预发布附件](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261029.11/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz)下载完整包；SHA及步骤见下方说明。哈希及步骤见[安装说明](test-artifacts/INSTALL.md)。历史正式v2.3.1仍见[Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)，不要将旧正式包当作本候选。
+本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz`。目前处于打包/审核阶段，尚未发布候选附件；使用审核交付的同名本地 TGZ，并以随包提供的 `SHA256SUMS.txt` 核对身份。发布后计划使用下面的候选附件地址，**只有 Release 实际存在同名附件后才能下载**，不把计划地址写成已经可用：
+
+```text
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261030.13/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz
+```
+
+步骤见 [13 候选安装说明](test-artifacts/INSTALL.md)。11 候选 copyclarity 包、12 候选及旧正式 v2.3.1 均不是本次安装包；旧验收页只作历史证据，不沿用其包名、大小、SHA 或安装命令。
 
 **更新前，在桌宠右键菜单选择“全部关闭”，关闭已显示的桌宠与提示气泡；再正常卸载旧包、安装新版。**
 
 DSH Desktop：插件 → 添加插件，填写下载后候选 `.tgz` 的完整本地路径。Web在对应profile执行：
 
 ```bash
-dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz'
+dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz'
 ```
 
 Web与Desktop分别安装，启用后正常重启DSH。**保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内 `.kujira-catalog.json`），以及DSH数据目录的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 与已配置日记库；自定义路径以实际设置为准。** 已编辑档案不会被新版预设覆盖。

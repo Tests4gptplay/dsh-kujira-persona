@@ -9,13 +9,14 @@ import {openDiary} from '../../daily-diary.js'
 
 const section=(a,name)=>a.sections.find(s=>s.name===name)?.text??''
 const tick=()=>new Promise(resolve=>setImmediate(resolve))
-async function fixture(t,role='gpt'){
+async function fixture(t,role='gpt',options={}){
   const home=await mkdtemp(join(tmpdir(),'kujira-prompt-layers-')),world=join(home,'world'),personas=join(home,'personas'),persona=join(personas,role)
   await mkdir(world,{recursive:true});await mkdir(persona,{recursive:true})
   await writeFile(join(world,'00-shared.md'),'WORLD_SHARED_MARKER: all roles keep common collaboration requirements.')
   await writeFile(join(persona,'00-personal.md'),'PERSONA_ORIGINAL_MARKER: GPT keeps its individual communication style.')
   await writeFile(join(persona,'90-记忆.md'),'PERSONA_CORRECTION_MARKER: user-specific correction for this role.')
   if(!BUILTINS.some(entry=>entry.id===role))await writeFile(join(personas,'.kujira-catalog.json'),JSON.stringify({v:1,personas:[{id:role,label:role}],bindings:[]}))
+  if(options.upgrade)await writeFile(join(persona,'00-身份.md'),'OLD_FIXTURE_IDENTITY with PERSONAL_ADDITION')
   const sections=new Map(),events=new Map(),tools=new Map(),routes=new Map(),effects=new Set(),warnings=[]
   const available=new Set(['tools','sessions','agents','sessionQuery','connection','webServer'])
   const ctx={
@@ -31,7 +32,7 @@ async function fixture(t,role='gpt'){
   let plugin
   try{plugin=await import(new URL('../../index.js?prompt-layers='+encodeURIComponent(home),import.meta.url))}
   finally{if(priorHome===undefined)delete process.env.DSH_HOME;else process.env.DSH_HOME=priorHome}
-  plugin.apply(ctx,{mode:'fixed',persona:role,worldDir:world,personasDir:personas,personaDir:join(home,'legacy-persona'),seed:false,sync:false})
+  plugin.apply(ctx,{mode:'fixed',persona:role,worldDir:world,personasDir:personas,personaDir:join(home,'legacy-persona'),seed:false,sync:false,...options})
   const agent={id:'prompt-layer-agent',session:{requestHeader:()=>({config:{provider:'fixture',model:'gpt-fixture'}})}}
   async function call(endpoint,payload={}){
     const handler=routes.get('/api/kujira-pet/'+endpoint);assert.ok(handler,'actual apply registered '+endpoint)
@@ -121,4 +122,33 @@ test('shared privacy guidance reaches every built-in and custom role with diary 
     assert.equal(section(a,'whale:diary'),'');assert.equal(f.tools.has('ai_diary'),false)
     assert.equal(await readFile(path,'utf8'),original)
   })
+})
+
+
+
+test('update package actual prompt/tools: read relative references, merge existing, precise cleanup',async t=>{
+ const f=await fixture(t,'gpt',{upgrade:true,seed:true,sync:true}),id='defaults-20261030-v2',pack='更新/'+id,name='98-升级迁移通知-20261030-v2.md'
+ const before=section(await f.assemble(),'whale:persona');assert.match(before,/基础设定更新包通知/);assert.match(before,/OLD_FIXTURE_IDENTITY with PERSONAL_ADDITION/)
+ const tool=f.tools.get('persona_edit');assert.ok(tool)
+ const list=await tool.execute({action:'list',file:pack},{agent:f.agent});assert.ok(list.files.some(x=>x.file===pack+'/新版/00-身份.md'))
+ const ref=await tool.execute({action:'read',file:pack+'/新版/00-身份.md'},{agent:f.agent});assert.ok(ref.text.length>50)
+ const guide=await tool.execute({action:'read',file:pack+'/清单.md'},{agent:f.agent});assert.match(guide.text,/以现有档案为主体/)
+ await tool.execute({action:'replace',file:'00-身份.md',oldText:'OLD_FIXTURE_IDENTITY',newText:'MERGED_NEW_DEFAULT'},{agent:f.agent})
+ const saved=await tool.execute({action:'read',file:'00-身份.md'},{agent:f.agent});assert.match(saved.text,/MERGED_NEW_DEFAULT with PERSONAL_ADDITION/)
+ await tool.execute({action:'delete_update',file:pack},{agent:f.agent});await tool.execute({action:'delete',file:name},{agent:f.agent})
+ assert.doesNotMatch(section(await f.assemble(),'whale:persona'),/基础设定更新包通知/)
+})
+test('update package actual tool creates missing active file without overwriting existing RP',async t=>{
+ const f=await fixture(t,'gpt',{upgrade:true,seed:true,sync:true}),tool=f.tools.get('persona_edit')
+ const ref=await tool.execute({action:'read',file:'更新/defaults-20261030-v2/新版/10-外观.md'},{agent:f.agent})
+ // Real tool read exposes a heading; use the actual reference body for create.
+ const body=await readFile(join(f.persona,'更新/defaults-20261030-v2/新版/10-外观.md'),'utf8')
+ await tool.execute({action:'create',file:'10-外观.md',text:body},{agent:f.agent});assert.equal(await readFile(join(f.persona,'10-外观.md'),'utf8'),body)
+ await assert.rejects(tool.execute({action:'create',file:'00-身份.md',text:'BAD'},{agent:f.agent}),{code:'EEXIST'})
+ assert.match(await readFile(join(f.persona,'00-身份.md'),'utf8'),/PERSONAL_ADDITION/)
+})
+test('update package with writes disabled remains visible without bypass tools',async t=>{
+ const f=await fixture(t,'gpt',{upgrade:true,seed:true,sync:true,allowAgentWrite:false})
+ assert.match(section(await f.assemble(),'whale:persona'),/不绕过权限/);assert.equal(f.tools.has('persona_edit'),false)
+ assert.match(await readFile(join(f.persona,'98-升级迁移通知-20261030-v2.md'),'utf8'),/全部完成后/)
 })

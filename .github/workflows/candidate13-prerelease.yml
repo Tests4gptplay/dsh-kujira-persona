@@ -1,0 +1,58 @@
+name: Publish exact Kujira candidate13 prerelease
+on:
+  push:
+    branches: ['test/cloud-acceptance-20261030-candidate13']
+    paths:
+      - '.github/workflows/candidate13-prerelease.yml'
+      - 'scripts/release-candidate13/**'
+permissions:
+  contents: read
+concurrency:
+  group: kujira-candidate13-prerelease
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Match tested package tooling
+        run: npm install -g npm@11.9.0 --ignore-scripts
+      - name: Verify staged update lifecycle before publishing
+        run: node --test upgrade-notice.test.js
+      - name: Rebuild and verify exact tested 248-file package
+        run: |
+          mkdir dist
+          npm pack --ignore-scripts --pack-destination dist
+          python scripts/release-candidate13/verify-package.py dist
+          cp scripts/release-candidate13/SHA256SUMS.txt dist/
+          cd dist
+          sha256sum -c SHA256SUMS.txt
+      - name: Publish this candidate only, not latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tests4gptplay/dsh-kujira-persona
+        run: |
+          set -euo pipefail
+          TAG='v2.3.1-acceptance.20261030.13'
+          if gh api "repos/$GH_REPO/releases/tags/$TAG" > "$RUNNER_TEMP/existing-release.json" 2> "$RUNNER_TEMP/release-query.err"; then
+            echo 'Candidate release already exists; refusing to overwrite any assets.'
+            exit 1
+          fi
+          grep -q 'HTTP 404' "$RUNNER_TEMP/release-query.err" || { cat "$RUNNER_TEMP/release-query.err"; exit 1; }
+          gh release create "$TAG" \
+            --target '${{ github.sha }}' \
+            --title 'Kujira 2.3.1 acceptance.20261030.13 候选' \
+            --notes-file scripts/release-candidate13/NOTES.md \
+            --prerelease --latest=false \
+            dist/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz dist/SHA256SUMS.txt

@@ -1,48 +1,31 @@
-# Kujira 11 候选安装与验收
+# Kujira 13 候选安装与增量验收
 
-**版本：2.3.1-acceptance.20261029.11**。这是候选交付，不是正式Release；本轮限定范围收束，原矩阵 **13通过、18部分完成、2未运行**。
+当前版本：`2.3.1-acceptance.20261030.13`。12 候选方案已被替代，不再安装或发布；11 候选只保留为资产及既有验证基线。
 
-安装包：`dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz`
+安装包：`dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz`。核对本次交付或同一候选 Release 附件中的 `SHA256SUMS.txt`；不要采用11/12或旧正式版的哈希、大小与文件名。
 
-大小：198,790,063字节。SHA-256：
+## 获取状态
+
+当前打包/审核阶段尚未发布候选附件。可以使用审核交付的本地同名 TGZ。计划发布地址如下，只有候选 Release 实际上传同名附件后才可下载，当前不声称此地址已经可用：
+
 ```text
-3a19e29db0409b31c88bea2f0eae91e0072976d2e996548cd92d8853a741f3e6
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261030.13/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz
 ```
-
-## 获取安装包
-
-[下载本候选完整安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261029.11/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz)（198,790,063 字节）。附件与已验收包SHA一致，未拆分；这是预发布候选，不替代正式latest。也可直接将此下载URL填入DSH添加插件入口。
 
 ## 安装
 
-更新前，右键桌宠选择“全部关闭”，关闭桌宠及提示气泡；然后正常卸载旧包并安装新版。保留world、persona/personas、人物目录的 `.kujira-catalog.json`、宠物/日记/睡眠设置文件及已配置日记库；自定义路径以实际设置为准，不清空设定与记忆。
+先在桌宠右键菜单选择“全部关闭”，正常卸载旧包后安装新包。不要删除已有设定、记忆、日记库、桌宠配置或自定义目录。
 
-- Desktop：插件 → 添加插件，填写下载后 `.tgz` 的完整本地路径。
-- Web：在自己的对应profile执行：
+DSH Desktop：插件 → 添加插件，选择已核验的本地 TGZ。Web 对应 profile 示例：
+
 ```bash
-dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz'
+dsh plugin --profile web add '/完整路径/dsh-kujira-persona-2.3.1-acceptance.20261030.13.tgz'
 ```
 
-Web与Desktop分别安装，启用后正常重启DSH。
+Web 和 Desktop 分别安装，启用后正常重启 DSH。首次安装和升级均先生成当前档案下的更新包与通知，不在启动时硬覆盖活动设定。空档案由 AI 读取包后创建对应基础文件；已有档案以自身为主体，小增量合并新版，只替换旧默认对应片段，自定义优先。保存并读回确认后仅清理本次更新包与通知。
 
-## 本轮修复与证据
+## 验证范围
 
-两项功能修正：深色原生选择列表使用Host主题颜色；桌宠关闭时，设置中的模型联动仍跟随当前选择，后台仍不启用查询、轮询或渲染。奶油色气泡、后台和美术资源保持原样。
+云端已通过相关44项、实际入口3项、最终TGZ生命周期15项。扩大日记/睡眠矩阵的旧文案断言失败单独记录，不宣称全矩阵通过。Windows 尚需 [13 候选的六项增量检查](../docs/testing/LOCAL-VALIDATION.md)；最新11候选已通过项直接采用，不重跑旧全表。
 
-冻结源码166项组件测试通过，81组中英文键核对通过。真实Host已验证普通睡眠整理、并发冲突后重读保留修改、busy阻止及恢复、角色/开关/前台任务取消，以及正常退出和异常退出后的进度恢复。真实三主题选择列表、透明区域提交等已有操作记录，不再要求补截图。
-
-退出恢复保留已完成记录，仅补未完成段。本轮最后Host已正常停止，数据和profile保留；Sleep OFF设置未写入，不将进程停止表述为设置已复原。
-
-## 实机验证要求
-
-原矩阵仍有完整英→中界面切换、世界/人物目录入口未运行；若干开关/显示位置/行为组合、全模型家族映射、重试中断、账户价格与权限细分、检索优先级、重新安装及其他操作系统原生绑定仅部分覆盖。具体逐项清单随源码 `test-artifacts/coverage-summary.json` 提供。
-
-已通过的云端结果直接采用，不要求本机全量重跑；后续只补实际需要的实机验证项目，功能变更只回归受影响范围。本轮不再追加测试。
-
-## 最终包关系
-
-最终包与实际测试的冻结11仅README、package.description及中英文meta.description不同；247文件中其余243文件、全部运行JS和美术资产逐字节相同，版本未变。纯介绍文案已做内容及包收录核验，不重跑功能。源码与验收文档已推送测试分支，完整包已上传候选预发布附件；main及正式latest不变。
-
-完整[验收记录](../docs/testing/ACCEPTANCE.md)与[改动依据](../docs/testing/CHANGES.md)。
-
-下一步见[实机验证要求](../docs/testing/LOCAL-VALIDATION.md)，已完成云端结果直接采用。
+[11 候选历史验收记录](../docs/testing/ACCEPTANCE.md)和[历史用例证据](../docs/testing/CASEBOOK.md)不是本候选的安装入口，也不证明13已完成实机验收。当前行为变化见 [改动说明](../docs/testing/CHANGES.md)。

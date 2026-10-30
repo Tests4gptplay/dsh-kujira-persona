@@ -1,9 +1,11 @@
 /** Lazy Markdown snapshots. Writes update the affected snapshot; no polling. */
-import { mkdir, readFile, readdir, rm, stat, writeFile, rename, realpath, readlink } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, stat, writeFile, rename, realpath, readlink, lstat } from 'node:fs/promises'
 import { createHash, randomUUID } from 'node:crypto'
 import { basename, dirname, join, resolve, sep } from 'node:path'
 
 const STATE_FILE = '.kujira-state.json'
+import {prepareUpdate, listUpdate, readUpdate, deleteUpdate} from './update-package.js'
+
 const TARGETS = {
   memory: ['90-记忆.md', '记忆'],
   character: ['95-自补-人设.md', '人设（AI 补充）'],
@@ -89,51 +91,53 @@ async function syncDirectory(config) {
   catch (error) { if (error.code === 'ENOENT') return stats; throw error }
   await mkdir(config.personaDir, { recursive: true })
   const state = await readState(config.personaDir, config.onWarning)
+  const baselines = state.defaultBaselines ??= {}
+  const references = []
+  const existing = await loadDirectory(config.personaDir)
+  const fresh = existing.length === 0 && Object.keys(state.files).length === 0
   for (const name of names) {
-    const bundleText = await readFile(join(config.packagedDir, name), 'utf8')
-    const bundleHash = digest(bundleText), path = join(config.personaDir, name)
+    const text = await readFile(join(config.packagedDir, name), 'utf8'), bundleHash = digest(text)
     let userText
-    try { userText = await readFile(path, 'utf8') }
+    try { userText = await readFile(join(config.personaDir, name), 'utf8') }
     catch (error) { if (error.code !== 'ENOENT') throw error; userText = null }
     const record = state.files[name]
-    try { await editableTarget(config, name, true) }
-    catch (error) {
-      if (error.code !== 'KUJIRA_OUTSIDE_DOSSIER') throw error
-      stats.kept++
+    const previous = typeof record === 'string' ? {hash:record,source:'unknown'} : record
+    try { await editableTarget(config,name,true) }
+    catch (error) { if(error.code!=='KUJIRA_OUTSIDE_DOSSIER')throw error;stats.kept++;continue }
+    if(userText === null && (record || state.recoveryInvalid)) {
+      state.files[name] = {source:'deleted'}
       continue
     }
-    if (userText === null) {
-      if (record || state.recoveryInvalid) {
-        state.files[name] = { source: 'deleted' }
-        continue
-      }
-      if (config.seed === false) continue
-      await writeFile(path, bundleText, 'utf8')
-      state.files[name] = { hash: bundleHash, source: 'seed' }
-      stats.added++
-      continue
-    }
-    const userHash = digest(userText)
-    const previous = typeof record === 'string'
-      ? { hash: record, source: record === bundleHash ? 'seed' : 'user' } : record
-    if (userHash === bundleHash) {
-      state.files[name] = { hash: bundleHash, source: 'seed' }
+    // Existing memories are independent. Even unchanged old seeds are never
+    // replaced by startup; first install also stages, rather than seeds roots.
+    if(name.startsWith('90-') && !fresh){stats.kept++;continue}
+    if(userText === null && config.seed === false)continue
+    if(userText !== null && digest(userText) === bundleHash) {
+      state.files[name] = {hash:bundleHash,source:'seed'}
+      baselines[name] = {hash:bundleHash,text}
       stats.upToDate++
-    } else if (config.sync !== false && previous?.source === 'seed' && previous.hash === userHash) {
-      await backup(config, name, userText)
-      await writeFile(path, bundleText, 'utf8')
-      state.files[name] = { hash: bundleHash, source: 'seed' }
-      stats.updated++
-    } else if (config.sync === false && previous?.source === 'seed' && previous.hash === userHash) {
-      // Pausing updates does not turn an unchanged default into a user edit.
-      state.files[name] = previous
-      stats.kept++
-    } else {
-      state.files[name] = { hash: userHash, source: 'user' }
-      stats.kept++
+      continue
     }
+    let baseline=null, baselineSource='unavailable'
+    const known = baselines[name]
+    if(known && typeof known.text==='string' && digest(known.text)===known.hash){baseline=known.text;baselineSource='记录的默认基线 SHA256 '+known.hash}
+    else if(previous?.source==='seed' && previous.hash && userText!==null){
+      if(digest(userText)===previous.hash){baseline=userText;baselineSource='未改动旧默认，匹配 seed SHA256 '+previous.hash}
+      else {
+        try {
+          const old=await readFile(join(config.personaDir,'.kujira-backup',`${name}.${previous.hash.slice(0,16)}.bak`),'utf8')
+          if(digest(old)===previous.hash){baseline=old;baselineSource='旧默认备份，匹配 seed SHA256 '+previous.hash}
+        } catch(error){if(error.code!=='ENOENT')config.onWarning?.('旧默认备份不可读；保留不确定的自定义内容。')}
+      }
+    }
+    if(baseline!==null)baselines[name]={hash:digest(baseline),text:baseline}
+    if(userText!==null)state.files[name]=previous?.source==='seed'&&previous.hash===digest(userText)?previous:{hash:digest(userText),source:'user'}
+    references.push({name,text,baseline,baselineSource})
+    stats.kept++
   }
-  await writeState(config.personaDir, state)
+  try { await prepareUpdate(config,state,references) }
+  catch(error){config.onWarning?.(`基础更新包暂未完整保存（${error.code??error.message}）；原档案保留，稍后同步重试。`)}
+  await writeState(config.personaDir,state)
   return stats
 }
 
@@ -249,6 +253,7 @@ export function openDossier(config) {
     },
     async read(file) {
       await ready(); await tail
+      if (typeof file === 'string' && file.startsWith('更新/')) return readUpdate(config, file)
       const { path } = await editableTarget(config, file)
       const source = await readSource(path)
       if (!source) { const error = new Error('找不到该档案文件'); error.code = 'KUJIRA_FILE_NOT_FOUND'; throw error }
@@ -307,7 +312,16 @@ export function openDossier(config) {
         await guard()
         const input = args && typeof args === 'object' ? args : {}
         const action = typeof input.action === 'string' ? input.action : 'append'
-        if (action === 'list') return { action, persona: config.id, files: snapshot.sources.map(s => ({ file: basename(s.path), chars: s.text.length })) }
+        if (action === 'list') return { action, persona: config.id, files: input.file === '更新' || input.file?.startsWith('更新/')
+          ? await listUpdate(config,input.file) : [...snapshot.sources.map(s => ({ file: basename(s.path), chars: s.text.length })), ...await listUpdate(config)] }
+        if (action === 'delete_update') return {action,persona:config.id,...await deleteUpdate(config,input.file),path:join(config.personaDir,input.file),cache_updated:true}
+        if (action === 'create') {
+          const {name,path}=await editableTarget(config,input.file,true)
+          if(typeof input.text!=='string')throw new Error('create 需要完整 text')
+          await guard();await writeFile(path,input.text,{encoding:'utf8',flag:'wx'})
+          await replaceSource(path,input.text)
+          return {action,persona:config.id,file:name,path,cache_updated:true,note:'已创建缺失档案；原有文件不会被覆盖。请重新读取确认。'}
+        }
         const oldText = typeof input.oldText === 'string' ? input.oldText : ''
         if (action === 'replace' || action === 'delete') {
           const { name, path } = await editableTarget(config, input.file, true)

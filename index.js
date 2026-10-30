@@ -175,11 +175,11 @@ export function apply(ctx, rawConfig) {
       description: '按用户要求读取或修改档案。scope=world 为所有角色共用的习惯、要求、项目共识、经用户确认的通用经验及公共背景/名录；scope=persona 为当前角色/明确指定角色的性格、交流方式、针对性纠正和个人记忆。个人经验未经用户确认不自行推广为共同规则。category=world 默认选择全局。append/replace/delete 成功后缓存已自动更新，无需另行刷新。仅当使用其他文件工具修改后，调用一次 action=reload 重读受影响范围；不重启 DSH，不清理会话。',
       parameters: {
         type: 'object', properties: {
-          action: { type: 'string', enum: ['read', 'append', 'replace', 'delete', 'list', 'reload'] },
+          action: { type: 'string', enum: ['read', 'append', 'replace', 'delete', 'list', 'reload', 'create', 'delete_update'] },
           scope: { type: 'string', enum: ['world', 'persona'], description: '明确共同适用的习惯、项目共识、经用户确认的通用经验及公共背景用 world；角色性格、交流方式、针对性纠正和个人记忆用 persona。' },
           persona: { type: 'string', description: 'scope=persona 的已有角色 ID；省略则使用本次请求的角色。' },
           category: { type: 'string', enum: ['character', 'world', 'meme', 'memory'] },
-          file: { type: 'string', description: '角色目录内 .md 文件名，不是路径；read 可省略以读取全部。' },
+          file: { type: 'string', description: '活动档案使用根目录 .md 文件名；更新参照用更新/包ID/清单.md或新版、旧版子路径。list可指定更新或更新/包ID；delete_update仅指定本次更新/包ID。read省略只读活动档案。' },
           oldText: { type: 'string' }, newText: { type: 'string' },
           text: { type: 'string', description: 'append 正文。' }, source: { type: 'string' },
         }, required: ['action'], additionalProperties: false,
@@ -192,7 +192,7 @@ export function apply(ctx, rawConfig) {
         }, required: ['action', 'persona'] },
         render(_args, value) {
           const text = value.action === 'read' ? value.text : value.action === 'list'
-            ? value.files.map(f => `${f.file}（${f.chars} 字符）`).join('\n') || '（空）'
+            ? value.files.map(f => f.chars === undefined ? f.file : `${f.file}（${f.chars} 字符）`).join('\n') || '（空）'
             : `${value.note}\n${value.path}\n下次请求生效。`
           return [{ type: 'text', text: `${value.label ?? value.persona}\n${text}` }]
         },

@@ -1,0 +1,237 @@
+{
+  "candidate": "2.3.1-acceptance.20261029.11",
+  "environment": "Own cloud Linux; actual official DSH Host with synthetic fixture driver, except explicitly identified actual CLI/public media/official ASR supplement",
+  "privacy": "Whitelisted result excerpts; no real account cookies, tokens, personal logs or full lyrics. Source hashes identify retained reports; public excerpts below are independently readable.",
+  "evidence": [
+    {
+      "sourceReport": "NORMAL-SLEEP-RESULT-11.json",
+      "sourceReportSHA256": "3b88dabd2f6485e70090f2893bfee191085d39c0aecb82acc7aa5332bb1ac360",
+      "observed": {
+        "at": "2026-10-30T07:03:04.360089+00:00",
+        "status": "NORMAL_SLEEP_PERSONA_WITH_DIARY_OFF_SCOPE_PASS",
+        "completedAt": "2026-10-30T07:00:11.762Z",
+        "actualDates": [
+          "2026-10-27",
+          "2026-10-29"
+        ],
+        "todaySleepExists": false,
+        "protectedMismatches": [],
+        "observedPersonalRevision": "QA_REVISED_UNDERSTANDING",
+        "observedInsight": "QA_NEW_PERSONAL_INSIGHT"
+      }
+    },
+    {
+      "sourceReport": "SLEEP-CONFLICT-RESULT-11.json",
+      "sourceReportSHA256": "e456ef0899d0851e1714a55b71d40cf733d1335eca8ef2e678a25749d23b7bac",
+      "observed": {
+        "at": "2026-10-30T07:10:18.119110+00:00",
+        "status": "ACTUAL_SLEEP_STALE_READ_REJECTION_REREAD_RECOVERY_PASS",
+        "productUnchanged247": true,
+        "observations": [
+          {
+            "at": "2026-10-30T07:06:39.352Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": {
+              "name": "sleep_persona",
+              "args": {
+                "action": "read",
+                "file": "93-qa-conflict.md"
+              }
+            },
+            "lastResult": null
+          },
+          {
+            "at": "2026-10-30T07:07:09.497Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": {
+              "name": "sleep_persona",
+              "args": {
+                "action": "replace",
+                "file": "93-qa-conflict.md",
+                "oldText": "QA_CONFLICT_OLD_UNDERSTANDING",
+                "newText": "QA_CONFLICT_REVISED_UNDERSTANDING"
+              },
+              "gate": {
+                "id": "sleep-conflict-v1",
+                "file": "93-qa-conflict.md",
+                "readSha256": "4104de7d692bb6a243370921c4c11a27fa3a1001f41f479ebc9f0ce8eae5f65a",
+                "sourceDates": [
+                  "2026-10-28"
+                ]
+              }
+            },
+            "lastResult": {
+              "error": false,
+              "concurrentPreserved": false,
+              "revised": false
+            }
+          },
+          {
+            "at": "2026-10-30T07:08:11.506Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": {
+              "name": "sleep_persona",
+              "args": {
+                "action": "read",
+                "file": "93-qa-conflict.md"
+              }
+            },
+            "lastResult": {
+              "error": true,
+              "errorMessage": "档案在读取后已改变；请重新读取，再按最新内容修改",
+              "concurrentPreserved": false,
+              "revised": false
+            }
+          },
+          {
+            "at": "2026-10-30T07:08:41.523Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": {
+              "name": "sleep_persona",
+              "args": {
+                "action": "replace",
+                "file": "93-qa-conflict.md",
+                "oldText": "QA_CONFLICT_OLD_UNDERSTANDING",
+                "newText": "QA_CONFLICT_REVISED_UNDERSTANDING"
+              }
+            },
+            "lastResult": {
+              "error": false,
+              "concurrentPreserved": true,
+              "revised": false
+            }
+          },
+          {
+            "at": "2026-10-30T07:09:13.201Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": {
+              "name": "sleep_write",
+              "args": {
+                "id": "daily:2026-10-28:e9ebe57acf43aaf85ab16ffef0acfd93999a0608bbd64feafb2457febf204119:0",
+                "text": "QA_OLD_DIARY_COMPACTED"
+              }
+            },
+            "lastResult": {
+              "error": false,
+              "concurrentPreserved": false,
+              "revised": false
+            }
+          },
+          {
+            "at": "2026-10-30T07:09:43.265Z",
+            "model": "gpt-qa-fixture-a",
+            "tools": [
+              "sleep_read",
+              "sleep_write",
+              "sleep_persona"
+            ],
+            "call": null,
+            "lastResult": {
+              "error": false,
+              "concurrentPreserved": false,
+              "revised": false,
+              "saved": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "sourceReport": "ROLE-CANCEL-RECOVERY-11.json",
+      "sourceReportSHA256": "1b9cb4ee4fd3739ff2aedf7888221f22dee44ca6cdfce61d0a8fc2416aea3ba0",
+      "observed": {
+        "at": "2026-10-30T08:08:46.458390+00:00",
+        "case": "role-cancel",
+        "events": [
+          {
+            "event": "reached",
+            "id": "sleep-role-cancel-v1",
+            "case": "role-cancel",
+            "sourceId": "daily:2026-10-27:c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896:0",
+            "readSha256": "c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896",
+            "readTextHasMarker": true,
+            "at": "2026-10-30T07:46:05.248Z"
+          },
+          {
+            "event": "gate-aborted",
+            "id": "sleep-role-cancel-v1",
+            "sourceId": "daily:2026-10-27:c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896:0",
+            "at": "2026-10-30T08:03:18.883Z",
+            "aborted": true
+          },
+          {
+            "event": "reentered",
+            "id": "sleep-role-cancel-v1",
+            "case": "role-cancel",
+            "sourceId": "daily:2026-10-27:c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896:0",
+            "readSha256": "c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896",
+            "readTextHasMarker": true,
+            "at": "2026-10-30T08:08:44.119Z"
+          },
+          {
+            "event": "released",
+            "id": "sleep-role-cancel-v1",
+            "sourceId": "daily:2026-10-27:c7ead5598f100e8134801b1d8519da6c71d262dc319e271634ad97c15f6e2896:0",
+            "at": "2026-10-30T08:08:44.120Z",
+            "aborted": false
+          }
+        ],
+        "protectedMismatches": [],
+        "actualRecoveryPass": true
+      }
+    },
+    {
+      "sourceReport": "NORMAL-EXIT-RECOVERY-11.json",
+      "sourceReportSHA256": "a9c3b07cc08451d554151b9cd851483ce6befa121b2af2c32b2d5a64c2e0f284",
+      "observed": {
+        "at": "2026-10-30T09:44:31.733304+00:00",
+        "status": "NORMAL_TERM_SAVED_PROGRESS_RESTART_RECOVERY_PASS",
+        "exitAt": "2026-10-30T08:31:43.996788+00:00",
+        "exitFilesUnchanged": 99,
+        "pendingUnprocessedAtExit": true,
+        "allOtherBeforeExitSyntheticHashesUnchanged": true,
+        "allFivePreviouslyProcessedItemsExactlyUnchanged": true,
+        "recoverySemantics": "Reread/recompute from persisted source, not restoration of unsaved reasoning"
+      }
+    },
+    {
+      "sourceReport": "ABRUPT-EXIT-RECOVERY-11.json",
+      "sourceReportSHA256": "a7469b434ac49ae7d793352515873530aa2594d8b5f2c49bd2d615b1352a5477",
+      "observed": {
+        "at": "2026-10-30T09:53:08.692953+00:00",
+        "status": "ABRUPT_SIGKILL_PERSISTED_PROGRESS_RESTART_RECOVERY_PASS",
+        "killReceiptAt": "2026-10-30T09:49:40.174237+00:00",
+        "allSevenPreviouslyProcessedItemsExactlyUnchanged": true,
+        "pendingOnlyRecoveryListItems": 1,
+        "allOther97SyntheticHashesUnchanged": true,
+        "scope": "Exact owned Host SIGKILL while one source already durable and another read but not written; not an interruption inside atomic filesystem write",
+        "reasoningRecovery": "Unsaved model analysis is reread/recomputed; persisted completed source not rewritten"
+      }
+    }
+  ]
+}

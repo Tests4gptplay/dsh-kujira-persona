@@ -162,3 +162,5 @@ Kujira 设置中的「账户与模型单价」按当前 **provider/model 接入*
 In **Account & model pricing**, settings apply to the selected provider/model, not the character. Normal key-based balance adapters can reuse DSH credentials. Admin, management, cloud-billing and plan queries require explicit credential references, never plaintext keys in Kujira. Available capabilities vary by provider. A cloud-account balance, monthly billed usage, token count, plan quota and budget remainder are distinct. Unsupported, permission-needed and failed queries are not shown as zero. Unknown proxies never send credentials to a guessed official endpoint; DeepSeek-compatible proxies require explicit same-origin opt-in.
 
 Manual per-million-token rates are reference prices, not actual bills. OpenRouter additionally exposes exact-model catalog pricing. Kujira does not multiply a current-model price by a whole session's potentially mixed-model token total. This release's automated adapter tests use synthetic credentials; real-account connectivity depends on the user's endpoint, account and permissions.
+
+逐项查验：[用例步骤、预期、实际结果与公开证据](docs/testing/CASEBOOK.md)。

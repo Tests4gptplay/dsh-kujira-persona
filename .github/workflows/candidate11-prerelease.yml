@@ -1,0 +1,57 @@
+name: Publish exact Kujira candidate11 prerelease
+on:
+  push:
+    branches: ['test/cloud-acceptance-20261030-candidate11']
+    paths:
+      - '.github/workflows/candidate11-prerelease.yml'
+      - 'scripts/release-candidate11/**'
+permissions:
+  contents: read
+concurrency:
+  group: kujira-candidate11-prerelease
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: release-tools
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: effd7d0f8a5fcbe52dcce669d9ef8f049a21866a
+          path: frozen-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Rebuild original 247-file package and verify exact SHA256
+        run: |
+          python release-tools/scripts/release-candidate11/build-exact.py frozen-source dist
+          cp release-tools/scripts/release-candidate11/SHA256SUMS.txt dist/
+          cd dist
+          sha256sum -c SHA256SUMS.txt
+      - name: Publish this candidate only, not latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tests4gptplay/dsh-kujira-persona
+        run: |
+          set -euo pipefail
+          TAG='v2.3.1-acceptance.20261029.11'
+          if gh api "repos/$GH_REPO/releases/tags/$TAG" > "$RUNNER_TEMP/existing-release.json" 2> "$RUNNER_TEMP/release-query.err"; then
+            echo 'Candidate release already exists; refusing to overwrite assets. Inspect existing size and digest.'
+            python -c 'import json,os; d=json.load(open(os.environ["RUNNER_TEMP"]+"/existing-release.json")); print(json.dumps({"tag":d["tag_name"],"prerelease":d["prerelease"],"assets":[{"name":a["name"],"size":a["size"],"digest":a.get("digest")} for a in d["assets"]]}))'
+            exit 1
+          fi
+          grep -q 'HTTP 404' "$RUNNER_TEMP/release-query.err" || { cat "$RUNNER_TEMP/release-query.err"; exit 1; }
+          gh release create "$TAG" \
+            --target effd7d0f8a5fcbe52dcce669d9ef8f049a21866a \
+            --title 'Kujira 2.3.1 acceptance.20261029.11 候选' \
+            --notes-file release-tools/scripts/release-candidate11/NOTES.md \
+            --prerelease --latest=false \
+            dist/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz dist/SHA256SUMS.txt

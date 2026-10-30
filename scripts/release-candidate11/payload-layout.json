@@ -1,0 +1,990 @@
+[
+  {
+    "path": "LICENSE",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/companion.cjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/main-hook.cjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/platform.cjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/preload.cjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/window-controller.cjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/companion.css",
+    "mode": 420
+  },
+  {
+    "path": "pet/native/win-x64/KujiraPet.exe",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/companion.html",
+    "mode": 420
+  },
+  {
+    "path": "pet/activity.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/animation.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/art-secondary.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/art-state-completion.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/art.js",
+    "mode": 420
+  },
+  {
+    "path": "catalog.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/client.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/controller.js",
+    "mode": 420
+  },
+  {
+    "path": "daily-diary.js",
+    "mode": 420
+  },
+  {
+    "path": "diary-integration.js",
+    "mode": 420
+  },
+  {
+    "path": "diary-sleep.js",
+    "mode": 420
+  },
+  {
+    "path": "diary.js",
+    "mode": 420
+  },
+  {
+    "path": "dossier.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/folders.js",
+    "mode": 420
+  },
+  {
+    "path": "index.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/index.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/model.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/native.js",
+    "mode": 420
+  },
+  {
+    "path": "persona-migration.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/sprite-canvas.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/standard-manifest.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/stats.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/task.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/ui-messages.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage-cloud-vendors.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage-config.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage-minimax.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage-vendors.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage-western.js",
+    "mode": 420
+  },
+  {
+    "path": "pet/usage.js",
+    "mode": 420
+  },
+  {
+    "path": "locale/en.json",
+    "mode": 420
+  },
+  {
+    "path": "package.json",
+    "mode": 420
+  },
+  {
+    "path": "locale/zh.json",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/_\u6765\u6e90\u8bf4\u660e.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/stella/_\u6765\u6e90\u8bf4\u660e.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/_\u7f16\u8f91\u8bf4\u660e.md",
+    "mode": 420
+  },
+  {
+    "path": "world/_\u8d44\u6599\u6765\u6e90.md",
+    "mode": 420
+  },
+  {
+    "path": "world/00-\u5171\u540c\u4e16\u754c\u89c2.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/claude/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/doubao/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gemini/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/glm/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/grok/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/hunyuan/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/kimi/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/llama/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/mimo/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/minimax/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/mistral/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/qwen/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/stella/00-\u57fa\u7840\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/00-\u8eab\u4efd.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/00-\u8eab\u4efd.md",
+    "mode": 420
+  },
+  {
+    "path": "world/10-\u516c\u5f00\u89d2\u8272\u540d\u5f55.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/10-\u5916\u89c2.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/10-\u5916\u89c2.md",
+    "mode": 420
+  },
+  {
+    "path": "world/12-\u661f\u7483.md",
+    "mode": 420
+  },
+  {
+    "path": "world/20-\u5927\u5bb6\u773c\u4e2d\u7684\u5979\u4eec.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/20-\u6027\u683c.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/20-\u6027\u683c\u4e0e\u8868\u8fbe.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/30-\u8bf4\u8bdd.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/40-\u4e16\u754c\u89c2\u5206\u5c42.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/50-\u5173\u7cfb.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/60-\u6211\u4eec\u7684\u539f\u521b\u8bbe\u5b9a.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/70-\u5b66\u4e60\u89c4\u5219.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/70-\u8bb0\u5fc6\u534f\u8bae.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/80-\u8d44\u6599\u6e90.md",
+    "mode": 420
+  },
+  {
+    "path": "persona/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/claude/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/doubao/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gemini/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/glm/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/gpt/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/grok/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/hunyuan/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/kimi/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/llama/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/mimo/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/minimax/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/mistral/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/qwen/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "personas/stella/90-\u8bb0\u5fc6.md",
+    "mode": 420
+  },
+  {
+    "path": "CHANGELOG.md",
+    "mode": 420
+  },
+  {
+    "path": "NOTICE.md",
+    "mode": 420
+  },
+  {
+    "path": "pet/NOTICE.md",
+    "mode": 420
+  },
+  {
+    "path": "instructions/README.md",
+    "mode": 420
+  },
+  {
+    "path": "README.md",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/companion-renderer.mjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/launch-spec.mjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/renderer-bridge.mjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/companion/shadow.mjs",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-core-work-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-responding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-searching-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-status-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-testing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/claude-thinking-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-drag-land-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-idle-think-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-responding-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-searching-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-testing-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/deepseek-work-wait-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-editing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-searching-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-testing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/doubao-thinking-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-core-work-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-searching-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-testing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gemini-thinking-go-v4.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-editing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-responding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-searching-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-testing-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/glm-thinking-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-command-test-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-core-v3.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-error-drag-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-idle-micro-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-land-pat-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-poke-tail-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-research-edit-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-testing-checklist-v2-00.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-testing-checklist-v2-01.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-testing-checklist-v2-02.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-testing-checklist-v2-03.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-using-tool-typing-v4.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/gpt-wait-success-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-editing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-testing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-thinking-headhand-v3.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/grok-work-v3.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-commanding-v003.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-editing-liftcheck-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-responding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-searching-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-testing-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/hunyuan-thinking-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-editing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-responding-stable-20261026-v2-f01.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-responding-stable-20261026-v2-f02.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-responding-stable-20261026-v2-f03.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-responding-stable-20261026-v2-f04.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-status-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-testing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/kimi-thinking-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-editing-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-responding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-searching-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-testing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/llama-thinking-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-editing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-idle-v3.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-responding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-searching-v003.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-testing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-thinking-v002.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-waiting-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mimo-work-v3.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-commanding-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-editing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-responding-v003.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-searching-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-status-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-testing-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/minimax-thinking-v001.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-editing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-searching-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-status-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-testing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-thinking-lowtilt-v1-00.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-thinking-lowtilt-v1-01.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/mistral-thinking-lowtilt-v1-02.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-00.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-01.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-02.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-03.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-04.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-05.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-06.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-07.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-08.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-09.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-10.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-12.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-17.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-18.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-searching-compare-return-v5-19.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-status-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-testing-desk-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/qwen-thinking-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-commanding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-core-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-editing-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-responding-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-searching-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-status-v2.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-testing-fixed-page-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-thinking-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "pet/assets/stella-working-v1.png",
+    "mode": 420
+  },
+  {
+    "path": "icon.svg",
+    "mode": 420
+  },
+  {
+    "path": "pet/dsh-dafeiyu-LICENSE.txt",
+    "mode": 420
+  },
+  {
+    "path": "cordis.patch.yml",
+    "mode": 420
+  }
+]

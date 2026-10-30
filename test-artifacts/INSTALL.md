@@ -11,7 +11,7 @@
 
 ## 获取安装包
 
-本分支提供源码、校验和验收说明。198,790,063 字节的完整安装包已交付至私有 Library（文件名与上文一致）；从此次交付附件下载，不要以历史 Release 替代。包未拆分，也未上传新的 Release。
+[下载本候选完整安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261029.11/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz)（198,790,063 字节）。附件与已验收包SHA一致，未拆分；这是预发布候选，不替代正式latest。也可直接将此下载URL填入DSH添加插件入口。
 
 ## 安装
 
@@ -41,7 +41,7 @@ Web与Desktop分别安装，启用后正常重启DSH。
 
 ## 最终包关系
 
-最终包与实际测试的冻结11仅README、package.description及中英文meta.description不同；247文件中其余243文件、全部运行JS和美术资产逐字节相同，版本未变。纯介绍文案已做内容及包收录核验，不重跑功能。Git推送与正式发布尚未执行。
+最终包与实际测试的冻结11仅README、package.description及中英文meta.description不同；247文件中其余243文件、全部运行JS和美术资产逐字节相同，版本未变。纯介绍文案已做内容及包收录核验，不重跑功能。源码与验收文档已推送测试分支，完整包已上传候选预发布附件；main及正式latest不变。
 
 完整[验收记录](../docs/testing/ACCEPTANCE.md)与[改动依据](../docs/testing/CHANGES.md)。
 

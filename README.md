@@ -123,7 +123,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装和升级
 
-本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz`（198,790,063 字节），通过随交付提供的私有 Library 文件下载；该包超过普通 Git blob 大小上限，不在本分支存放。哈希及步骤见[安装说明](test-artifacts/INSTALL.md)。历史正式v2.3.1仍见[Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)，不要将旧正式包当作本候选。
+本候选安装包为 `dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz`（198,790,063 字节），从[候选预发布附件](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261029.11/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz)下载完整包；SHA及步骤见下方说明。哈希及步骤见[安装说明](test-artifacts/INSTALL.md)。历史正式v2.3.1仍见[Release](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/tag/v2.3.1)，不要将旧正式包当作本候选。
 
 **更新前，在桌宠右键菜单选择“全部关闭”，关闭已显示的桌宠与提示气泡；再正常卸载旧包、安装新版。**
 

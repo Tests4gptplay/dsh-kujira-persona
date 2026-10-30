@@ -9,6 +9,10 @@
 3a19e29db0409b31c88bea2f0eae91e0072976d2e996548cd92d8853a741f3e6
 ```
 
+## 下载
+
+[完整候选安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.3.1-acceptance.20261029.11/dsh-kujira-persona-2.3.1-acceptance.20261029.11-copyclarity.tgz)。下载后核对上述SHA，再安装。
+
 ## 安装
 
 更新前，右键桌宠选择“全部关闭”，关闭桌宠及提示气泡；然后正常卸载旧包并安装新版。保留world、persona/personas、人物目录的 `.kujira-catalog.json`、宠物/日记/睡眠设置文件及已配置日记库；自定义路径以实际设置为准，不清空设定与记忆。
@@ -37,4 +41,4 @@ Web与Desktop分别安装，启用后正常重启DSH。
 
 ## 最终包关系
 
-最终包与实际测试的冻结11仅README、package.description及中英文meta.description不同；247文件中其余243文件、全部运行JS和美术资产逐字节相同，版本未变。纯介绍文案已做内容及包收录核验，不重跑功能。Git推送与正式发布尚未执行。
+最终包与实际测试的冻结11仅README、package.description及中英文meta.description不同；247文件中其余243文件、全部运行JS和美术资产逐字节相同，版本未变。纯介绍文案已做内容及包收录核验，不重跑功能。源码与验收文档已推送测试分支，完整包已上传候选预发布附件；main及正式latest不变。

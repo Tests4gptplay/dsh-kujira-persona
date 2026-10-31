@@ -1,0 +1,41 @@
+name: Update Kujira 2.4.1 release description
+on:
+  push:
+    branches: ['main']
+    paths:
+      - '.github/workflows/update-release-v2.4.1-notes.yml'
+      - 'docs/releases/v2.4.1-account.md'
+permissions:
+  contents: read
+concurrency:
+  group: kujira-release-description-v2.4.1
+  cancel-in-progress: false
+jobs:
+  update-notes:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Update description without changing release assets or tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tests4gptplay/dsh-kujira-persona
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/releases/tags/v2.4.1" > "$RUNNER_TEMP/before.json"
+          jq -e '.tag_name == "v2.4.1" and .draft == false and .prerelease == false' "$RUNNER_TEMP/before.json"
+          jq '[.assets[] | {id, name, size, digest}]' "$RUNNER_TEMP/before.json" > "$RUNNER_TEMP/assets-before.json"
+          gh api "repos/$GH_REPO/git/ref/tags/v2.4.1" > "$RUNNER_TEMP/tag-before.json"
+          test "$(jq -r .object.sha "$RUNNER_TEMP/tag-before.json")" = '4b55aaae146dc327fd6aee8e21f5ba376dd55af5'
+          gh release edit v2.4.1 --notes-file docs/releases/v2.4.1-account.md
+          gh api "repos/$GH_REPO/releases/tags/v2.4.1" > "$RUNNER_TEMP/after.json"
+          jq '[.assets[] | {id, name, size, digest}]' "$RUNNER_TEMP/after.json" > "$RUNNER_TEMP/assets-after.json"
+          cmp "$RUNNER_TEMP/assets-before.json" "$RUNNER_TEMP/assets-after.json"
+          gh api "repos/$GH_REPO/git/ref/tags/v2.4.1" > "$RUNNER_TEMP/tag-after.json"
+          cmp "$RUNNER_TEMP/tag-before.json" "$RUNNER_TEMP/tag-after.json"
+          jq -r .body "$RUNNER_TEMP/after.json" > "$RUNNER_TEMP/body-after.md"
+          diff -u <(sed -e '${/^$/d;}' docs/releases/v2.4.1-account.md) <(sed -e '${/^$/d;}' "$RUNNER_TEMP/body-after.md")

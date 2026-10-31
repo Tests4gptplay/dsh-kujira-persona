@@ -10,7 +10,7 @@ github:Tests4gptplay/dsh-kujira-persona#v2.4.1
 
 [下载可安装包 dsh-kujira-persona-2.4.1.tgz](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz)。也可将该下载地址直接填入“包名或地址”，无需解压。核对版本后启用；按宿主提示重启。
 
-升级前在桌宠菜单选择“全部关闭”。用新版来源升级；若宿主要求先卸载，只卸载插件条目，不删除 DSH 数据、角色、世界、记忆或日记目录。现有自定义保留。
+安装或更新前，建议先关闭桌面上已显示的桌宠和提示气泡（桌宠右键菜单 → “全部关闭”）；未关闭时，文件占用有可能导致安装失败。用新版来源升级；若宿主要求先卸载，只卸载插件条目，不删除 DSH 数据、角色、世界、记忆或日记目录。现有自定义保留。
 
 Web：在运行服务的环境停止对应 profile 后执行，完成后重启：
 
@@ -18,7 +18,7 @@ Web：在运行服务的环境停止对应 profile 后执行，完成后重启�
 dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.1'
 ```
 
-Desktop: add the GitHub source above in Plugins → Add plugin. The `.tgz` URL is an alternative install source. Enable after checking the version; preserve all user data when upgrading. No npm account required.
+Desktop: add the GitHub source above in Plugins → Add plugin. The `.tgz` URL is an alternative install source. Enable after checking the version; preserve all user data when upgrading. Before installing or updating, we recommend closing the visible desktop pet and bubbles; open files may cause installation to fail. No npm account required.
 
 ## 账户查询验证范围 / Account-query validation
 

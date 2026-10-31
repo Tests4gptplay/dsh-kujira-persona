@@ -1,10 +1,20 @@
 # Kujira · AI 角色与世界
 
-**账户查询候选更新安装来源：** `https://github.com/Tests4gptplay/dsh-kujira-persona/tree/fix/account-query-20261031` · 版本 **2.4.1-account.20261031.3** · [候选更新说明](docs/releases/v2.4.1-account.md)
+**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.1` · [下载 2.4.1 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz) · [安装步骤](#安装与升级)
 
-账户查询配置位于 **设置 → Kujira · 人设 → 最底部“公司与接入方式”**，选择后显示对应字段与指南。
+<!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
+**账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**
 
-稳定版安装方法仍见[安装与升级](#安装与升级)。
+**Account-query validation: Codex and OpenAI API have been user-verified; other sources await user validation and feedback.**
+<!-- ACCOUNT-VALIDATION-WEB-ONLY:END -->
+
+## 2.4.1：与模型接入匹配的账户查询
+
+设置最底部的“公司与接入方式”按已有模型与接入来源列出需要配置的可用方案，显示对应字段和官方指南。独立查询密钥通过宿主凭据服务保存，不覆盖模型推理密钥；自动查询保持自动，无匹配方案时不显示账户栏。
+
+OpenAI 显示官方本月消费与 Completions 用量，不当作余额。移除通用云账单，修正 Mistral 缺省字段、GLM/Ark 周期及 MiniMax 模型套餐匹配；保留第三方兼容来源的显式选择与同源限制。
+
+配置入口：**设置 → Kujira · 人设 → 最底部“公司与接入方式”**。填写后点击“保存查询设置”，再点击“查询账户信息”。
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
@@ -137,12 +147,12 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装与升级
 
-当前版本：**2.4.0**。安装包与固定标签均已包含运行文件，无需编译。
+当前版本：**2.4.1**。安装包与固定标签均已包含运行文件，无需编译。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.4.0
+github:Tests4gptplay/dsh-kujira-persona#v2.4.1
 ```
 
 **升级已有插件：** 同样填写上面的新版来源，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载该插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
@@ -152,13 +162,13 @@ github:Tests4gptplay/dsh-kujira-persona#v2.4.0
 **备用安装包：** 将下面的 `.tgz` 直链填入同一个 **包名或地址**；也可下载后填写文件的完整绝对路径，无需解压。该路径应属于运行 DSH 的电脑。
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.0/dsh-kujira-persona-2.4.0.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz
 ```
 
 **Web：** 在运行服务的环境中执行。升级前停止对应 Web profile，成功后重新启动；Web 与 Desktop 分别安装。
 
 ```sh
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.0'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.1'
 ```
 
 备用时将命令中的来源换成上面的 `.tgz` 直链或下载文件的完整绝对路径。

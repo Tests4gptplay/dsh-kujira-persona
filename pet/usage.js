@@ -123,10 +123,11 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       credentialCache.set(ref,value);return value
     }
     const permissionFailure=()=>failure('permission-needed',adapter.id==='openai'?'usage.query.openai-permission-needed':'usage.query.permission-needed')
+    const missingCredential=()=>adapter.id==='openai'?failure('unsupported','usage.query.openai-not-connected'):permissionFailure()
     const explicit=profile.credentialRef
     if(adapter.requiredFields?.some(field=>!profile[field]))return failure('configuration-needed')
     // Administration permissions are independent from model inference keys.
-    if(adapter.auth!=='inference'&&!explicit)return permissionFailure()
+    if(adapter.auth!=='inference'&&!explicit)return missingCredential()
     let credentialRef=explicit??info.credentialRef
     if(!credentialRef&&adapter.auth==='inference')credentialRef=info.nativeAuth?.env?.find(name=>/^[A-Z][A-Z0-9_]*_API_KEY$/.test(name))
     let key
@@ -140,7 +141,7 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       }
       if(!key&&credentialRef)key=await resolveCredential(credentialRef)
     }
-    if(!key)return permissionFailure()
+    if(!key)return missingCredential()
     const allowed=adapter.explicitOnly?[originOf(info.baseURL)]:(adapter.queryOrigins??adapter.origins)
     const request=async(url,options={})=>{
       signal?.throwIfAborted()

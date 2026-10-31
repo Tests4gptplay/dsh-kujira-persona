@@ -1,6 +1,6 @@
 # Kujira · AI 角色与世界
 
-**账户查询候选更新安装来源：** `https://github.com/Tests4gptplay/dsh-kujira-persona/tree/fix/account-query-20261031` · 版本 **2.4.1-account.20261031.1** · [候选更新说明](docs/releases/v2.4.1-account.md)
+**账户查询候选更新安装来源：** `https://github.com/Tests4gptplay/dsh-kujira-persona/tree/fix/account-query-20261031` · 版本 **2.4.1-account.20261031.2** · [候选更新说明](docs/releases/v2.4.1-account.md)
 
 稳定版安装方法仍见[安装与升级](#安装与升级)。
 

@@ -16,7 +16,7 @@ const config=(provider,profile)=>({usageProfiles:{[provider]:profile}})
 test('OpenAI missing admin reference reports purpose without fetching',async()=>{
  let calls=0;const read=reader('openai','https://api.openai.com/v1',()=>{calls++;throw Error('unexpected')})
  const result=await read({provider:'openai',model:'gpt'},null,{})
- assert.equal(result.status,'permission-needed');assert.match(result.lines.join(' '),/OpenAI.*本月.*消费.*用量/);assert.equal(calls,0)
+ assert.equal(result.status,'unsupported');assert.match(result.lines.join(' '),/暂不支持 OpenAI.*未接入/);assert.equal(calls,0)
 })
 test('OpenAI official costs and completions remain separate visible account metrics',async()=>{
  const urls=[];const read=reader('openai','https://api.openai.com/v1',async(u,o)=>{
@@ -60,4 +60,16 @@ test('Unrecognized Alibaba HTTP400 stays an error, not zero or guessed permissio
 test('GLM official quota windows retained',async()=>{
  const r=await vendorAdapters['glm-coding-plan'].read({baseURL:'https://api.z.ai',request:async()=>({data:{limits:[{type:'TOKENS_LIMIT',percentage:25},{type:'TIME_LIMIT',percentage:10}]}})})
  assert.deepEqual(r.metrics.map(x=>x.period),['five-hours','month']);assert.equal(r.metrics.every(x=>x.remaining===false),true)
+})
+
+test('OpenAI unresolved explicit reference is not presented as a usable configuration path',async()=>{
+ let calls=0;const read=reader('openai','https://api.openai.com/v1',()=>{calls++;throw Error('unexpected')})
+ const result=await read({provider:'openai',model:'gpt'},null,config('openai',{credentialRef:'MISSING_ADMIN'}))
+ assert.equal(result.status,'unsupported');assert.match(result.lines.join(' '),/未接入/);assert.equal(calls,0)
+})
+
+for(const status of [401,403])test('OpenAI remote '+status+' stays permission failure, not unsupported setup',async()=>{
+ const read=reader('openai','https://api.openai.com',async()=>new Response('{}',{status}),{ADMIN:'synthetic'})
+ const result=await read({provider:'openai',model:'gpt'},null,config('openai',{credentialRef:'ADMIN'}))
+ assert.equal(result.status,'permission-needed');assert.match(result.lines.join(' '),/无效或权限不足/);assert.doesNotMatch(result.lines.join(' '),/请配置|ADMIN|synthetic/)
 })

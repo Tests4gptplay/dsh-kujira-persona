@@ -62,12 +62,11 @@ export const westernAdapters = {
     }
   },
   xai: {
-    label:'xAI',origins:['https://api.x.ai'],queryOrigins:['https://management-api.x.ai'],auth:'management',requiredFields:['teamId'],capabilities:['balance','spend'],
+    label:'xAI',origins:['https://api.x.ai'],queryOrigins:['https://management-api.x.ai'],auth:'management',requiredFields:['teamId'],capabilities:['spend'],
     docsUrl:'https://docs.x.ai/developers/rest-api-reference/management/billing',
     async read({request,profile,now}){
       const root='https://management-api.x.ai/v1/billing/teams/'+encodeURIComponent(profile.teamId),{start,end}=month(now),period={kind:'month',start:start.toISOString(),end:end.toISOString()}
       return partial([
-        async()=>{const body=await request(root+'/prepaid/balance');return [{kind:'balance',value:-finite(body?.total?.val)/100,currency:'USD',scope:'team'}]},
         async()=>{const body=await request(root+'/usage',{method:'POST',body:JSON.stringify({analyticsRequest:{timeRange:{startTime:period.start.replace('T',' ').slice(0,19),endTime:period.end.replace('T',' ').slice(0,19),timezone:'Etc/GMT'},timeUnit:'TIME_UNIT_DAY',values:[{name:'usd',aggregation:'AGGREGATION_SUM'}],groupBy:['description'],filters:[]}})});if(!Array.isArray(body?.timeSeries))throw new Error('invalid-schema');let value=0;for(const series of body.timeSeries){if(!Array.isArray(series.dataPoints))throw new Error('invalid-schema');for(const point of series.dataPoints){if(!Array.isArray(point.values)||point.values.length!==1)throw new Error('invalid-schema');value+=finite(point.values[0])}}return [{kind:'spend',value,currency:'USD',scope:'team',period}]}
       ])
     }

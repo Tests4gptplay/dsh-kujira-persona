@@ -1,6 +1,8 @@
 # Kujira · AI 角色与世界
 
-**账户查询候选更新安装来源：** `https://github.com/Tests4gptplay/dsh-kujira-persona/tree/fix/account-query-20261031` · 版本 **2.4.1-account.20261031.2** · [候选更新说明](docs/releases/v2.4.1-account.md)
+**账户查询候选更新安装来源：** `https://github.com/Tests4gptplay/dsh-kujira-persona/tree/fix/account-query-20261031` · 版本 **2.4.1-account.20261031.3** · [候选更新说明](docs/releases/v2.4.1-account.md)
+
+账户查询配置位于 **设置 → Kujira · 人设 → 最底部“公司与接入方式”**，选择后显示对应字段与指南。
 
 稳定版安装方法仍见[安装与升级](#安装与升级)。
 
@@ -185,14 +187,12 @@ DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶
 
 ### 余额、费用与单价 / Account queries and prices
 
-Kujira 设置中的「账户与模型单价」按当前 **provider/model 接入**配置，不按 AI 娘名字猜账户。普通余额适配可复用 DSH 的 API Key 设置；组织管理、云账单或套餐查询需要独立凭据引用（环境变量名），不要把明文 Key 填入 Kujira。云账单余额属于整个云账户，不等于当前模型余额。
+设置最底部的「公司与接入方式」只列现有 AI 模型接入中需要额外配置的查询方案。按模型身份与实际服务端来源匹配，不按角色显示名或同公司关系套用其他账单。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
 
-支持 DeepSeek、OpenAI/Anthropic 组织费用与用量、xAI 团队、Mistral 企业预算、Moonshot 中国、OpenRouter、GLM Coding、MiniMax Token Plan，以及另配云凭据的阿里云/腾讯云/火山云只读查询。不同接入可查询的项目不同；没有支持的接口、权限不足、暂时失败与余额为零会分开处理。MiniMax 现金余额、MiMo、Gemini 等尚无本版本已验证的通用余额适配，仍可配置手动参考单价；未知代理不会自动把凭据发给官方站点。DeepSeek-compatible 代理需显式选择且只查询已配置的同源地址。
+DeepSeek、Moonshot 中国和 OpenRouter 普通 key 查询可以复用现有模型凭据。OpenAI/Anthropic 组织消费与用量、xAI 月消费、Mistral 企业预算、OpenRouter Management、GLM Coding、MiniMax 精确模型套餐与 Ark 个人 Agent Plan 按各自权限设置。选择方案后显示对应字段和指南。用户输入的独立查询凭据交给 DSH 现有凭据服务保存，Kujira 只保存引用，不覆盖模型推理密钥。
 
-模型单价可按当前接入/模型保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。手动参考价不是实际账单，整段会话可能混用模型，因此不会简单拿当前模型价格乘会话总 token。余额、消费金额、token 用量和套餐/预算额度是不同项目。
+通用云账单功能已移除。Claude Code 订阅不作为 Anthropic API 查询。第三方兼容项仅用于已有明确同源兼容配置，并标注「第三方」；不会把官方凭据自动发往异站。
 
-In **Account & model pricing**, settings apply to the selected provider/model, not the character. Normal key-based balance adapters can reuse DSH credentials. Admin, management, cloud-billing and plan queries require explicit credential references, never plaintext keys in Kujira. Available capabilities vary by provider. A cloud-account balance, monthly billed usage, token count, plan quota and budget remainder are distinct. Unsupported, permission-needed and failed queries are not shown as zero. Unknown proxies never send credentials to a guessed official endpoint; DeepSeek-compatible proxies require explicit same-origin opt-in.
+模型单价仍可保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。参考价不是实际账单，余额、消费、用量与套餐/预算额度分别标注，不用会话 token 猜账户余额。
 
-Manual per-million-token rates are reference prices, not actual bills. OpenRouter additionally exposes exact-model catalog pricing. Kujira does not multiply a current-model price by a whole session's potentially mixed-model token total. This release's automated adapter tests use synthetic credentials; real-account connectivity depends on the user's endpoint, account and permissions.
-
-逐项查验：[用例步骤、预期、实际结果与公开证据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CASEBOOK.md)。
+The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Generic cloud billing is removed. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.

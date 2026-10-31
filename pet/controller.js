@@ -33,12 +33,12 @@ export class PetController {
     this.config=settings(config);this.resolvePersona=resolvePersona;this.queryUsage=queryUsage;this.persist=persist;this.now=now;this.readStats=readStats;this.readSession=readSession;this.stats=null
     this.route={provider:'',model:'',family:'none',persona:'stella',name:NAMES.stella,art:'stella',sessionId:''}
     this.sessionStates=new Map();this.presentation=presentation()
-    this.usage=unknownUsage('usage','选择模型后显示对应的用量',ui('usage.selectModel'))
+    this.usage={...unknownUsage('usage','选择模型后显示对应的用量',ui('usage.selectModel')),hidden:true}
     this.renderer='none';this.nativeError='';this.listeners=new Set();this.revision=0;this.routeVersion=0;this.personaVersion=0;this.queryVersion=0;this.pending=null;this.timer=null;this.abort=null;this.closed=false;this.writeTail=Promise.resolve()
   }
   get task(){return this.presentation.task}
   get assistantStream(){return this.presentation.assistantStream}
-  snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,nativeErrorUi:this.nativeErrorUi,revision:this.revision}}
+  snapshot(){return {config:{...this.config},route:{...this.route},task:{...this.task},stats:this.config.showStats?this.stats:null,usage:this.config.showUsage&&!this.usage.hidden?this.usage:null,renderer:this.renderer,nativeError:this.nativeError,nativeErrorUi:this.nativeErrorUi,revision:this.revision}}
   publish(){this.revision++;const state=this.snapshot();for(const fn of this.listeners){try{fn(state)}catch{}}return this.snapshot()}
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
   async configure(patch){
@@ -93,7 +93,7 @@ export class PetController {
     const art=Object.hasOwn(NAMES,family)?family:'stella'
     this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
     if(!sameSession){this.presentation=this.sessionStates.get(sessionId)??presentation();if(sessionId)this.sessionStates.set(sessionId,this.presentation)}
-    this.updateStats();this.usage=unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入',ui('usage.reading'));this.publish()
+    this.updateStats();this.usage={...unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入',ui('usage.reading')),hidden:true};this.publish()
     await Promise.all([this.refreshPersona(),this.hydrate(sessionId)])
     if(id!==this.routeVersion||this.closed)return this.snapshot()
     if(this.config.enabled&&this.config.showUsage)void this.refresh()

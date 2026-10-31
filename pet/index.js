@@ -96,7 +96,10 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         let value
         switch(endpoint){
           case 'state':value=c.snapshot();break
-          case 'usage-info':value=usageReader.describe(c.route,c.config);break
+          case 'usage-info':case 'account-query':{
+            const route={...c.route};if(payload?.provider&&payload?.model){if(typeof payload.provider!=='string'||typeof payload.model!=='string'||payload.provider.length>512||payload.model.length>512)throw new Error('invalid-route');route.provider=payload.provider;route.model=payload.model}
+            value=endpoint==='usage-info'?usageReader.describe(route,c.config):await usageReader(route,AbortSignal.timeout(10000),c.config);break
+          }
           case 'ui-locale':
             desktopLocale=uiLanguage(payload?.locale);if(rendererChoice==='desktop')native.send({...projectUiState(c.snapshot(),desktopLocale),menuTheme});value=c.snapshot();break
           case 'menu-theme':
@@ -112,7 +115,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         return {ok:true,value}
       }catch(e){return {ok:false,error:{code:e?.code==='kujira-config-save'?'kujira-config-save':'kujira-pet',message:endPointError(endpoint,e),ui:endpointErrorUi(endpoint,e),details:{issues:[]}}}}
     }
-    for(const endpoint of ['state','usage-info','config','select','refresh','folders','open-folder','menu-theme','ui-locale','diary-settings','diary-config','diary-open-folder','diary-front'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
+    for(const endpoint of ['state','usage-info','account-query','config','select','refresh','folders','open-folder','menu-theme','ui-locale','diary-settings','diary-config','diary-open-folder','diary-front'])scope.connection.fetch.register({path:'/api/kujira-pet/'+endpoint,methods:['POST'],requestBody:'buffered',fetch:async request=>{
       let envelope;try{envelope=await request.json()}catch{return new Response('Expected JSON',{status:400})}
       if(envelope.type!=='client-request'||envelope.method!=='kujira-pet/'+endpoint||typeof envelope.rpcId!=='string')return new Response('Invalid request',{status:400})
       return Response.json({type:'server-response',rpcId:envelope.rpcId,result:await dispatch(endpoint,envelope.payload)})
@@ -124,7 +127,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
       request.signal.addEventListener('abort',()=>{streams.delete(stream);try{stream.close()}catch{}},{once:true})
       return new Response(body,{headers:{'content-type':'text/event-stream','cache-control':'no-store'}})
     }})
-    for(const file of ['animation.js','sprite-canvas.js','ui-messages.js'])scope.connection.fetch.register({path:'/api/kujira-pet/'+file,methods:['GET'],requestBody:'buffered',fetch:async()=>{
+    for(const file of ['animation.js','sprite-canvas.js','ui-messages.js','account-credentials.js','account-options.js'])scope.connection.fetch.register({path:'/api/kujira-pet/'+file,methods:['GET'],requestBody:'buffered',fetch:async()=>{
       if(!assets.has(file))assets.set(file,await readFile(join(HERE,file)))
       return new Response(assets.get(file),{headers:{'content-type':'text/javascript; charset=utf-8'}})
     }})

@@ -12,7 +12,7 @@
 
 设置最底部的“公司与接入方式”按已有模型与接入来源列出需要配置的可用方案，显示对应字段和官方指南。独立查询密钥通过宿主凭据服务保存，不覆盖模型推理密钥；自动查询保持自动，无匹配方案时不显示账户栏。
 
-OpenAI 显示官方本月消费与 Completions 用量，不当作余额。移除通用云账单，修正 Mistral 缺省字段、GLM/Ark 周期及 MiniMax 模型套餐匹配；保留第三方兼容来源的显式选择与同源限制。
+OpenAI 显示官方本月消费与 Completions 用量，不当作余额。各查询按服务商返回的周期、币种和适用模型显示；第三方兼容来源需明确选择，并保持同源限制。
 
 配置入口：**设置 → Kujira · 人设 → 最底部“公司与接入方式”**。填写后点击“保存查询设置”，再点击“查询账户信息”。
 
@@ -197,12 +197,12 @@ DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶
 
 ### 余额、费用与单价 / Account queries and prices
 
-设置最底部的「公司与接入方式」只列现有 AI 模型接入中需要额外配置的查询方案。按模型身份与实际服务端来源匹配，不按角色显示名或同公司关系套用其他账单。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
+设置最底部的「公司与接入方式」只列现有 AI 模型接入中需要额外配置的查询方案。按模型身份与实际服务端来源匹配。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
 
 DeepSeek、Moonshot 中国和 OpenRouter 普通 key 查询可以复用现有模型凭据。OpenAI/Anthropic 组织消费与用量、xAI 月消费、Mistral 企业预算、OpenRouter Management、GLM Coding、MiniMax 精确模型套餐与 Ark 个人 Agent Plan 按各自权限设置。选择方案后显示对应字段和指南。用户输入的独立查询凭据交给 DSH 现有凭据服务保存，Kujira 只保存引用，不覆盖模型推理密钥。
 
-通用云账单功能已移除。Claude Code 订阅不作为 Anthropic API 查询。第三方兼容项仅用于已有明确同源兼容配置，并标注「第三方」；不会把官方凭据自动发往异站。
+Claude Code 订阅不作为 Anthropic API 查询。第三方兼容项仅用于已有明确同源兼容配置，并标注「第三方」；不会把官方凭据自动发往异站。
 
 模型单价仍可保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。参考价不是实际账单，余额、消费、用量与套餐/预算额度分别标注，不用会话 token 猜账户余额。
 
-The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Generic cloud billing is removed. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.
+The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.

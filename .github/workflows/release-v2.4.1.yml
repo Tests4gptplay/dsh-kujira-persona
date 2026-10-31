@@ -3,8 +3,8 @@ on:
   push:
     branches: ['main']
     paths:
-      - '.github/workflows/release-v2.4.1.yml'
-      - 'scripts/release-v2.4.1/**'
+      - 'package.json'
+      - 'scripts/release-v2.4.1/pack.py'
 permissions:
   contents: read
 concurrency:

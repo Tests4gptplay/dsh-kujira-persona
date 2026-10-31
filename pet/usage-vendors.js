@@ -30,19 +30,6 @@ export const vendorAdapters = {
       return {metrics: [money('balance', number(d.available_balance, 'available_balance', {negative:true}), 'CNY', 'account')]};
     }
   },
-  'moonshot-admin': {
-    label: 'Moonshot / Kimi', origins: cn, auth: 'admin', capabilities: ['balance', 'spend'],
-    docsUrl: 'https://platform.kimi.com/docs/admin-api/billing-account',
-    async read({request, baseURL}) {
-      const d = object(await request(origin(baseURL, cn) + '/v1/admin/organizations/account'));
-      const value = (field, negative = false) => {
-        const v = number(d[field], field, {negative});
-        if (!Number.isSafeInteger(v)) throw new Error('Unsafe monetary integer');
-        return v / 100000; // official milli-cent, NOT cents
-      };
-      return {metrics: [money('balance', value('available_balance', true), 'CNY', 'organization'), money('spend', value('total_consume'), 'CNY', 'organization', {period:'all-time'})]};
-    }
-  },
   openrouter: {
     label: 'OpenRouter', origins: or, auth: 'inference', capabilities: ['spend', 'pricing'],
     docsUrl: 'https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key',
@@ -98,7 +85,7 @@ export const vendorAdapters = {
       if (body.success === false || (body.code !== undefined && ![0,200,'0','200'].includes(body.code))) throw new Error('GLM quota query failed');
       const d = object(body.data);
       if (!Array.isArray(d.limits)) throw new Error('Missing GLM quota limits');
-      const metrics = d.limits.filter(x => ['TOKENS_LIMIT','TIME_LIMIT'].includes(x?.type)).map(x => ({kind:'quota',value:number(x.percentage,'percentage'),unit:'percent',scope:'coding-plan',remaining:false,label:x.type === 'TOKENS_LIMIT' ? 'Coding used' : 'MCP used'}));
+      const metrics = d.limits.filter(x => ['TOKENS_LIMIT','TIME_LIMIT'].includes(x?.type)).map(x => ({kind:'quota',value:number(x.percentage,'percentage'),unit:'percent',scope:'coding-plan',remaining:false,period:x.type === 'TOKENS_LIMIT' ? 'five-hours' : 'month',label:x.type === 'TOKENS_LIMIT' ? 'Coding used' : 'MCP used'}));
       if (!metrics.length) throw new Error('No supported GLM quota limit');
       return {metrics};
     }

@@ -1,6 +1,20 @@
 # Kujira · AI 角色与世界
 
-版本 **2.4.0** · [安装与升级](#安装与升级) · [本版更新](docs/releases/v2.4.0.md)
+**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.1` · [下载 2.4.1 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz) · [安装步骤](#安装与升级)
+
+<!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
+**账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**
+
+**Account-query validation: Codex and OpenAI API have been user-verified; other sources await user validation and feedback.**
+<!-- ACCOUNT-VALIDATION-WEB-ONLY:END -->
+
+## 2.4.1：与模型接入匹配的账户查询
+
+设置最底部的“公司与接入方式”按已有模型与接入来源列出需要配置的可用方案，显示对应字段和官方指南。独立查询密钥通过宿主凭据服务保存，不覆盖模型推理密钥；自动查询保持自动，无匹配方案时不显示账户栏。
+
+OpenAI 显示官方本月消费与 Completions 用量，不当作余额。移除通用云账单，修正 Mistral 缺省字段、GLM/Ark 周期及 MiniMax 模型套餐匹配；保留第三方兼容来源的显式选择与同源限制。
+
+配置入口：**设置 → Kujira · 人设 → 最底部“公司与接入方式”**。填写后点击“保存查询设置”，再点击“查询账户信息”。
 
 **随 DSH 中选用的模型切换角色，在对话中继续养成自己的世界与人物。**
 
@@ -133,12 +147,12 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装与升级
 
-当前版本：**2.4.0**。安装包与固定标签均已包含运行文件，无需编译。
+当前版本：**2.4.1**。安装包与固定标签均已包含运行文件，无需编译。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.4.0
+github:Tests4gptplay/dsh-kujira-persona#v2.4.1
 ```
 
 **升级已有插件：** 同样填写上面的新版来源，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载该插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
@@ -148,13 +162,13 @@ github:Tests4gptplay/dsh-kujira-persona#v2.4.0
 **备用安装包：** 将下面的 `.tgz` 直链填入同一个 **包名或地址**；也可下载后填写文件的完整绝对路径，无需解压。该路径应属于运行 DSH 的电脑。
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.0/dsh-kujira-persona-2.4.0.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz
 ```
 
 **Web：** 在运行服务的环境中执行。升级前停止对应 Web profile，成功后重新启动；Web 与 Desktop 分别安装。
 
 ```sh
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.0'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.1'
 ```
 
 备用时将命令中的来源换成上面的 `.tgz` 直链或下载文件的完整绝对路径。
@@ -183,14 +197,12 @@ DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶
 
 ### 余额、费用与单价 / Account queries and prices
 
-Kujira 设置中的「账户与模型单价」按当前 **provider/model 接入**配置，不按 AI 娘名字猜账户。普通余额适配可复用 DSH 的 API Key 设置；组织管理、云账单或套餐查询需要独立凭据引用（环境变量名），不要把明文 Key 填入 Kujira。云账单余额属于整个云账户，不等于当前模型余额。
+设置最底部的「公司与接入方式」只列现有 AI 模型接入中需要额外配置的查询方案。按模型身份与实际服务端来源匹配，不按角色显示名或同公司关系套用其他账单。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
 
-支持 DeepSeek、OpenAI/Anthropic 组织费用与用量、xAI 团队、Mistral 企业预算、Moonshot 中国、OpenRouter、GLM Coding、MiniMax Token Plan，以及另配云凭据的阿里云/腾讯云/火山云只读查询。不同接入可查询的项目不同；没有支持的接口、权限不足、暂时失败与余额为零会分开处理。MiniMax 现金余额、MiMo、Gemini 等尚无本版本已验证的通用余额适配，仍可配置手动参考单价；未知代理不会自动把凭据发给官方站点。DeepSeek-compatible 代理需显式选择且只查询已配置的同源地址。
+DeepSeek、Moonshot 中国和 OpenRouter 普通 key 查询可以复用现有模型凭据。OpenAI/Anthropic 组织消费与用量、xAI 月消费、Mistral 企业预算、OpenRouter Management、GLM Coding、MiniMax 精确模型套餐与 Ark 个人 Agent Plan 按各自权限设置。选择方案后显示对应字段和指南。用户输入的独立查询凭据交给 DSH 现有凭据服务保存，Kujira 只保存引用，不覆盖模型推理密钥。
 
-模型单价可按当前接入/模型保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。手动参考价不是实际账单，整段会话可能混用模型，因此不会简单拿当前模型价格乘会话总 token。余额、消费金额、token 用量和套餐/预算额度是不同项目。
+通用云账单功能已移除。Claude Code 订阅不作为 Anthropic API 查询。第三方兼容项仅用于已有明确同源兼容配置，并标注「第三方」；不会把官方凭据自动发往异站。
 
-In **Account & model pricing**, settings apply to the selected provider/model, not the character. Normal key-based balance adapters can reuse DSH credentials. Admin, management, cloud-billing and plan queries require explicit credential references, never plaintext keys in Kujira. Available capabilities vary by provider. A cloud-account balance, monthly billed usage, token count, plan quota and budget remainder are distinct. Unsupported, permission-needed and failed queries are not shown as zero. Unknown proxies never send credentials to a guessed official endpoint; DeepSeek-compatible proxies require explicit same-origin opt-in.
+模型单价仍可保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。参考价不是实际账单，余额、消费、用量与套餐/预算额度分别标注，不用会话 token 猜账户余额。
 
-Manual per-million-token rates are reference prices, not actual bills. OpenRouter additionally exposes exact-model catalog pricing. Kujira does not multiply a current-model price by a whole session's potentially mixed-model token total. This release's automated adapter tests use synthetic credentials; real-account connectivity depends on the user's endpoint, account and permissions.
-
-逐项查验：[用例步骤、预期、实际结果与公开证据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CASEBOOK.md)。
+The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Generic cloud billing is removed. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.

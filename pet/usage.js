@@ -1,10 +1,11 @@
+import { modelFamily } from '../catalog.js'
 import { ui } from './ui-messages.js'
 /** Read the selected provider's existing account interface; never runs inference. */
 import { randomUUID } from 'node:crypto'
 import { apiBalance,codexQuota,unknownUsage } from './model.js'
 import { westernAdapters, finite } from './usage-western.js'
 import { minimaxAdapters } from './usage-minimax.js'
-import { cloudVendorAdapters } from './usage-cloud-vendors.js'
+import { arkPlanAdapters } from './usage-ark-plan.js'
 import { vendorAdapters } from './usage-vendors.js'
 import { ui as message, zhUi } from './ui-messages.js'
 const service=(ctx,name)=>{try{return ctx.get?.(name)??ctx[name]}catch{return undefined}}
@@ -22,7 +23,9 @@ const deepseek = {
 const deepseekCompatible={...deepseek,label:'DeepSeek-compatible',explicitOnly:true,origins:[],
   async read({request,baseURL}){const url=new URL(baseURL);url.pathname=url.pathname.replace(/\/(v1|anthropic)\/?$/,'').replace(/\/$/,'')+'/user/balance';url.search='';url.hash='';const body=await request(url);if(!Array.isArray(body?.balance_infos))throw new Error('invalid-schema');for(const r of body.balance_infos)finite(r?.total_balance);const data=apiBalance(body);return {metrics:data.balances.map(r=>({kind:'balance',value:Number(r.total),currency:r.currency,scope:'account'}))}}
 }
-export const USAGE_ADAPTERS={deepseek,...westernAdapters,...vendorAdapters,...cloudVendorAdapters,...minimaxAdapters,'deepseek-compatible':deepseekCompatible}
+export const USAGE_ADAPTERS={deepseek,...westernAdapters,...vendorAdapters,...arkPlanAdapters,...minimaxAdapters,'deepseek-compatible':deepseekCompatible}
+const ACCOUNT_FAMILIES={deepseek:['deepseek'],mistral:['mistral'],openai:['gpt'],anthropic:['claude'],xai:['grok'],moonshot:['kimi'],'glm-coding-plan':['glm'],'minimax-token-plan':['minimax'],'volcengine-agent-plan':['doubao']}
+const matchesModel=(id,info)=>info.family!=='none'&&(!ACCOUNT_FAMILIES[id]||ACCOUNT_FAMILIES[id].includes(info.family))
 // Public reference pages, not live price feeds. Only actual provider origins match.
 const PRICE_REFERENCES={
   'https://api.openai.com':'https://developers.openai.com/api/docs/pricing',
@@ -47,29 +50,30 @@ function providerInfo(ctx,route){
   const envBase=(declared?.baseURLEnv??[]).map(name=>process.env[name]).find(Boolean)
   const baseURL=modelOverride?.baseURL??provider?.baseURL??envBase??(official?process.env.DEEPSEEK_BASE_URL??'https://api.deepseek.com':declared?.defaultBaseURL)
   const credentialRef=provider?.apiKeyEnv??(official?'DEEPSEEK_API_KEY':undefined)
-  return {baseURL,credentialRef,nativeAuth:declared?.nativeAuth,settingsNs:declared?.settingsNs}
+  return {baseURL,family:modelFamily(route),credentialRef,nativeAuth:declared?.nativeAuth,settingsNs:declared?.settingsNs}
 }
 function adapterFor(info,profile){
   if(profile?.adapter==='none')return null
   const origin=originOf(info.baseURL)
   if(profile?.adapter&&profile.adapter!=='auto'){
     const adapter=Object.hasOwn(USAGE_ADAPTERS,profile.adapter)?USAGE_ADAPTERS[profile.adapter]:null
-    return adapter&&(adapter.origins.includes(origin)||(adapter.explicitOnly&&origin))?{id:profile.adapter,...adapter}:null
+    return adapter&&matchesModel(profile.adapter,info)&&(adapter.origins.includes(origin)||(adapter.explicitOnly&&origin))?{id:profile.adapter,...adapter}:null
   }
   // Prefer the normal key adapter when both inference and admin capabilities exist.
-  const entries=Object.entries(USAGE_ADAPTERS).filter(([,a])=>a.origins.includes(origin))
+  const entries=Object.entries(USAGE_ADAPTERS).filter(([id,a])=>matchesModel(id,info)&&a.origins.includes(origin))
   const found=entries.find(([,a])=>a.auth==='inference')??entries.find(([,a])=>a.auth!=='coding-plan')
   return found?{id:found[0],...found[1]}:null
 }
-const failure=(status,key='usage.query.'+status)=>({kind:'account',status,title:'账户',titleUi:message('usage.account'),lines:[zhUi(message(key))],linesUi:[message(key)],windows:[],metrics:[]})
+const failure=(status,key='usage.query.'+status)=>({kind:'account',status,hidden:status==='unsupported'||status==='disabled',title:'账户',titleUi:message('usage.account'),lines:[zhUi(message(key))],linesUi:[message(key)],windows:[],metrics:[]})
 function presented(data,adapter){
+  if(data.unsupported===true)return failure('unsupported')
   const metrics=(data.metrics??[]).filter(m=>m&&['balance','spend','tokens','quota'].includes(m.kind)&&Number.isFinite(m.value))
   const noticeKey={'no-budget':'usage.noBudget','unlimited-plan':'usage.unlimitedPlan','not-in-plan':'usage.notInPlan'}[data.notice]
   if(!metrics.length&&noticeKey){const d=message(noticeKey);return {kind:'account',status:data.notice==='not-in-plan'?'unsupported':'ready',title:adapter.label,adapter:adapter.id,metrics:[],windows:[],lines:[zhUi(d)],linesUi:[d],details:[zhUi(d)],detailsUi:[d]}}
   if(!metrics.length)return failure('unavailable')
-  const metricLabel=m=>({'Coding used':message('usage.quota.coding'),'MCP used':message('usage.quota.mcp'),interval:message('usage.quota.interval'),week:message('usage.quota.week'),day:message('usage.quota.day'),month:message('usage.quota.month'),'5h':message('usage.quota.fiveHours')})[m.label]??m.label??''
-  const descriptors=metrics.map(m=>message('usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
-  const primary=metrics.map((m,i)=>({m,d:descriptors[i]})).filter(x=>x.m.kind!=='tokens').slice(0,2).map(x=>x.d)
+  const metricLabel=m=>({'Coding used':message('usage.quota.coding'),'MCP used':message('usage.quota.mcp'),interval:message('usage.quota.interval'),week:message('usage.quota.week'),day:message('usage.quota.day'),month:message('usage.quota.month'),'5h':message('usage.quota.fiveHours'),'rolling-day':message('usage.quota.rollingDay'),'rolling-week':message('usage.quota.rollingWeek'),'rolling-month':message('usage.quota.rollingMonth')})[m.label]??m.label??''
+  const descriptors=metrics.map(m=>message(m.kind==='tokens'&&m.category==='completions'?'usage.metric.completions':'usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
+  const primary=metrics.map((m,i)=>({m,d:descriptors[i]})).slice(0,2).map(x=>x.d)
   const linesUi=primary.length?primary:descriptors.slice(0,1)
   if(noticeKey)descriptors.push(message(noticeKey))
   if(data.issues?.length)linesUi.push(message('usage.query.partial'))
@@ -112,7 +116,7 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
     }
 
     const info=providerInfo(ctx,route),adapter=adapterFor(info,profile)
-    if(!adapter)return failure(Object.values(USAGE_ADAPTERS).some(a=>a.origins.includes(originOf(info.baseURL)))&&(!profile.adapter||profile.adapter==='auto')?'configuration-needed':'unsupported')
+    if(!adapter)return failure(Object.entries(USAGE_ADAPTERS).some(([id,a])=>matchesModel(id,info)&&a.origins.includes(originOf(info.baseURL)))&&(!profile.adapter||profile.adapter==='auto')?'configuration-needed':'unsupported')
     const credentialCache=new Map()
     const resolveCredential=async ref=>{
       if(typeof ref!=='string'||!ref)return null
@@ -122,10 +126,12 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       const value=typeof secret?.value==='string'&&secret.value?secret.value:null
       credentialCache.set(ref,value);return value
     }
+    const permissionFailure=()=>failure('permission-needed',adapter.id==='openai'?'usage.query.openai-permission-needed':'usage.query.permission-needed')
+    const missingCredential=()=>adapter.id==='openai'?failure('configuration-needed','usage.query.openai-not-connected'):permissionFailure()
     const explicit=profile.credentialRef
     if(adapter.requiredFields?.some(field=>!profile[field]))return failure('configuration-needed')
     // Administration permissions are independent from model inference keys.
-    if(adapter.auth!=='inference'&&!explicit)return failure('permission-needed')
+    if(adapter.auth!=='inference'&&!explicit)return missingCredential()
     let credentialRef=explicit??info.credentialRef
     if(!credentialRef&&adapter.auth==='inference')credentialRef=info.nativeAuth?.env?.find(name=>/^[A-Z][A-Z0-9_]*_API_KEY$/.test(name))
     let key
@@ -139,7 +145,7 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       }
       if(!key&&credentialRef)key=await resolveCredential(credentialRef)
     }
-    if(!key)return failure('permission-needed')
+    if(!key)return missingCredential()
     const allowed=adapter.explicitOnly?[originOf(info.baseURL)]:(adapter.queryOrigins??adapter.origins)
     const request=async(url,options={})=>{
       signal?.throwIfAborted()
@@ -147,17 +153,20 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       if(target.username||target.password||!allowed.includes(target.origin)||target.protocol!=='https:')throw new Error('query-origin-rejected')
       const headers={...(adapter.headers?adapter.headers(key):adapter.auth==='signed'?{}:{Authorization:`Bearer ${key}`}),...(options.body?{'content-type':'application/json'}:{}),...options.headers}
       const response=await transport(target,{...options,headers,signal,redirect:'error'})
-      if(!response.ok){const error=new Error('query-failed');error.status=response.status;throw error}
+      if(!response.ok){
+        const error=new Error('query-failed');error.status=response.status
+        throw error
+      }
       return response.json()
     }
     try{const data=await adapter.read({request,profile,route,baseURL:info.baseURL,now:now(),resolveCredential});signal?.throwIfAborted();return presented(data,adapter)}
-    catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return failure('permission-needed');if(error.status===404)return failure('unsupported');throw error}
+    catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return permissionFailure();if(error.status===404)return failure('unsupported');throw error}
   }
   read.describe=(route,config={})=>{
     const info=providerInfo(ctx,route),profile=config.usageProfiles?.[route.provider]??{adapter:'auto'},adapter=adapterFor(info,profile),origin=originOf(info.baseURL)
     const hostAccount=['deepseek-account','codex-local'].includes(route.provider)
     if(hostAccount)return {provider:route.provider,model:route.model,origin:null,hostAccount:true,adapter:profile.adapter==='none'?null:route.provider,autoAdapter:route.provider,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:[{id:route.provider,label:route.provider==='codex-local'?'Codex':'DeepSeek',auth:'host',capabilities:[route.provider==='codex-local'?'quota':'balance'],requiredFields:[],optionalFields:[],available:true}]}
-    return {provider:route.provider,model:route.model,origin,pricingReference:PRICE_REFERENCES[origin]?{url:PRICE_REFERENCES[origin],checkedAt:'2026-10-29',kind:'reference-only'}:null,adapter:adapter?.id??null,autoAdapter:adapterFor(info,{adapter:'auto'})?.id??null,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:Object.entries(USAGE_ADAPTERS).map(([id,a])=>({id,label:a.label,auth:a.auth,capabilities:a.capabilities,requiredFields:a.requiredFields??[],optionalFields:a.optionalFields??(a.auth==='signed'?['sessionTokenRef']:[]),docsUrl:a.docsUrl,available:a.origins.includes(origin)||!!(a.explicitOnly&&origin)}))}
+    return {provider:route.provider,model:route.model,origin,inferenceCredentialRef:info.credentialRef??null,pricingReference:PRICE_REFERENCES[origin]?{url:PRICE_REFERENCES[origin],checkedAt:'2026-10-29',kind:'reference-only'}:null,adapter:adapter?.id??null,autoAdapter:adapterFor(info,{adapter:'auto'})?.id??null,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:Object.entries(USAGE_ADAPTERS).map(([id,a])=>({id,label:a.label,auth:a.auth,thirdParty:!!a.explicitOnly,configurationSupported:true,capabilities:a.capabilities,requiredFields:a.requiredFields??[],optionalFields:a.optionalFields??(a.auth==='signed'?['sessionTokenRef']:[]),docsUrl:a.docsUrl,available:matchesModel(id,info)&&(a.origins.includes(origin)||!!(a.explicitOnly&&origin))}))}
   }
   return read
 }

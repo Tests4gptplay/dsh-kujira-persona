@@ -15,10 +15,10 @@ export const minimaxAdapters={
       const data=obj(await request(url.origin+'/v1/token_plan/remains',{method:'GET',headers:{'Content-Type':'application/json'}}))
       if(data.base_resp!==undefined){const code=obj(data.base_resp).status_code;if(typeof code!=='number')throw new Error('invalid-schema');if(code!==0){const e=new Error('minimax-quota-failed');if(code===1004||code===2049)e.status=403;throw e}}
       if(!Array.isArray(data.model_remains))throw new Error('invalid-schema')
-      // Keep model-specific buckets separate. For ordinary text models, the
-      // official shared bucket is named general. Never substitute video quota.
-      const rows=data.model_remains.map(obj),exact=rows.filter(x=>x.model_name===route.model),selected=exact.length?exact:rows.filter(x=>x.model_name==='general')
-      if(selected.length!==1)throw new Error('quota-bucket-unavailable')
+      // Only a matching model bucket establishes scope for the selected model.
+      // General/video buckets are not a model-to-bucket mapping contract.
+      const selected=data.model_remains.map(obj).filter(x=>x.model_name===route.model)
+      if(selected.length!==1)return {metrics:[],unsupported:true}
       const m=selected[0],metrics=[],issues=[]
       if(m.current_interval_status===3&&m.current_weekly_status===3&&m.current_interval_total_count===0&&m.current_weekly_total_count===0)return {metrics:[],notice:'not-in-plan'}
       let unlimited=false

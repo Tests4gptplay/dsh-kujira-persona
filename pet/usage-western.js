@@ -31,7 +31,7 @@ export const westernAdapters = {
     async read({request}){
       // Latest official OpenAPI AdminApiKey is Bearer; no authentication fallback.
       const body=await request('https://api.mistral.ai/v1/admin/spend-limit'),limits=body?.limits,c=limits?.completion
-      if(!c||typeof c.no_monthly_limit!=='boolean'||typeof limits.currency!=='string')throw new Error('invalid-schema')
+      if(!c||(c.no_monthly_limit!==undefined&&typeof c.no_monthly_limit!=='boolean')||typeof limits.currency!=='string')throw new Error('invalid-schema')
       if(c.no_monthly_limit)return {metrics:[],notice:'no-budget'}
       return {metrics:[{kind:'quota',value:finite(c.usage_limit)-finite(c.total_usage),unit:limits.currency,currency:limits.currency,scope:'organization-budget',period:'month',remaining:true}]}
     }
@@ -44,7 +44,7 @@ export const westernAdapters = {
       const url=path=>{const u=new URL('https://api.openai.com/v1/organization/'+path);u.searchParams.set('start_time',Math.floor(+start/1000));u.searchParams.set('end_time',Math.floor(+end/1000));u.searchParams.set('limit','31');if(profile.projectId)u.searchParams.append('project_ids',profile.projectId);return u}
       return partial([
         async()=>{const rows=await buckets(request,url('costs')),totals=new Map();for(const r of rows){if(!r.amount||typeof r.amount.currency!=='string')throw new Error('invalid-schema');const c=r.amount.currency.toUpperCase();totals.set(c,(totals.get(c)??0)+finite(r.amount.value))}if(!rows.length)return [{kind:'spend',value:0,currency:'USD',scope,period}];return [...totals].map(([currency,value])=>({kind:'spend',value,currency,scope,period}))},
-        async()=>{const rows=await buckets(request,url('usage/completions'));let value=0;for(const r of rows)value+=finite(r.input_tokens)+finite(r.output_tokens);return [{kind:'tokens',value,scope,period}]}
+        async()=>{const rows=await buckets(request,url('usage/completions'));let value=0;for(const r of rows)value+=finite(r.input_tokens)+finite(r.output_tokens);return [{kind:'tokens',category:'completions',value,scope,period}]}
       ])
     }
   },

@@ -98,7 +98,7 @@ export const vendorAdapters = {
       if (body.success === false || (body.code !== undefined && ![0,200,'0','200'].includes(body.code))) throw new Error('GLM quota query failed');
       const d = object(body.data);
       if (!Array.isArray(d.limits)) throw new Error('Missing GLM quota limits');
-      const metrics = d.limits.filter(x => ['TOKENS_LIMIT','TIME_LIMIT'].includes(x?.type)).map(x => ({kind:'quota',value:number(x.percentage,'percentage'),unit:'percent',scope:'coding-plan',remaining:false,label:x.type === 'TOKENS_LIMIT' ? 'Coding used' : 'MCP used'}));
+      const metrics = d.limits.filter(x => ['TOKENS_LIMIT','TIME_LIMIT'].includes(x?.type)).map(x => ({kind:'quota',value:number(x.percentage,'percentage'),unit:'percent',scope:'coding-plan',remaining:false,period:x.type === 'TOKENS_LIMIT' ? 'five-hours' : 'month',label:x.type === 'TOKENS_LIMIT' ? 'Coding used' : 'MCP used'}));
       if (!metrics.length) throw new Error('No supported GLM quota limit');
       return {metrics};
     }

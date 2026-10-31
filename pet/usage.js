@@ -67,9 +67,9 @@ function presented(data,adapter){
   const noticeKey={'no-budget':'usage.noBudget','unlimited-plan':'usage.unlimitedPlan','not-in-plan':'usage.notInPlan'}[data.notice]
   if(!metrics.length&&noticeKey){const d=message(noticeKey);return {kind:'account',status:data.notice==='not-in-plan'?'unsupported':'ready',title:adapter.label,adapter:adapter.id,metrics:[],windows:[],lines:[zhUi(d)],linesUi:[d],details:[zhUi(d)],detailsUi:[d]}}
   if(!metrics.length)return failure('unavailable')
-  const metricLabel=m=>({'Coding used':message('usage.quota.coding'),'MCP used':message('usage.quota.mcp'),interval:message('usage.quota.interval'),week:message('usage.quota.week'),day:message('usage.quota.day'),month:message('usage.quota.month'),'5h':message('usage.quota.fiveHours')})[m.label]??m.label??''
-  const descriptors=metrics.map(m=>message('usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
-  const primary=metrics.map((m,i)=>({m,d:descriptors[i]})).filter(x=>x.m.kind!=='tokens').slice(0,2).map(x=>x.d)
+  const metricLabel=m=>({'Coding used':message('usage.quota.coding'),'MCP used':message('usage.quota.mcp'),interval:message('usage.quota.interval'),week:message('usage.quota.week'),day:message('usage.quota.day'),month:message('usage.quota.month'),'5h':message('usage.quota.fiveHours'),'rolling-day':message('usage.quota.rollingDay'),'rolling-week':message('usage.quota.rollingWeek'),'rolling-month':message('usage.quota.rollingMonth')})[m.label]??m.label??''
+  const descriptors=metrics.map(m=>message(m.kind==='tokens'&&m.category==='completions'?'usage.metric.completions':'usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
+  const primary=metrics.map((m,i)=>({m,d:descriptors[i]})).slice(0,2).map(x=>x.d)
   const linesUi=primary.length?primary:descriptors.slice(0,1)
   if(noticeKey)descriptors.push(message(noticeKey))
   if(data.issues?.length)linesUi.push(message('usage.query.partial'))
@@ -122,10 +122,11 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       const value=typeof secret?.value==='string'&&secret.value?secret.value:null
       credentialCache.set(ref,value);return value
     }
+    const permissionFailure=()=>failure('permission-needed',adapter.id==='openai'?'usage.query.openai-permission-needed':'usage.query.permission-needed')
     const explicit=profile.credentialRef
     if(adapter.requiredFields?.some(field=>!profile[field]))return failure('configuration-needed')
     // Administration permissions are independent from model inference keys.
-    if(adapter.auth!=='inference'&&!explicit)return failure('permission-needed')
+    if(adapter.auth!=='inference'&&!explicit)return permissionFailure()
     let credentialRef=explicit??info.credentialRef
     if(!credentialRef&&adapter.auth==='inference')credentialRef=info.nativeAuth?.env?.find(name=>/^[A-Z][A-Z0-9_]*_API_KEY$/.test(name))
     let key
@@ -139,7 +140,7 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       }
       if(!key&&credentialRef)key=await resolveCredential(credentialRef)
     }
-    if(!key)return failure('permission-needed')
+    if(!key)return permissionFailure()
     const allowed=adapter.explicitOnly?[originOf(info.baseURL)]:(adapter.queryOrigins??adapter.origins)
     const request=async(url,options={})=>{
       signal?.throwIfAborted()
@@ -147,11 +148,19 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       if(target.username||target.password||!allowed.includes(target.origin)||target.protocol!=='https:')throw new Error('query-origin-rejected')
       const headers={...(adapter.headers?adapter.headers(key):adapter.auth==='signed'?{}:{Authorization:`Bearer ${key}`}),...(options.body?{'content-type':'application/json'}:{}),...options.headers}
       const response=await transport(target,{...options,headers,signal,redirect:'error'})
-      if(!response.ok){const error=new Error('query-failed');error.status=response.status;throw error}
+      if(!response.ok){
+        const error=new Error('query-failed');error.status=response.status
+        // Alibaba documents these authorization failures as HTTP 400. Keep
+        // only the known code classification; never return vendor response text.
+        if(response.status===400&&adapter.permissionErrorCodes?.length){
+          try{const body=await response.json();if(adapter.permissionErrorCodes.includes(body?.Code))error.status=403}catch{}
+        }
+        throw error
+      }
       return response.json()
     }
     try{const data=await adapter.read({request,profile,route,baseURL:info.baseURL,now:now(),resolveCredential});signal?.throwIfAborted();return presented(data,adapter)}
-    catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return failure('permission-needed');if(error.status===404)return failure('unsupported');throw error}
+    catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return permissionFailure();if(error.status===404)return failure('unsupported');throw error}
   }
   read.describe=(route,config={})=>{
     const info=providerInfo(ctx,route),profile=config.usageProfiles?.[route.provider]??{adapter:'auto'},adapter=adapterFor(info,profile),origin=originOf(info.baseURL)

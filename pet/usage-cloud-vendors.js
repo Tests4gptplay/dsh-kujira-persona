@@ -52,6 +52,7 @@ const balance = (value,curr) => ({metrics:[{kind:'balance',value:numeric(value),
 const common={auth:'signed',headers:()=>({}),requiredFields:['credentialRef','secretRef']}
 export const cloudVendorAdapters = {
   'alibaba-billing': {
+    permissionErrorCodes:['NotAuthorized','NoPermission','AuthSiteFail'],
     ...common,label:'Alibaba Cloud balance',origins:['https://dashscope.aliyuncs.com','https://dashscope-intl.aliyuncs.com','https://dashscope-us.aliyuncs.com'],queryOrigins:['https://business.aliyuncs.com','https://business.ap-southeast-1.aliyuncs.com'],requiredFields:[...common.requiredFields,'site'],capabilities:['balance'],docsUrl:'https://help.aliyun.com/en/user-center/developer-reference/api-bssopenapi-2017-12-14-queryaccountbalance',
     async read(ctx){const {profile,request,now=Date.now()}=ctx,url=site(profile)==='china'?'https://business.aliyuncs.com/':'https://business.ap-southeast-1.aliyuncs.com/',keys=await credentials(ctx)
       const d=obj(await request(url,{method:'POST',headers:signAlibaba({url,...keys,now,action:'QueryAccountBalance',version:'2017-12-14'})}))
@@ -68,11 +69,11 @@ export const cloudVendorAdapters = {
     }
   },
   'volcengine-billing': {
-    ...common,label:'Volcengine Cloud balance',origins:['https://ark.cn-beijing.volces.com'],queryOrigins:['https://billing.volcengineapi.com'],requiredFields:[...common.requiredFields,'currency'],capabilities:['balance'],docsUrl:'https://docs.volcengine.com/docs/billing-center/query-balance-acct-query-user-account-balance-information?lang=zh',
-    async read(ctx){const {profile,request,now=Date.now()}=ctx,curr=currency(profile.currency),keys=await credentials(ctx),url='https://billing.volcengineapi.com/?Action=QueryBalanceAcct&Version=2022-01-01'
+    ...common,label:'Volcengine Cloud balance',origins:['https://ark.cn-beijing.volces.com'],queryOrigins:['https://billing.volcengineapi.com'],optionalFields:['currency','sessionTokenRef'],capabilities:['balance'],docsUrl:'https://docs.volcengine.com/docs/billing-center/query-balance-acct-query-user-account-balance-information?lang=zh',
+    async read(ctx){const {profile,request,now=Date.now()}=ctx,keys=await credentials(ctx),url='https://billing.volcengineapi.com/?Action=QueryBalanceAcct&Version=2022-01-01'
       const d=obj(await request(url,{method:'GET',headers:signVolcengine({url,...keys,now,method:'GET',body:'',region:'cn-north-1',service:'billing'})}))
       if(d.ResponseMetadata?.Error)vendorError(d.ResponseMetadata.Error.Code)
-      return balance(obj(d.Result).AvailableBalance,curr)
+      const data=obj(d.Result);return balance(data.AvailableBalance,data.Currency??profile.currency)
     }
   },
   'volcengine-agent-plan': {
@@ -81,7 +82,7 @@ export const cloudVendorAdapters = {
       const d=obj(await request(url,{method:'POST',body,headers:signVolcengine({url,...keys,now,body,region:'cn-beijing',service:'ark'})}))
       if(d.ResponseMetadata?.Error)vendorError(d.ResponseMetadata.Error.Code)
       const data=obj(d.Result),metrics=[],issues=[]
-      for(const [field,label] of [['AFPFiveHour','5h'],['AFPDaily','day'],['AFPWeekly','week'],['AFPMonthly','month']]){
+      for(const [field,label] of [['AFPFiveHour','5h'],['AFPDaily','rolling-day'],['AFPWeekly','rolling-week'],['AFPMonthly','rolling-month']]){
         if(data[field]===undefined){issues.push('missing-quota-window');continue}
         const w=obj(data[field]),total=numeric(w.Quota),used=numeric(w.Used),start=numeric(w.SubscribeTime),reset=numeric(w.ResetTime)
         if(total<0||used<0||!Number.isSafeInteger(start)||!Number.isSafeInteger(reset)||start<0||reset<start)throw new Error('invalid-schema')

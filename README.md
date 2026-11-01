@@ -1,12 +1,21 @@
 # Kujira · AI 角色与世界
 
-**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.1` · [下载 2.4.1 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz) · [安装步骤](#安装与升级)
+**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.2` · [下载 2.4.2 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.2/dsh-kujira-persona-2.4.2.tgz) · [安装步骤](#安装与升级)
 
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
 **账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**
 
 **Account-query validation: Codex and OpenAI API have been user-verified; other sources await user validation and feedback.**
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:END -->
+
+## 2.4.2：独立更新任务与账户配置归并
+
+- 重要规则更新由独立任务处理共同世界观与当前角色，逐文件读取、合并、保存并回读确认；保留自定义冲突，未调用角色保持待处理，已完成更新不重复执行。
+- 普通对话不再反复注入整份更新通知；迁移不等待整轮模型任务阻塞前台。权限不足、取消或中断时保留待处理状态，授权提示明确鲸鱼身份、操作目的与范围。
+- 编辑、删除和睡眠整理直接修改原文件，保留原子写入与冲突检查，不再生成修改历史副本。升级比较所需的默认版本依据独立保留；旧自动备份按确切清单申请一次性删除，拒绝清理不影响已完成的规则更新。
+- 同公司、同接入与同账户的模型共用账户查询配置；不同地址或凭据引用分别显示，保留旧配置，修复首次保存后无法继续编辑及切换账户时迟到结果串入的问题。
+- 支持通过通用前台模型选择事件跟随兼容聊天界面的选择，无插件间依赖；保留原生 DSH 路径，未知 Auto 解析不冒用后台模型，切换模型不继承旧会话运行状态。
+- 修复快速模型切换时请求乱序回退，以及迁移任务动态撤权后迟到批准仍可能继续操作的问题。
 
 ## 2.4.1：与模型接入匹配的账户查询
 
@@ -147,12 +156,12 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装与升级
 
-当前版本：**2.4.1**。安装包与固定标签均已包含运行文件，无需编译。
+当前版本：**2.4.2**。安装包与固定标签均已包含运行文件，无需编译。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.4.1
+github:Tests4gptplay/dsh-kujira-persona#v2.4.2
 ```
 
 **升级已有插件：** 同样填写上面的新版来源，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载该插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
@@ -162,13 +171,13 @@ github:Tests4gptplay/dsh-kujira-persona#v2.4.1
 **备用安装包：** 将下面的 `.tgz` 直链填入同一个 **包名或地址**；也可下载后填写文件的完整绝对路径，无需解压。该路径应属于运行 DSH 的电脑。
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.1/dsh-kujira-persona-2.4.1.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.2/dsh-kujira-persona-2.4.2.tgz
 ```
 
 **Web：** 在运行服务的环境中执行。升级前停止对应 Web profile，成功后重新启动；Web 与 Desktop 分别安装。
 
 ```sh
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.1'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.2'
 ```
 
 备用时将命令中的来源换成上面的 `.tgz` 直链或下载文件的完整绝对路径。

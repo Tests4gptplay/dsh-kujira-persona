@@ -1,0 +1,45 @@
+name: Publish Kujira 2.4.2
+on:
+  push:
+    branches: ['main']
+    paths:
+      - '.github/workflows/release-v2.4.2.yml'
+      - 'scripts/release-v2.4.2/**'
+permissions:
+  contents: read
+concurrency:
+  group: kujira-release-v2.4.2
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm install -g npm@11.9.0 --ignore-scripts
+      - name: Account-query regression tests
+        run: node --test scripts/qa/account-ark-contract.test.mjs scripts/qa/account-credentials.test.mjs scripts/qa/account-options.test.mjs scripts/qa/account-query-contract.test.mjs scripts/qa/multisession-bubble-check.mjs
+      - name: Build and verify package against source
+        run: python scripts/release-v2.4.2/pack.py dist
+      - name: Publish 2.4.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tests4gptplay/dsh-kujira-persona
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GH_REPO/releases/tags/v2.4.2" > "$RUNNER_TEMP/existing-release.json" 2> "$RUNNER_TEMP/release-query.err"; then
+            echo 'Release already exists; refusing to overwrite assets.'
+            exit 1
+          fi
+          grep -q 'HTTP 404' "$RUNNER_TEMP/release-query.err" || { cat "$RUNNER_TEMP/release-query.err"; exit 1; }
+          gh release create v2.4.2 --target '${{ github.sha }}' --title 'Kujira 2.4.2' --notes-file scripts/release-v2.4.2/NOTES.md --latest=true dist/dsh-kujira-persona-2.4.2.tgz dist/SHA256SUMS.txt

@@ -22,6 +22,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         "account.guide.deepseek-compatible": "第三方服务须明确提供同源 /user/balance 兼容接口；请先查该服务自己的部署文档。凭据只发往当前已配置来源，不自动发送到其他站点。下方链接仅说明兼容响应格式。",
 
         "account.setupMethod": "公司与接入方式",
+        "account.connectionNumber": "连接 {number}",
         "account.thirdParty": "第三方",
         "account.compatReference": "兼容协议参考（不是第三方部署文档）",
         "account.endpoint": "已配置服务端来源",
@@ -203,6 +204,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         "account.guide.deepseek-compatible": "The third-party service must provide a same-origin /user/balance-compatible endpoint. Check its own deployment documentation. Credentials go only to the configured origin, never another site automatically. The linked reference describes the response format only.",
 
         "account.setupMethod": "Company and connection method",
+        "account.connectionNumber": "Connection {number}",
         "account.thirdParty": "Third-party",
         "account.compatReference": "Compatibility reference (not third-party deployment docs)",
         "account.endpoint": "Configured endpoint origin",
@@ -490,7 +492,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const provider=state.route.provider,model=state.route.model,routeKey=provider+'/'+model
       const [drafts,setDrafts]=useState({}),[credentialState,setCredentialState]=useState({}),[queryResult,setQueryResult]=useState(null)
       const [info,setInfo]=useState(null),[profile,setProfile]=useState({adapter:'auto'}),[price,setPrice]=useState({currency:'USD'}),[busy,setBusy]=useState('load'),[error,setError]=useState(''),[notice,setNotice]=useState('')
-      const alive=useRef(true),pending=useRef(false),loadVersion=useRef(0)
+      const alive=useRef(true),pending=useRef(false),loadVersion=useRef(0),credentialVersion=useRef(0)
       const load=async()=>{const version=++loadVersion.current;setBusy('load');setError('');try{const value=await call('usage-info',{provider,model});if(alive.current&&version===loadVersion.current&&value.provider===provider&&value.model===model){setInfo(value);setProfile(method&&method!==value.adapter?{adapter:method}:{...(value.profile??{}),adapter:method??value.profile?.adapter??'auto'});setPrice(value.price??{currency:'USD'})}}catch(e){if(alive.current&&version===loadVersion.current)setError(e)}finally{if(alive.current&&version===loadVersion.current)setBusy('')}}
       useEffect(()=>{alive.current=true;void load();return()=>{alive.current=false;loadVersion.current++}},[])
       const adapter=info?.adapters.find(item=>item.id===(profile.adapter==='auto'?(Object.hasOwn(info,'autoAdapter')?info.autoAdapter:info.adapter):profile.adapter))
@@ -498,12 +500,17 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const fields=Array.from(new Set(['credentialRef',...(adapter?.requiredFields??[]),...(adapter?.optionalFields??[])])).filter(key=>refs.includes(key)||ids.includes(key))
       const supportsSecrets=!pricingOnly&&!!adapter&&!info?.hostAccount
       const secretFields=supportsSecrets?fields.filter(f=>refs.includes(f)):[]
-      const refFor=field=>credentialUi.makeQueryCredentialRef(provider,adapter?.id??'none',field)
-      const refreshCredentialState=async()=>{
-        const names=secretFields.map(refFor),result=await credentialUi.describeQueryCredentials(queryCredentialService(),names)
-        if(alive.current)setCredentialState(result.ok?result.value:{})
+      const credentialScope=info?.profileKey??provider
+      const ownedRefFor=field=>credentialUi.makeQueryCredentialRef(credentialScope,adapter?.id??'none',field)
+      const refFor=field=>profile[field]??ownedRefFor(field)
+      const refreshCredentialState=async(currentProfile=profile)=>{
+        const version=++credentialVersion.current
+        const names=[...new Set(secretFields.flatMap(field=>[currentProfile[field]??ownedRefFor(field),ownedRefFor(field)]))],result=await credentialUi.describeQueryCredentials(queryCredentialService(),names)
+        if(alive.current&&version===credentialVersion.current)setCredentialState(result.ok?result.value:{})
       }
-      useEffect(()=>{setDrafts({});setCredentialState({});setQueryResult(null);if(supportsSecrets)void refreshCredentialState()},[adapter?.id])
+      useEffect(()=>{setDrafts({});setQueryResult(null)},[adapter?.id,credentialScope])
+      const profileRefs=refs.map(field=>profile[field]??'').join('\0')
+      useEffect(()=>{setCredentialState({});if(supportsSecrets)void refreshCredentialState();return()=>{credentialVersion.current++}},[adapter?.id,credentialScope,profileRefs])
       const runQuery=async()=>{if(pending.current)return;pending.current=true;setBusy('query');setError('');try{const value=await call('account-query',{provider,model});if(alive.current)setQueryResult(value)}catch{if(alive.current)setError(uiError('account.queryFailed'))}finally{pending.current=false;if(alive.current)setBusy('')}}
       const save=async(kind)=>{
         if(pending.current)return
@@ -519,12 +526,12 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
         try{
           if(kind==='profile')for(const field of secretFields){
             if(!drafts[field])continue
-            const result=await credentialUi.saveQueryCredential(queryCredentialService(),{provider,adapter:adapter.id,field,value:drafts[field],protectedRefs:[info.inferenceCredentialRef].filter(Boolean)})
+            const result=await credentialUi.saveQueryCredential(queryCredentialService(),{provider:credentialScope,adapter:adapter.id,field,value:drafts[field],protectedRefs:[info.inferenceCredentialRef].filter(Boolean)})
             if(!result.ok)throw uiError('account.credentialSaveFailed')
             nextProfile[field]=result.ref
             if(alive.current){setDrafts(old=>({...old,[field]:''}));setProfile(old=>({...old,[field]:result.ref}))}
           }
-          const config=get()?.config??state.config;let patch;if(kind==='profile')patch={usageProfiles:{...config.usageProfiles,[provider]:nextProfile}};else{const prices={...config.modelPrices};if(kind==='clear')delete prices[routeKey];else prices[routeKey]=nextPrice;patch={modelPrices:prices}}await call('config',patch);if(kind==='profile'){await refreshCredentialState();try{const fresh=await call('usage-info',{provider,model});if(alive.current&&fresh.provider===provider&&fresh.model===model)setInfo(fresh)}catch{}}if(alive.current){if(kind==='clear')setPrice({currency:'USD'});if(kind==='profile')setQueryResult(null);setNotice(kind==='profile'?'account.saved':kind==='clear'?'price.cleared':'price.saved')}}catch(e){if(alive.current)setError(e)}finally{pending.current=false;if(alive.current)setBusy('')}
+          const config=get()?.config??state.config;let patch;if(kind==='profile')patch={usageProfiles:{...config.usageProfiles,[info.profileKey??provider]:nextProfile}};else{const prices={...config.modelPrices};if(kind==='clear')delete prices[routeKey];else prices[routeKey]=nextPrice;patch={modelPrices:prices}}await call('config',patch);if(kind==='profile'){await refreshCredentialState(nextProfile);try{const fresh=await call('usage-info',{provider,model});if(alive.current&&fresh.provider===provider&&fresh.model===model)setInfo(fresh)}catch{}}if(alive.current){if(kind==='clear')setPrice({currency:'USD'});if(kind==='profile')setQueryResult(null);setNotice(kind==='profile'?'account.saved':kind==='clear'?'price.cleared':'price.saved')}}catch(e){if(alive.current)setError(e)}finally{pending.current=false;if(alive.current)setBusy('')}
       }
       const input=(key,label,value,onChange,props={})=>h('label',{className:'kujira-diary-directory',key},h('span',null,label),h('input',{type:'text',value:value??'',disabled:!!busy,'aria-label':label,spellCheck:false,autoComplete:'off',onChange:e=>{onChange(e.target.value);setNotice('')},...props}))
       const button=(kind,label)=>h('button',{type:'button',disabled:!!busy||!info,onClick:()=>void save(kind)},busy===kind?t('account.saving'):t(label))
@@ -543,17 +550,17 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
               adapter?.docsUrl&&/^https:\/\//.test(adapter.docsUrl)?h('a',{href:adapter.docsUrl,target:'_blank',rel:'noopener noreferrer'},t(adapter?.thirdParty?'account.compatReference':'account.reference')):null,
               profile.adapter!=='none'&&adapter&&!info.hostAccount?h(React.Fragment,null,...fields.map(key=>key==='site'?h('label',{className:'kujira-row',key},h('span',null,t('account.site')),h('select',{'aria-label':t('account.site'),value:profile.site??'',disabled:!!busy,onChange:e=>{setProfile({...profile,site:e.target.value});setNotice('')}},h('option',{value:''},t('account.choose')),...['china','international'].map(value=>h('option',{key:value,value},t('account.site.'+value))))):input(key,t('account.'+key),profile[key],value=>setProfile({...profile,[key]:value}),{placeholder:t(refs.includes(key)?'account.refPlaceholder':key==='currency'?'account.currencyPlaceholder':'account.idPlaceholder')})),h('div',{className:'kujira-small'},t(adapter?.auth==='inference'?'account.reuse':'account.independent')),
                 ...secretFields.map(field=>h('div',{key:'secret-'+field,className:'kujira-account-secret'},
-                  h('label',{className:'kujira-diary-directory'},h('span',null,t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key')),h('input',{type:'password','aria-label':t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key'),value:drafts[field]??'',autoComplete:'new-password',spellCheck:false,disabled:!!busy||!credentialState[refFor(field)]?.writable,onChange:e=>setDrafts({...drafts,[field]:e.target.value})})),
-                  h('div',{className:'kujira-small',role:'status'},t(credentialState[refFor(field)]?.configured?'account.secretConfigured':credentialState[refFor(field)]?.writable?'account.secretEmpty':'account.secretUnavailable')))),
+                  h('label',{className:'kujira-diary-directory'},h('span',null,t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key')),h('input',{type:'password','aria-label':t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key'),value:drafts[field]??'',autoComplete:'new-password',spellCheck:false,disabled:!!busy||!credentialState[ownedRefFor(field)]?.writable,onChange:e=>setDrafts({...drafts,[field]:e.target.value})})),
+                  h('div',{className:'kujira-small',role:'status'},t(credentialState[refFor(field)]?.configured?'account.secretConfigured':credentialState[ownedRefFor(field)]?.writable?'account.secretEmpty':'account.secretUnavailable')))),
                 h('div',{className:'kujira-small'},t('account.secretHandling'))):null,
               h('div',{className:'kujira-diary-actions'},button('profile','account.save'),h('button',{type:'button',disabled:!!busy||!adapter||profile.adapter==='none',onClick:()=>void runQuery()},t('account.queryNow'))),
               queryResult?h(Usage,{value:queryResult,detailed:true}):null,
               state.usage?h('details',null,h('summary',null,t('account.details')),h(Usage,{value:state.usage,detailed:true})):null):null,
-              h('h4',null,t('price.title')),h('div',{className:'kujira-small'},t('price.manual')+' · '+t('price.unit')),
+              pricingOnly?h(React.Fragment,null,h('h4',null,t('price.title')),h('div',{className:'kujira-small'},t('price.manual')+' · '+t('price.unit')),
               info.pricingReference?.kind==='reference-only'&&/^https:\/\//.test(info.pricingReference.url)?h('a',{href:info.pricingReference.url,target:'_blank',rel:'noopener noreferrer'},t('price.reference')):null,
               apiPrice?h('div',{className:'kujira-small'},t('price.api')+': '+apiPrice.currency+' · '+t('price.input')+' '+apiPrice.input+' / '+t('price.output')+' '+apiPrice.output+' · '+t('price.unit')):null,
               h('div',{className:'kujira-price-grid'},...['currency','input','output','cacheRead','cacheWrite','date'].map(key=>input(key,t('price.'+key),price[key],value=>setPrice({...price,[key]:value}),key==='date'?{type:'date'}:key==='currency'?{maxLength:3,placeholder:'USD'}:{inputMode:'decimal',placeholder:key==='input'||key==='output'?'0':t('price.optional')}))),
-              h('div',{className:'kujira-diary-actions'},button('price','price.save'),button('clear','price.clear'))):null,
+              h('div',{className:'kujira-diary-actions'},button('price','price.save'),button('clear','price.clear'))):null):null,
             !info&&!busy?h('button',{type:'button',onClick:()=>void load()},t('account.retry')):null,
             error?h('div',{role:'alert'},errorText(error)):null,notice?h('div',{role:'status'},t(notice)):null)))
     }
@@ -574,7 +581,7 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       const target=options.find(o=>o.key===selected)
       if(!loading&&!options.length)return null
       return h('section',{'data-kujira-account-setup':true},h('div',{className:'kujira-card'},
-        h('label',{className:'kujira-row'},h('span',null,t('account.setupMethod')),h('select',{'aria-label':t('account.setupMethod'),value:selected,disabled:loading,onChange:e=>setSelected(e.target.value)},...options.map(o=>h('option',{key:o.key,value:o.key},(o.thirdParty?t('account.thirdParty')+' · ':'')+o.label+' · '+t('account.auth.'+o.auth)+' · '+o.provider+' / '+o.model)))),
+        h('label',{className:'kujira-row'},h('span',null,t('account.setupMethod')),h('select',{'aria-label':t('account.setupMethod'),value:selected,disabled:loading,onChange:e=>setSelected(e.target.value)},...options.map(o=>h('option',{key:o.key,value:o.key},(o.thirdParty?t('account.thirdParty')+' · ':'')+o.label+' · '+t('account.auth.'+o.auth)+' · '+o.provider+(o.detail?' · '+o.detail:'')+(o.connectionNumber?' · '+t('account.connectionNumber',{number:o.connectionNumber}):''))))),
         h('div',{className:'kujira-small'},t('account.targetHelp'))),
         target?h(AccountSettings,{key:target.key,method:target.adapter,state:{...state,route:{...state.route,provider:target.provider,model:target.model},usage:target.provider===state.route.provider&&target.model===state.route.model?state.usage:null}}):null)
     }

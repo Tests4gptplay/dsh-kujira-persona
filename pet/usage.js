@@ -1,7 +1,7 @@
 import { modelFamily } from '../catalog.js'
 import { ui } from './ui-messages.js'
 /** Read the selected provider's existing account interface; never runs inference. */
-import { randomUUID } from 'node:crypto'
+import { randomUUID, createHash } from 'node:crypto'
 import { apiBalance,codexQuota,unknownUsage } from './model.js'
 import { westernAdapters, finite } from './usage-western.js'
 import { minimaxAdapters } from './usage-minimax.js'
@@ -49,9 +49,18 @@ function providerInfo(ctx,route){
   // An endpoint environment override must not fall back to a different origin.
   const envBase=(declared?.baseURLEnv??[]).map(name=>process.env[name]).find(Boolean)
   const baseURL=modelOverride?.baseURL??provider?.baseURL??envBase??(official?process.env.DEEPSEEK_BASE_URL??'https://api.deepseek.com':declared?.defaultBaseURL)
-  const credentialRef=provider?.apiKeyEnv??(official?'DEEPSEEK_API_KEY':undefined)
+  const credentialRef=modelOverride?.apiKeyEnv??provider?.apiKeyEnv??(official?'DEEPSEEK_API_KEY':undefined)
   return {baseURL,family:modelFamily(route),credentialRef,nativeAuth:declared?.nativeAuth,settingsNs:declared?.settingsNs}
 }
+// Keep provider identities separate: matching ref names alone do not prove that
+// two Host providers use the same account/organization. Models inside one
+// provider share only the exact endpoint and declared inference credential ref.
+function profileKeyFor(route,info){
+  if(!originOf(info.baseURL))return route.provider
+  const endpoint=new URL(info.baseURL);endpoint.hash='';endpoint.pathname=endpoint.pathname.replace(/\/$/,'')
+  return 'account:'+createHash('sha256').update(JSON.stringify([route.provider,endpoint.href,info.credentialRef??null])).digest('hex')
+}
+function profileFor(config,route,info){const key=profileKeyFor(route,info);return config.usageProfiles?.[key]??config.usageProfiles?.[route.provider]??{adapter:'auto'}}
 function adapterFor(info,profile){
   if(profile?.adapter==='none')return null
   const origin=originOf(info.baseURL)
@@ -81,7 +90,7 @@ function presented(data,adapter){
 }
 export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date.now,environment=process.env}={}) {
   const read=async (route,signal,config={})=>{
-    const profile=config.usageProfiles?.[route.provider]??{}
+    const info=providerInfo(ctx,route),profile=profileFor(config,route,info)
     if(profile.adapter==='none')return failure('disabled')
     signal?.throwIfAborted()
     if(route.provider==='codex-local'){
@@ -115,7 +124,7 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       return apiBalance({balance_infos:[...totals.values()].map(r=>({...r,total_balance:r.granted_balance+r.topped_up_balance}))},'account')
     }
 
-    const info=providerInfo(ctx,route),adapter=adapterFor(info,profile)
+    const adapter=adapterFor(info,profile)
     if(!adapter)return failure(Object.entries(USAGE_ADAPTERS).some(([id,a])=>matchesModel(id,info)&&a.origins.includes(originOf(info.baseURL)))&&(!profile.adapter||profile.adapter==='auto')?'configuration-needed':'unsupported')
     const credentialCache=new Map()
     const resolveCredential=async ref=>{
@@ -163,10 +172,10 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
     catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return permissionFailure();if(error.status===404)return failure('unsupported');throw error}
   }
   read.describe=(route,config={})=>{
-    const info=providerInfo(ctx,route),profile=config.usageProfiles?.[route.provider]??{adapter:'auto'},adapter=adapterFor(info,profile),origin=originOf(info.baseURL)
+    const info=providerInfo(ctx,route),profile=profileFor(config,route,info),adapter=adapterFor(info,profile),origin=originOf(info.baseURL)
     const hostAccount=['deepseek-account','codex-local'].includes(route.provider)
     if(hostAccount)return {provider:route.provider,model:route.model,origin:null,hostAccount:true,adapter:profile.adapter==='none'?null:route.provider,autoAdapter:route.provider,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:[{id:route.provider,label:route.provider==='codex-local'?'Codex':'DeepSeek',auth:'host',capabilities:[route.provider==='codex-local'?'quota':'balance'],requiredFields:[],optionalFields:[],available:true}]}
-    return {provider:route.provider,model:route.model,origin,inferenceCredentialRef:info.credentialRef??null,pricingReference:PRICE_REFERENCES[origin]?{url:PRICE_REFERENCES[origin],checkedAt:'2026-10-29',kind:'reference-only'}:null,adapter:adapter?.id??null,autoAdapter:adapterFor(info,{adapter:'auto'})?.id??null,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:Object.entries(USAGE_ADAPTERS).map(([id,a])=>({id,label:a.label,auth:a.auth,thirdParty:!!a.explicitOnly,configurationSupported:true,capabilities:a.capabilities,requiredFields:a.requiredFields??[],optionalFields:a.optionalFields??(a.auth==='signed'?['sessionTokenRef']:[]),docsUrl:a.docsUrl,available:matchesModel(id,info)&&(a.origins.includes(origin)||!!(a.explicitOnly&&origin))}))}
+    return {provider:route.provider,model:route.model,profileKey:profileKeyFor(route,info),origin,endpoint:origin?origin+new URL(info.baseURL).pathname:null,inferenceCredentialRef:info.credentialRef??null,pricingReference:PRICE_REFERENCES[origin]?{url:PRICE_REFERENCES[origin],checkedAt:'2026-10-29',kind:'reference-only'}:null,adapter:adapter?.id??null,autoAdapter:adapterFor(info,{adapter:'auto'})?.id??null,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:Object.entries(USAGE_ADAPTERS).map(([id,a])=>({id,label:a.label,auth:a.auth,thirdParty:!!a.explicitOnly,configurationSupported:true,capabilities:a.capabilities,requiredFields:a.requiredFields??[],optionalFields:a.optionalFields??(a.auth==='signed'?['sessionTokenRef']:[]),docsUrl:a.docsUrl,available:matchesModel(id,info)&&(a.origins.includes(origin)||!!(a.explicitOnly&&origin))}))}
   }
   return read
 }

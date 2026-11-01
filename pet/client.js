@@ -439,27 +439,6 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
       .kujira-diary-directory input:focus-visible{outline:2px solid var(--dsw-alias-label-primary,currentColor);outline-offset:2px}
     `
     const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)
-    function RouteBinder({getDirectory,sessionId,selection}){
-      const pet=usePet(),selected=useSyncExternalStore(selection.subscribe,selection.getSnapshot,selection.getSnapshot)
-      return selected.key===sessionId?h(ModelFollower,{directory:getDirectory(),sessionId,selection}):null
-    }
-    function ModelFollower({directory,sessionId,selection}){
-      const state=useSyncExternalStore(directory.store.subscribe,directory.store.getSnapshot,directory.store.getSnapshot)
-      const pet=usePet();const current=state.current
-      useEffect(()=>{void directory.load().catch(()=>{})},[directory])
-      useEffect(()=>{
-        const update=()=>{if(document.visibilityState!=='hidden'&&document.hasFocus()&&selection.getSnapshot().key===sessionId)void call('diary-front',{provider:current?.provider??'',model:current?.model??'',reasoningEffort:current?.reasoningEffort,sessionId:String(sessionId),ready:state.status==='ready'&&state.routable===true,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone}).catch(()=>{})}
-        update();window.addEventListener('focus',update);document.addEventListener('visibilitychange',update)
-        return()=>{window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update)}
-      },[current?.provider,current?.model,current?.reasoningEffort,state.status,state.routable,sessionId,selection,connectionGeneration])
-      useEffect(()=>{
-        // Settings route follows the selected model even while pet rendering is disabled.
-        const update=()=>{if(document.visibilityState!=='hidden'&&selection.getSnapshot().key===sessionId)void call('select',{provider:current?.provider??'',model:current?.model??'',sessionId:String(sessionId)}).catch(()=>{})}
-        update();window.addEventListener('focus',update);document.addEventListener('visibilitychange',update)
-        return()=>{window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update)}
-      },[current?.provider,current?.model,sessionId,selection,pet?.config.enabled,connectionGeneration])
-      return null
-    }
     function Usage({value,detailed=false}){useLocale();if(value)value=uiRuntime.projectUiState({usage:value},locale.getSnapshot().active).usage;return value&&!value.hidden?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...(detailed?(value.details??value.lines):value.lines).map((t,i)=>h('div',{key:i},t)),...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},t('usage.reset',{label:w.label,date:new Date(w.resetAt).toLocaleString(ctx.locale.getSnapshot().active)})))):null}
     function WorkStats({value}){useLocale();return value?h('div',{className:'kujira-usage','data-kujira-stats':'session','aria-label':t("stats.aria")},...value.lines.map((line,i)=>h('div',{key:i},line))):null}
     function DiarySettings(){useLocale();
@@ -777,10 +756,50 @@ window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
     ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'kujira-one-pet',order:900},Pet))
     ctx.inject(['modelDirectories','sessions','remote','remote.session','uiSession'],scope=>{
       const selection=scope.uiSession.adapter.current
-      const clear=()=>{if(selection.getSnapshot().key===undefined&&document.visibilityState!=='hidden'){void call('select',{provider:'',model:'',sessionId:''}).catch(()=>{});void call('diary-front',{}).catch(()=>{})}}
-      clearSelection=clear;const off=selection.subscribe(clear);clear();window.addEventListener('focus',clear);document.addEventListener('visibilitychange',clear)
-      scope.on('dispose',()=>{if(clearSelection===clear)clearSelection=()=>{};off();window.removeEventListener('focus',clear);document.removeEventListener('visibilitychange',clear)})
-      return scope.slots.inject('conversation.input.overlay',()=>scope.slots.register({name:'conversation.input.overlay',id:'kujira-model-follow',order:990,inject:sessionId=>({sessionId,selection,getDirectory:()=>scope.modelDirectories.directoryFor(sessionId)})},RouteBinder))
+      let stopped=false,directory=null,sessionId,offDirectory=()=>{},lastSelect,lastDiary
+      const pendingWrites=new Map();let sending=false
+      const forget=({key,wire})=>{if(key==='select'){if(lastSelect===wire)lastSelect=undefined}else if(lastDiary===wire)lastDiary=undefined}
+      const flush=async()=>{
+        if(sending||stopped)return
+        sending=true
+        try{while(!stopped&&document.visibilityState!=='hidden'&&pendingWrites.size){
+          const [key,item]=pendingWrites.entries().next().value;pendingWrites.delete(key)
+          if(key==='diary'&&!document.hasFocus()){forget(item);continue}
+          try{await call(item.endpoint,item.payload)}catch(error){forget(item);console.warn('Kujira model route update failed:',error)}
+        }}finally{sending=false}
+      }
+      const send=(endpoint,payload,key)=>{
+        if(stopped)return
+        const wire=JSON.stringify(payload)
+        if(key==='select'){if(lastSelect===wire)return;lastSelect=wire}else{if(lastDiary===wire)return;lastDiary=wire}
+        pendingWrites.delete(key);pendingWrites.set(key,{endpoint,payload,key,wire});void flush()
+      }
+      const publish=()=>{
+        if(stopped||document.visibilityState==='hidden')return
+        // Public extension convention: active UI owners expose only their resolved model field.
+        const values=[];let accepting=true,failed=false
+        try{scope.emit('ui/foreground-model/query',value=>{if(accepting)values.push(value)})}catch{failed=true}finally{accepting=false}
+        if(failed||values.length){
+          const value=!failed&&values.length===1?values[0]:null
+          const valid=value!==null&&typeof value==='object'&&!Array.isArray(value)&&typeof value.provider==='string'&&value.provider.trim().length>0&&typeof value.model==='string'&&value.model.trim().length>0&&(value.reasoningEffort===undefined||typeof value.reasoningEffort==='string')
+          send('select',{provider:valid?value.provider:'',model:valid?value.model:'',sessionId:''},'select')
+          if(document.hasFocus())send('diary-front',{},'diary')
+          return
+        }
+        const current=directory?.store.getSnapshot(),route=current?.current
+        send('select',sessionId===undefined?{provider:'',model:'',sessionId:''}:{provider:route?.provider??'',model:route?.model??'',sessionId:String(sessionId)},'select')
+        if(document.hasFocus())send('diary-front',sessionId===undefined?{}:{provider:route?.provider??'',model:route?.model??'',reasoningEffort:route?.reasoningEffort,sessionId:String(sessionId),ready:current?.status==='ready'&&current?.routable===true,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone},'diary')
+      }
+      const sync=()=>{
+        if(stopped)return
+        const selected=selection.getSnapshot().key;let next=null
+        if(selected!==undefined)try{next=scope.modelDirectories.directoryFor(selected)}catch{}
+        if(selected!==sessionId||next!==directory){offDirectory();sessionId=selected;directory=next;offDirectory=next?.store.subscribe(publish)??(()=>{});if(next)void next.load().catch(()=>{});lastSelect=lastDiary=undefined}
+        publish()
+      }
+      const refresh=()=>{lastSelect=lastDiary=undefined;sync()}
+      clearSelection=refresh;const off=selection.subscribe(sync),offField=scope.on('ui/foreground-model/changed',publish);sync();window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh)
+      scope.effect(()=>()=>{stopped=true;pendingWrites.clear();if(clearSelection===refresh)clearSelection=()=>{};off();offField();offDirectory();window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh)})
     })
     ctx.effect(()=>()=>{disposed=true;stream?.close();listeners.clear();style.remove()})
   }

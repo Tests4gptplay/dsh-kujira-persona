@@ -22,13 +22,13 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 设置、状态和错误提示支持中英文。可选桌宠提供角色动作、主题、气泡互动、工作统计和服务可提供的余额／套餐信息，支持页面内和跨平台桌面显示；具体使用条件见安装说明。更新保留已有档案，用户自定义优先。
 
-桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的档案（Persona），保存修改前备份并检查写入冲突。
+桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的档案（Persona），直接修改原文件并检查写入冲突，不自动保存历史副本。
 
 **Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/SPONSOR.md)
 
 ## 2.4.0：更新保留你的角色与设定
 
-新版基础内容不会在启动时覆盖现有档案。更新时，请让 AI 阅读档案里的升级通知，以你的现有设定为主体补充新版内容；遇到矛盾时以用户自定义为主，无法确认来源的内容优先保留。首次安装也按通知创建基础档案，无需手动覆盖人设目录。
+新版基础内容不会在启动时覆盖现有档案。更新时，独立迁移任务主动读取当前角色与世界观，以你的现有设定为主体补充新版内容；遇到矛盾时以用户自定义为主，无法确认来源的内容优先保留。首次安装也由该任务创建基础档案，无需手动覆盖人设目录。
 
 未完成的更新可以稍后继续；保存并重新读取确认后，再清理本次更新内容与通知。已经完成的更新不会因普通重启重复出现；关闭 AI 编辑时保留待处理事项，不绕过你的权限设置。独立记忆、日记和美术资源不会因此重写。
 
@@ -48,7 +48,7 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 预设只是起点。称呼、性格、关系和模型对应的角色都能改；与你的要求不同，就按你的来。
 
-内置角色的基础资料会在插件启动时准备到人物目录，设置页无需逐个点击初始化。DeepSeek 也位于统一的 `personas/deepseek` 目录；从旧版 `persona` 位置迁移时保留原有文件和备份，已保存的人设及记忆优先。角色的默认性格留给用户自行养成，社区称呼和有出处的外形资料放在共同世界观与基础档案中。
+内置角色的基础资料会在插件启动时准备到人物目录，设置页无需逐个点击初始化。DeepSeek 也位于统一的 `personas/deepseek` 目录；从旧版 `persona` 位置迁移时保留源目录原文，只导入正式档案，不复制历史备份，已保存的人设及记忆优先。角色的默认性格留给用户自行养成，社区称呼和有出处的外形资料放在共同世界观与基础档案中。
 
 ### 当前默认规则：共同设定、个人记忆与隐私
 
@@ -206,3 +206,6 @@ DeepSeek、Moonshot 中国和 OpenRouter 普通 key 查询可以复用现有模�
 模型单价仍可保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。参考价不是实际账单，余额、消费、用量与套餐/预算额度分别标注，不用会话 token 猜账户余额。
 
 The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Generic cloud billing is removed. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.
+
+
+基础更新由独立的一次性迁移任务处理共同世界观与当前角色；未调用角色继续待处理。任务逐文件比较、保存并回读，保留自定义冲突，已满足的项目可不修改正文。迁移会话由插件持续管理，普通会话结束或切换不会取消它；发起回复仍在运行时点击停止、停止迁移会话本身或卸载插件会取消本次任务。审批显示在独立迁移会话中，沿用发起会话的权限限制。迁移任务不阻塞普通回复；当前回复可能仍使用迁移前资料，后续请求读取已保存更新。权限不足或中断时保持待处理，后续调用会重新检查；也可用 `/persona migrate` 主动接续，`/persona migrate status` 查看当前任务进展。规则更新完成与旧备份清理分别记录，拒绝删除不撤销已完成的更新。旧插件备份会先列出确切范围，请求实际删除确认；默认比较依据与正式档案保留。

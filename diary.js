@@ -119,14 +119,9 @@ export function openDiary({ home, worldDir, personasDir, personaDir, sharedDir, 
       if (typeof stored.directory === 'string' && (!stored.directory.trim() || stored.directory.includes('\0'))) throw new Error('invalid settings directory')
       const directory = typeof stored.directory === 'string' ? resolve(stored.directory.trim()) : state.directory
       state = { enabled: stored.enabled === true, directory }
-      if (typeof stored.enabled !== 'boolean' || typeof stored.directory !== 'string') {
-        await writeFile(settingsFile + '.recovered-' + randomUUID() + '.bak', raw, { flag: 'wx', mode: 0o600 })
-      }
     } catch (error) {
       // Keep the original and remain configurable; one invalid file never poisons every API.
-      if (raw !== undefined) {
-        try { await writeFile(settingsFile + '.recovered-' + randomUUID() + '.bak', raw, { flag: 'wx', mode: 0o600 }) } catch {}
-      }
+
     }
   })()
 
@@ -343,16 +338,10 @@ export function openDiary({ home, worldDir, personasDir, personaDir, sharedDir, 
         if (typeof summary !== 'string') throw new Error('写 Diary 时必须同时提供完整的 Persona_diary 摘要；可用空字符串清空')
         const value = await target(identity, true), source = await diarySource(value), existing = await readText(source)
         requireEnabled()
-        // On case-insensitive systems Diary.md and legacy diary.md are the same
-        // path. Preserve the old original under a distinct name before creating
-        // the new canonical file; a failed new write remains readable there.
-        if (source === value.legacyFile && ['win32', 'darwin'].includes(platform)) {
-          if (await validateFile(value.backupFile)) throw new Error('旧日记保留文件已存在；请先检查 diary.legacy.md，不会覆盖旧资料')
-          requireEnabled(); await rename(value.legacyFile, value.backupFile)
-        }
+        // Continue the selected existing diary in place, including legacy names.
         const time = now().toISOString()
         const updated = `${existing}${existing && !existing.endsWith('\n') ? '\n' : ''}${text}${text.endsWith('\n') ? '' : '\n'}`
-        await atomicWrite(value.file, updated, requireEnabled)
+        await atomicWrite(source, updated, requireEnabled)
         try {
           await saveSummary(value, summary)
           return { owner: value.id, label: value.label, written: true, summary_updated: true, status: 'saved', time }

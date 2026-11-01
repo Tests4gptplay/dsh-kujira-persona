@@ -10,6 +10,8 @@ import { applyPet } from './pet/index.js'
 import { openDiary } from './daily-diary.js'
 import { applyDiaryIntegration } from './diary-integration.js'
 import { applyDiarySleep } from './diary-sleep.js'
+import { applyMigrationAgent } from './migration-agent.js'
+import { openBackupCleanup } from './backup-cleanup.js'
 
 export const inject = ['systemPrompt']
 const SECTION = 'whale:persona'
@@ -86,6 +88,19 @@ export function apply(ctx, rawConfig) {
     }
     return dossiers.get(id)
   }
+  let cleanupTask
+  const cleanup = {
+    async inventory(){return (await cleanupStore()).inventory()},
+    async cleanup(...args){return (await cleanupStore()).cleanup(...args)},
+  }
+  async function cleanupStore(){
+    if(!cleanupTask){
+      const entries=(await catalog.list()).personas
+      cleanupTask=openBackupCleanup({home:HOME,configs:[world.config,{personaDir:config.personaDir},...entries.map(entry=>dossier(entry).config)],diaryDirectory:diary.settings().directory})
+    }
+    return cleanupTask
+  }
+  const migrations=applyMigrationAgent(ctx,{home:HOME,world,dossier,cleanup,allowWrite:()=>config.allowAgentWrite,ready:ensureSeeded})
   // Start the built-in presets as soon as the plugin starts. Their directories
   // are ready before the settings folder listing is returned, not on first click.
   function ensureSeeded() {
@@ -110,7 +125,7 @@ export function apply(ctx, rawConfig) {
     const route = { provider: assembled.variables.provider ?? '', model: assembled.variables.model ?? '' }
     let entry = null, personalText = ''
     const common = []
-    try { common.push((await world.compose()).text) } catch { /* Keep the host's other sections available. */ }
+    try { common.push((await world.compose()).text) } catch { common.push('') }
     if (shared) { try { common.push((await shared.compose()).text) } catch {} }
     try {
       entry = await catalog.resolve(route)
@@ -120,7 +135,10 @@ export function apply(ctx, rawConfig) {
       if (custom.length) common.push('## 用户登记的其他角色\n' + custom.map(p => `${p.label}（${p.id}）`).join('、') + '\n这里只共享名字。公开背景与关系由用户补充到世界观，个人记忆不在这里共享。')
     } catch { /* A missing dossier does not block an ordinary model request. */ }
     common.push(config.allowAgentWrite ? await guideReady : '当前关闭了对话写入工具。不要声称已保存人设；人工 /remember 仍可用。')
-    if (context.agent) requests.set(context.agent, { route, entry })
+    if (context.agent) {
+      requests.set(context.agent, { route, entry })
+      if(!migrations.isTask(context.agent))migrations.start(context.agent,{...route,...context.agent.session?.requestHeader?.()?.config?.reasoningEffort?{reasoningEffort:context.agent.session.requestHeader().config.reasoningEffort}:{}},entry,context.signal)
+    }
     return { ...assembled, sections: assembled.sections.map(s =>
       s.name === WORLD_SECTION ? { ...s, text: common.filter(Boolean).join('\n\n'), interpolate: false }
         : s.name === SECTION ? { ...s, text: personalText, interpolate: false } : s) }
@@ -179,7 +197,7 @@ export function apply(ctx, rawConfig) {
           scope: { type: 'string', enum: ['world', 'persona'], description: '明确共同适用的习惯、项目共识、经用户确认的通用经验及公共背景用 world；角色性格、交流方式、针对性纠正和个人记忆用 persona。' },
           persona: { type: 'string', description: 'scope=persona 的已有角色 ID；省略则使用本次请求的角色。' },
           category: { type: 'string', enum: ['character', 'world', 'meme', 'memory'] },
-          file: { type: 'string', description: '活动档案使用根目录 .md 文件名；更新参照用更新/包ID/清单.md或新版、旧版子路径。list可指定更新或更新/包ID；delete_update仅指定本次更新/包ID。read省略只读活动档案。' },
+          file: { type: 'string', description: '活动档案使用根目录 .md 文件名；更新参照用更新/包ID/清单.md或新版、旧版子路径。list可指定更新或更新/包ID；更新包由独立迁移任务核对后清理，用 /persona migrate 接续。read省略只读活动档案。' },
           oldText: { type: 'string' }, newText: { type: 'string' },
           text: { type: 'string', description: 'append 正文。' }, source: { type: 'string' },
         }, required: ['action'], additionalProperties: false,
@@ -248,10 +266,12 @@ export function apply(ctx, rawConfig) {
 
   ctx.inject(['commands'], scope => {
     scope.commands.register({
-      name: 'persona', description: '查看会话人设、目录和对话管理方法', input: { hint: 'files | show | sync | reload | world | list | help' },
+      name: 'persona', description: '查看会话人设、目录和对话管理方法', input: { hint: 'files | show | sync | reload | world | list | migrate | migrate status | help' },
       async handler(invocation) {
         const argument = invocation.rawInput.trim()
         try {
+          if(argument==='migrate status'){const {entry}=await forInvocation(invocation.agent,true);return{kind:'success',text:migrations.describe(entry?.id)}}
+          if(argument==='migrate'){const {entry,route}=await forInvocation(invocation.agent,true);if(!entry)throw Error('当前模型未绑定角色');void migrations.resume(invocation.agent,route,entry).catch(e=>ctx.logger?.warn?.(e.message));return{kind:'success',text:'已请求独立迁移任务；已完成项目不会重复处理，受阻项目保留待处理。'}}
           if (argument === 'help') return { kind: 'success', text: '通过对话修改：补充全局世界观用 persona_edit scope=world；修改自己的设定用 scope=persona。保存成功自动更新缓存，不需要重启。AI 若用外部文件工具写入，应随后自动调用一次 persona_edit action=reload（同一 scope）；外部修改绑定则调用 persona_manage action=reload。不要把刷新任务交给用户，也不要周期性刷新。/persona world 查看共同世界；/persona reload 或 /persona world reload 手动重读。' }
           if (argument === 'list') return { kind: 'success', text: await listText(invocation.agent) }
           if (argument === 'world' || argument === 'world show') return { kind: 'success', text: (await world.compose()).text }

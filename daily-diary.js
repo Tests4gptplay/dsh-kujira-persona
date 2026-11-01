@@ -7,7 +7,7 @@ import {randomUUID,createHash} from 'node:crypto'
 import {createRequire} from 'node:module'
 import {setTimeout as wait} from 'node:timers/promises'
 import {openDiary as openLegacyDiary} from './diary.js'
-const ROLE_QUEUES=new Map(),ROLE_WRITES=new Map(),NEEDS_BACKUP=new Set()
+const ROLE_QUEUES=new Map(),ROLE_WRITES=new Map()
 const absent=e=>e?.code==='ENOENT'
 const digest=s=>createHash('sha256').update(s).digest('hex')
 const identity=e=>{if(!/^[a-z][a-z0-9-]*$/.test(e?.id??'')||e.id==='none')throw Error('日记需要由当前会话绑定一个有效角色');return{id:e.id,label:e.label||e.id}}
@@ -15,7 +15,7 @@ const validDay=d=>{if(typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d))return
 const count=s=>[...s].length
 const pos=(v,n)=>{if(!Number.isSafeInteger(v)||v<1)throw Error(n+' 必须是从 1 开始的安全整数');return v}
 export function calendarDay(instant,timeZone){const p=new Intl.DateTimeFormat('en-US',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(instant);return ['year','month','day'].map(k=>p.find(x=>x.type===k).value).join('-')}
-async function atomic(file,text,check=()=>{}){await safe(file);if(NEEDS_BACKUP.has(file)){const raw=await readFile(file,'utf8').catch(e=>{if(absent(e))return '';throw e});if(raw)await preserve(file,raw);NEEDS_BACKUP.delete(file)}const temp=file+'.'+randomUUID()+'.tmp';try{await writeFile(temp,text,{flag:'wx',mode:0o600});check();await rename(temp,file)}finally{await unlink(temp).catch(e=>{if(!absent(e))throw e})}}
+async function atomic(file,text,check=()=>{}){await safe(file);const temp=file+'.'+randomUUID()+'.tmp';try{await writeFile(temp,text,{flag:'wx',mode:0o600});check();await rename(temp,file)}finally{await unlink(temp).catch(e=>{if(!absent(e))throw e})}}
 async function appendText(file,value,check){
  await safe(file);check();const handle=await open(file,constants.O_WRONLY|constants.O_CREAT|constants.O_APPEND|(constants.O_NOFOLLOW??0),0o600)
  try{const info=await handle.stat(),current=await lstat(file);if(!info.isFile()||info.nlink!==1||current.isSymbolicLink()||!current.isFile()||current.dev!==info.dev||current.ino!==info.ino)throw Error('日记目录或文件不能使用链接或特殊文件');check();await handle.appendFile(value,'utf8')}finally{await handle.close()}
@@ -47,12 +47,10 @@ const record=v=>v!==null&&typeof v==='object'&&!Array.isArray(v)
 const pendingItem=p=>record(p)&&typeof p.id==='string'&&typeof p.text==='string'&&typeof p.summary==='string'
 const receiptItem=r=>record(r)&&typeof r.owner==='string'&&typeof r.label==='string'&&validDay(r.date)&&r.written===true&&typeof r.summary==='string'&&typeof r.basis==='string'&&typeof r.summary_updated==='boolean'&&typeof r.summary_pending==='boolean'&&['saved','summary_pending'].includes(r.status)&&Array.isArray(r.pending_summaries)&&r.pending_summaries.every(pendingItem)&&typeof r.recovery_saved==='boolean'&&typeof r.note==='string'&&typeof r.time==='string'
 const sleepItem=i=>record(i)&&typeof i.hash==='string'&&typeof i.text==='string'&&Array.isArray(i.tags)&&i.tags.every(t=>typeof t==='string')
-async function preserve(file,raw){const backup=file+'.recovered-'+digest(raw).slice(0,12)+'.bak';try{await writeFile(backup,raw,{flag:'wx',mode:0o600})}catch(e){if(e.code!=='EEXIST')throw e}}
 async function json(file,fallback,usable=()=>true,repair=()=>structuredClone(fallback)){
  const raw=await text(file);if(!raw)return structuredClone(fallback)
- let value;try{value=JSON.parse(raw);if(usable(value)){NEEDS_BACKUP.delete(file);return value}}catch{}
- // Derived metadata is recoverable; preserve the original bytes, not a permanent error state.
- try{await preserve(file,raw);NEEDS_BACKUP.delete(file)}catch{NEEDS_BACKUP.add(file)}
+ let value;try{value=JSON.parse(raw);if(usable(value)){return value}}catch{}
+ // Repair derived metadata only at its next normal write; reads create no copies.
  return repair(value)
 }
 const guidance=[
@@ -68,7 +66,7 @@ export function openDiary(options){
  const legacy=openLegacyDiary(options),settingFile=join(options.home,'kujira-diary-sleep.json'),listeners=new Set(),writes=new Set(),queues=ROLE_QUEUES
  const now=options.now??(()=>new Date())
  let sleepEnabled=false,timeZone=options.timeZone??Intl.DateTimeFormat().resolvedOptions().timeZone,settingsTail=Promise.resolve(),revoked=0,initialized=false
- const ready=Promise.all([legacy.ready,(async()=>{try{const s=await json(settingFile,null,v=>record(v)&&typeof v.enabled==='boolean',v=>record(v)?v:null);if(s){sleepEnabled=s.enabled===true;if(typeof s.timeZone==='string'){try{calendarDay(now(),s.timeZone);timeZone=s.timeZone}catch{await preserve(settingFile,await text(settingFile))}}}}catch{/* Optional settings cannot disable normal diary writes; configure can repair them. */}})()])
+ const ready=Promise.all([legacy.ready,(async()=>{try{const s=await json(settingFile,null,v=>record(v)&&typeof v.enabled==='boolean',v=>record(v)?v:null);if(s){sleepEnabled=s.enabled===true;if(typeof s.timeZone==='string'){try{calendarDay(now(),s.timeZone);timeZone=s.timeZone}catch{/* Keep the configured default time zone. */}}}}catch{/* Optional settings cannot disable normal diary writes; configure can repair them. */}})()])
  ready.then(()=>{initialized=true})
  const settings=()=>({...legacy.settings(),enabled:legacy.settings().enabled&&revoked===0,sleepEnabled,timeZone})
  const publish=()=>{for(const fn of listeners)try{fn(settings())}catch{}}
@@ -204,7 +202,7 @@ export function openDiary(options){
   return out
  }
 
- async function sleepData(t,day){return json(join(t.sleep,day+'.json'),{v:1,items:{}},v=>record(v)&&record(v.items)&&Object.values(v.items).every(sleepItem),async v=>{const file=join(t.sleep,day+'.md'),body=await text(file);if(body){try{await preserve(file,body);NEEDS_BACKUP.delete(file)}catch{NEEDS_BACKUP.add(file)}}return{v:1,items:record(v?.items)?Object.fromEntries(Object.entries(v.items).filter(([,i])=>sleepItem(i))):{}}})}
+ async function sleepData(t,day){return json(join(t.sleep,day+'.json'),{v:1,items:{}},v=>record(v)&&record(v.items)&&Object.values(v.items).every(sleepItem),v=>{return{v:1,items:record(v?.items)?Object.fromEntries(Object.entries(v.items).filter(([,i])=>sleepItem(i))):{}}})}
  async function legacyBlocks(t){
   const files=await sourceFiles(t,'long','legacy');if(!files.length)return[]
   const stat=await lstat(files[0].path),modified=calendarDay(new Date(stat.mtimeMs),timeZone),body=await text(files[0].path),rows=body.split(/\r\n|\r|\n/),sections=[];let current={date:'legacy',start:0,rows:[]}
@@ -293,9 +291,9 @@ export function openDiary(options){
      return{...previous,...resultBase(t),replayed:true}
     }
     // Only this explicit append may recreate an actually missing original file.
-    // Preserve its old receipt first, then retire it before preparing a new intent:
+    // Retire the obsolete receipt before preparing a new intent:
     // recovery must never mistake the previous receipt for this new commit.
-    if(await safe(receiptFile)){await preserve(receiptFile,await text(receiptFile));await unlink(receiptFile)}
+    if(await safe(receiptFile))await unlink(receiptFile)
    }
    const stale=(opts.basis===undefined&&contended)||(opts.basis!==undefined&&opts.basis!==before.basis&&(opts.basis!==null||before.summary_exists||!!before.long||before.pending.length>0)),appended=(before.long&&!before.long.endsWith('\n')?'\n':'')+body+(body.endsWith('\n')?'':'\n')
    const proposal={id,text:body,summary,time:now().toISOString()},consumed=[...before.pending,{...proposal,date:day}],intent=operationFile(t,id)

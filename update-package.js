@@ -22,7 +22,7 @@ function packageId(file){
  if(parts[0]!=='更新'||!/^defaults-[a-zA-Z0-9-]+$/.test(parts[1]??''))throw new Error('只允许更新目录内的明确基础更新包')
  return parts
 }
-async function manifestAt(config,id){
+export async function manifestAt(config,id){
  const dir=await safeDir(config,['更新',id]);const path=join(dir,'.manifest.json')
  if((await lstat(path)).isSymbolicLink())throw new Error('更新清单不能是链接')
  const m=JSON.parse(await readFile(path,'utf8'))
@@ -47,15 +47,16 @@ export async function readUpdate(config,file){
  return {path,realPath:await realpath(path),text:await readFile(path,'utf8')}
 }
 export async function deleteUpdate(config,file){
- const parts=packageId(file);if(parts.length!==2||parts[1]!==UPGRADE)throw new Error('只能精确清理本次基础更新包，不删除整个更新目录或其他更新包')
+ const parts=packageId(file);if(parts.length!==2)throw new Error('只能精确清理本次基础更新包，不删除整个更新目录或其他更新包')
  let loaded
- try { loaded=await manifestAt(config,UPGRADE) }
+ try { loaded=await manifestAt(config,parts[1]) }
  catch(error){
   if(error.code!=='ENOENT')throw error
+  if(parts[1]!==UPGRADE&&!config.verifiedUpdateIds?.includes(parts[1]))throw new Error('未知更新包，不能猜测删除范围')
   // Resume cleanup interrupted after the manifest removal. An empty known
   // package directory (or one already absent) needs no recursive deletion.
   let dir
-  try{dir=await safeDir(config,['更新',UPGRADE])}catch(e){if(e.code==='ENOENT')return {removed:true,note:'本次更新包已不存在；其他内容未改动。'};throw e}
+  try{dir=await safeDir(config,['更新',parts[1]])}catch(e){if(e.code==='ENOENT')return {removed:true,note:'本次更新包已不存在；其他内容未改动。'};throw e}
   if((await readdir(dir)).length)throw new Error('更新包缺少清单但仍有内容；已保留，不能猜测删除范围')
   await rmdir(dir);return {removed:true,note:'已完成中断后的空包目录清理；其他更新包保留。'}
  }
@@ -81,7 +82,6 @@ export async function prepareUpdate(config,state,references){
  if(config.sync===false||state.recoveryUnsaved)return
  const notices=state.upgradeNotices??={},record=notices[UPGRADE],noticePath=join(config.personaDir,NOTICE)
  if(record){
-  if(record.status==='pending'&&!(await exists(noticePath))&&!(await exists(join(config.personaDir,'更新',UPGRADE))))record.status='completed'
   return
  }
  // No differences means no package. First install also supplies references,
@@ -126,4 +126,28 @@ export async function prepareUpdate(config,state,references){
   const info=await lstat(noticePath);if(!info.isFile()||info.isSymbolicLink()||!(await readFile(noticePath,'utf8')).startsWith(HEADER+'\n'))throw new Error('升级通知同名目标已存在，保留原文件')
  }else if(!await publishText(noticePath,text))throw new Error('升级通知目标已存在，待下次同步检查')
  notices[UPGRADE]={status:'pending',file:NOTICE,package:`更新/${UPGRADE}`}
+}
+
+/** Explicit audit recovery when an older notice/record survives but its package is gone.
+ * This is a new comparison against installed defaults, never a claim to recover
+ * missing old bytes or to prove a previously completed merge.
+ */
+export async function rebuildMissingUpdate(config,id){
+ if(!/^defaults-[a-zA-Z0-9-]+$/.test(id)||!config.packagedDir)throw Error('没有可信的随包默认来源')
+ const {readJSON}=await import('./migration-state.js'),{defaultEvidence}=await import('./default-evidence.js')
+ const state=await readJSON(join(config.personaDir,'.kujira-state.json'),{files:{}}),root=await safeDir(config,['更新'],true),dest=join(root,id)
+ if(await exists(dest))throw Error('已有完整或半成更新包，保留原证据；不能覆盖重建')
+ const temp=join(root,`.${id}.${randomUUID()}.tmp`);await mkdir(temp)
+ try{
+  await mkdir(join(temp,'新版'));await mkdir(join(temp,'旧版'));const files=['清单.md'],entries=[]
+  for(const name of (await readdir(config.packagedDir)).filter(n=>n.endsWith('.md')&&!n.startsWith('.')).sort()){
+   const text=await readFile(join(config.packagedDir,name),'utf8'),baseline=await defaultEvidence(config,name,state.files?.[name],state.defaultBaselines?.[name]),fresh='新版/'+name,old=baseline?'旧版/'+name:null
+   await writeFile(join(temp,fresh),text);files.push(fresh);if(old){await writeFile(join(temp,old),baseline.text);files.push(old)}
+   entries.push({file:name,new:fresh,newHash:hash(text),baseline:old,baselineHash:baseline?.hash??null,baselineSource:baseline?'独立验证的默认依据':'原更新包缺失，旧基础不可可靠恢复'})
+  }
+  if(!entries.length)throw Error('随包默认来源为空，不能重建比较')
+  await writeFile(join(temp,'清单.md'),'# 缺失更新证据的重新核对\n原更新包已缺失，不能证明旧迁移完成。以下新版来自当前安装包；不是丢失旧包的复原。逐文件读取当前档案与这里的比较依据，保留自定义；无可靠旧基础时不得猜测覆盖。\n')
+  await writeFile(join(temp,'.manifest.json'),JSON.stringify({schema:1,id,files,entries,reconstructedAudit:true})+'\n');if(await exists(dest))throw Error('目标已存在');await rename(temp,dest)
+ }finally{await rm(temp,{recursive:true,force:true})}
+ return{rebuilt:true,note:'已创建当前默认版本的重新核对参照；未恢复未知旧版，也未标记迁移完成。'}
 }

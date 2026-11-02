@@ -8,7 +8,7 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的 Persona，保存修改前备份并检查写入冲突。
 
-**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [Patreon](https://www.patreon.com/cw/Kou848) · [爱发电 / Afdian](https://afdian.com/a/kkt_ifd1) · [支付宝 / Alipay](SPONSOR.md)
+**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [支付宝 / Alipay](SPONSOR.md)
 
 ## 2.3.1 更新
 

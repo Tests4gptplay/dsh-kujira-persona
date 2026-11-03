@@ -1,7 +1,7 @@
 {
   "name": "dsh-kujira-persona",
   "version": "2.4.2",
-  "description": "DSH 模型联动角色与共享世界：独立人设和记忆、可选 AI 日记与睡眠整理，中英文界面、跨平台任务桌宠、主题和用量统计，更新保留用户自定义。",
+  "description": "Kujira 是集 AI 桌宠、模型联动、用量与计费监控、角色扮演（RP）和个性化记忆于一体的 DSH 插件。支持多家模型服务的账户信息查询、模型切换、Windows/Linux/macOS 三平台适配，以及共享世界观、用户习惯捕捉、独立人设、个性整理、AI 日记与睡眠整理。",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
   "author": "Tests4gptplay",

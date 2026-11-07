@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({id:'dsh-kujira-persona',factory:(require)=>{
+window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(require)=>{
   const React=require('react'),h=React.createElement
   const {Menu,MenuSurface,MenuItemButton}=require('@deepseek-ai/dsh-client-ui-primitives')
   const {useEffect,useRef,useState,useSyncExternalStore}=React

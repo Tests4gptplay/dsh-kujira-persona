@@ -33,8 +33,6 @@ Kujira 将共同世界观与通用偏好、各角色独立的性格和记忆、�
 
 桌宠、AI 日记和睡眠整理分别启用：关闭桌宠仍可使用人设；日记与整理调用模型并消耗 Token。睡眠整理处理当前角色昨天及更早的日记；允许代理修改档案时，也可读取和整理当前角色自己的档案（Persona），直接修改原文件并检查写入冲突，不自动保存历史副本。
 
-**Support / 赞助：** [GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [支付宝 / Alipay](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/SPONSOR.md)
-
 ## 2.4.0：更新保留你的角色与设定
 
 新版基础内容不会在启动时覆盖现有档案。更新时，独立迁移任务主动读取当前角色与世界观，以你的现有设定为主体补充新版内容；遇到矛盾时以用户自定义为主，无法确认来源的内容优先保留。首次安装也由该任务创建基础档案，无需手动覆盖人设目录。
@@ -220,3 +218,7 @@ The bottom **Company and connection method** selector lists supported model-serv
 
 
 基础更新由独立的一次性迁移任务处理共同世界观与当前角色；未调用角色继续待处理。任务逐文件比较、保存并回读，保留自定义冲突，已满足的项目可不修改正文。迁移会话由插件持续管理，普通会话结束或切换不会取消它；发起回复仍在运行时点击停止、停止迁移会话本身或卸载插件会取消本次任务。审批显示在独立迁移会话中，沿用发起会话的权限限制。迁移任务不阻塞普通回复；当前回复可能仍使用迁移前资料，后续请求读取已保存更新。权限不足或中断时保持待处理，后续调用会重新检查；也可用 `/persona migrate` 主动接续，`/persona migrate status` 查看当前任务进展。规则更新完成与旧备份清理分别记录，拒绝删除不撤销已完成的更新。旧插件备份会先列出确切范围，请求实际删除确认；默认比较依据与正式档案保留。
+
+## 支持项目 / Support
+
+[GitHub Sponsors](https://github.com/sponsors/Tests4gptplay) · [Ko-fi](https://ko-fi.com/kou392350) · [支付宝 / Alipay](SPONSOR.md)

@@ -1,6 +1,10 @@
 # Kujira · AI 角色与世界
 
-**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.2` · [下载 2.4.2 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.2/dsh-kujira-persona-2.4.2.tgz) · [安装步骤](#安装与升级)
+**测试候选：2.4.3-rc.1** · [下载测试安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3-rc.1/dsh-kujira-persona-2.4.3-rc.1.tgz) · [预发布说明](scripts/release-v2.4.3/NOTES.md)
+
+本候选来自 `test/v2.4.3`，用于验证 OpenAI 当天费用、账户设置、模型切换响应与临时文件清理。将安装包直链填入 DSH 的“安装第三方插件 → 包名或地址”即可测试；角色、记忆及日记沿用现有数据。验证通过后再转正式版。
+
+**当前正式版：2.4.2** · [正式版安装步骤](#安装与升级)
 
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
 **账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**

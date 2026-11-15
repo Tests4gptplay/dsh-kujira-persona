@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises'
+import fs,{mkdtemp,writeFile,readFile,readdir,rm} from 'node:fs/promises'
+import {syncBuiltinESMExports} from 'node:module'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {PetController} from '../../pet/controller.js'
@@ -19,20 +20,24 @@ test('all three native menu rejections are handled and published in the existing
  c.persist=async()=>{};await applyNativeAction(c,{action:'toggle-pet'});assert.equal(c.config.showPet,false);assert.equal(c.nativeError,'');c.dispose()
 })
 
-test('real registered config Fetch route returns actual filesystem save error and then recovers',async()=>{
+test('registered config Fetch cleans temporary files after failed commits and then recovers',async()=>{
  const home=await mkdtemp(join(tmpdir(),'kujira-menu-errors-')),routes=new Map(),dispose=[]
- await writeFile(join(home,'kujira-pet.json'),JSON.stringify({enabled:true,showUsage:false,refreshSeconds:0,display:'page'}))
+ const path=join(home,'kujira-pet.json'),original=JSON.stringify({enabled:true,showUsage:false,refreshSeconds:0,display:'page'})
+ await writeFile(path,original)
  const ctx={effect(setup){const cleanup=setup();dispose.push(cleanup);return cleanup},inject:(_deps,fn)=>fn(ctx),on:(name,fn)=>{if(name==='dispose')dispose.push(fn);return()=>{}},connection:{fetch:{register:spec=>routes.set(spec.path,spec.fetch)}},logger:{warn(){}},sessions:{get:()=>null},get:()=>undefined}
  applyPet(ctx,{home,catalog:{resolve:async()=>({}),subscribe:()=>()=>{}},ensureSeeded:async()=>{},ensureFolder:async()=>{}})
  const call=async(endpoint,payload)=>{const request=new Request('http://localhost/api/kujira-pet/'+endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'client-request',rpcId:'actual-product-test',method:'kujira-pet/'+endpoint,payload})});return(await routes.get('/api/kujira-pet/'+endpoint)(request)).json()}
+ const rename=fs.rename
  try{
   const start=await call('state',{});assert.equal(start.result.value.config.enabled,true)
-  const blocked=join(home,'kujira-pet.json.'+process.pid+'.tmp');await mkdir(blocked)
+  fs.rename=async(from,to)=>{if(to===path)throw Object.assign(Error('injected commit failure'),{code:'EACCES'});return rename(from,to)};syncBuiltinESMExports()
   for(const patch of [{showPet:false},{bubble:'hidden'},{enabled:false}]){
    const failed=await call('config',patch);assert.equal(failed.result.ok,false);assert.equal(failed.result.error.code,'kujira-config-save');assert.match(failed.result.error.message,/设置文件无法保存/);assert.equal(failed.result.error.message.includes(home),false)
+   assert.deepEqual(await readdir(home),['kujira-pet.json']);assert.equal(await readFile(path,'utf8'),original)
+   assert.equal((await call('state',{})).result.value.config.enabled,true)
   }
-  await rm(blocked,{recursive:true});const success=await call('config',{showPet:false});assert.equal(success.result.ok,true);assert.equal(success.result.value.config.showPet,false)
- }finally{await Promise.all(dispose.map(fn=>fn()));await rm(home,{recursive:true,force:true})}
+  fs.rename=rename;syncBuiltinESMExports();const success=await call('config',{showPet:false});assert.equal(success.result.ok,true);assert.equal(success.result.value.config.showPet,false);assert.deepEqual(await readdir(home),['kujira-pet.json']);assert.equal(JSON.parse(await readFile(path,'utf8')).showPet,false)
+ }finally{fs.rename=rename;syncBuiltinESMExports();await Promise.all(dispose.map(fn=>fn()));await rm(home,{recursive:true,force:true})}
 })
 test('malformed or unfamiliar-version pet settings do not lock ordinary settings writes',async()=>{
  for(const raw of ['{broken',JSON.stringify({v:999,enabled:true,showUsage:false,display:'page'})]){

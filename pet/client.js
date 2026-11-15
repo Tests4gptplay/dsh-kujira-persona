@@ -41,8 +41,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.queryFailed": "账户查询失败；请核对查询类型、账户参数及权限。",
         "account.queryNow": "查询账户信息",
         "account.provider": "服务商 / 端口配置",
-        "account.model": "模型（仅选择配置目标）",
-        "account.targetHelp": "只列已有服务端中需要额外配置的可用查询方案；自动查询与无方案的接入不列出。选择不会改变对话模型。新服务端地址在 DSH 模型设置中配置。",
+        "account.targetHelp": "选择已有接入的账户查询方案；余额、费用和用量按相应账户范围读取。自动查询的接入无需配置。新服务端地址在 DSH 模型设置中配置。",
 
         "account.choose": "请选择",
         "account.currencyPlaceholder": "例如 CNY 或 USD",
@@ -52,8 +51,11 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.site": "账单站点",
         "account.auth.signed": "套餐查询签名权限",
         "account.auth.host": "宿主账户",
-        "account.title": "账户与模型价格",
-        "account.route": "当前接入／模型",
+        "account.title": "账户查询",
+        "account.connection": "查询接入",
+        "account.expenseScope": "费用与用量按所选账户或项目汇总，不按对话模型筛选。",
+        "account.planModel": "套餐适用模型",
+        "account.openaiBalance": "查看 OpenAI 官方余额与账单",
         "account.adapter": "查询方式",
         "account.auto": "自动匹配",
         "account.none": "不查询",
@@ -82,33 +84,13 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.retry": "重新读取",
         "account.details": "用量详情",
         "account.cap.balance": "余额",
-        "account.cap.spend": "实际支出",
+        "account.cap.spend": "费用",
         "account.cap.tokens": "用量",
         "account.cap.quota": "套餐余量",
-        "account.cap.pricing": "模型单价",
-        "price.title": "模型价格",
-        "price.manual": "手动参考单价",
-        "price.reference": "官方价格页面（非自动查询）",
-        "price.api": "接口价格",
-        "price.unit": "每 100 万 tokens",
-        "price.currency": "币种",
-        "price.input": "输入",
-        "price.output": "输出",
-        "price.cacheRead": "缓存读取",
-        "price.cacheWrite": "缓存写入",
-        "price.date": "价格日期",
-        "price.save": "保存手动价格",
-        "price.clear": "移除手动价格",
-        "price.saved": "手动价格已保存",
-        "price.cleared": "手动价格已移除",
-        "price.optional": "可选",
-        "price.estimate": "估算费用",
         "account.saving": "正在保存…",
         "account.invalidRef": "请填写有效的环境变量名，不要填写密钥。",
         "account.invalidId": "请检查账户标识或区域格式。",
-        "price.invalid": "输入／输出价格须为非负数字，币种须为三位大写代码。",
         "account.unavailableOption": "不适用于当前接入",
-        "account.selectModel": "选择模型后配置账户与价格。",
 
         "settings.title": "Kujira · 人设与桌宠",
         "settings.nav": "Kujira · 人设",
@@ -140,7 +122,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "pet.reset": "重置桌宠位置",
         "pet.current": "当前形象",
         "usage.refreshNow": "刷新账户用量",
-        "usage.credentials": "账户查询设置位于“设置 → Kujira · 人设 → 账户与模型价格”；独立凭据由宿主保存，插件只保存引用。",
+        "usage.credentials": "账户查询设置位于“设置 → Kujira · 人设 → 账户查询”；独立凭据由宿主保存，插件只保存引用。",
         "settings.loading": "正在读取 Kujira 设置…",
         "archives.title": "世界观与人物档案",
         "archives.description": "打开本机文件夹查看各角色资料和记忆；尺寸为文件夹在磁盘上的实际文件大小。",
@@ -185,6 +167,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "error.hostMissing": "宿主菜单接口不可用（HTTP 404），请重启 DSH 以加载插件。",
         "error.hostFailed": "宿主请求失败（HTTP {status}），请查看 DSH 日志。",
         "usage.reset": "{label}重置：{date}",
+        "usage.checkedAt": "查询时间：{date}",
         "folder.openAria": "打开{label}文件夹",
         "usage.seconds": "每 {seconds} 秒",
         "archives.total": "档案总计：{size}",
@@ -223,8 +206,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.queryFailed": "Account query failed; check query type, account parameters and permissions.",
         "account.queryNow": "Query account info",
         "account.provider": "Provider / endpoint profile",
-        "account.model": "Model (configuration target only)",
-        "account.targetHelp": "Only available query methods needing extra setup are listed. Automatic accounts and unsupported methods are omitted. Selection does not change the conversation model. Add endpoints in DSH Models settings.",
+        "account.targetHelp": "Choose an account lookup for an existing connection. Balance, costs and usage use its account scope. Automatic lookups need no configuration. Add endpoints in DSH Models settings.",
 
         "account.choose": "Select",
         "account.currencyPlaceholder": "For example, CNY or USD",
@@ -234,8 +216,11 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.site": "Billing site",
         "account.auth.signed": "Signed plan-query permissions",
         "account.auth.host": "Host account",
-        "account.title": "Account & model pricing",
-        "account.route": "Current provider / model",
+        "account.title": "Account lookup",
+        "account.connection": "Query connection",
+        "account.expenseScope": "Costs and usage cover the selected account or project, across conversation models.",
+        "account.planModel": "Plan model",
+        "account.openaiBalance": "OpenAI balance and billing",
         "account.adapter": "Query method",
         "account.auto": "Automatic",
         "account.none": "No query",
@@ -264,33 +249,13 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "account.retry": "Reload",
         "account.details": "Usage details",
         "account.cap.balance": "Balance",
-        "account.cap.spend": "Actual spend",
+        "account.cap.spend": "Costs",
         "account.cap.tokens": "Usage",
         "account.cap.quota": "Plan allowance",
-        "account.cap.pricing": "Model prices",
-        "price.title": "Model pricing",
-        "price.manual": "Manual reference prices",
-        "price.reference": "Official prices (reference page, not an automatic query)",
-        "price.api": "API prices",
-        "price.unit": "Per 1M tokens",
-        "price.currency": "Currency",
-        "price.input": "Input",
-        "price.output": "Output",
-        "price.cacheRead": "Cache read",
-        "price.cacheWrite": "Cache write",
-        "price.date": "Price date",
-        "price.save": "Save manual prices",
-        "price.clear": "Remove manual prices",
-        "price.saved": "Manual prices saved",
-        "price.cleared": "Manual prices removed",
-        "price.optional": "Optional",
-        "price.estimate": "Estimated cost",
         "account.saving": "Saving…",
         "account.invalidRef": "Enter valid environment variable names, not secret values.",
         "account.invalidId": "Check the account identifier or region format.",
-        "price.invalid": "Input/output rates must be nonnegative numbers; currency must be a three-letter uppercase code.",
         "account.unavailableOption": "Not available for this provider",
-        "account.selectModel": "Select a model to configure account queries and prices.",
 
         "settings.title": "Kujira · Personas & Pet",
         "settings.nav": "Kujira · Personas",
@@ -322,7 +287,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "pet.reset": "Reset pet position",
         "pet.current": "Current character",
         "usage.refreshNow": "Refresh account usage",
-        "usage.credentials": "Account queries are configured under Settings → Kujira · Personas → Account & model pricing; the Host stores credentials and the plugin stores references.",
+        "usage.credentials": "Account queries are configured under Settings → Kujira · Personas → Account lookup; the Host stores credentials and the plugin stores references.",
         "settings.loading": "Loading Kujira settings…",
         "archives.title": "World & Character Profiles",
         "archives.description": "Open local folders to view character profiles and memories. Sizes reflect files on disk.",
@@ -367,6 +332,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         "error.hostMissing": "The host menu endpoint is unavailable (HTTP 404). Restart DSH to load the plugin.",
         "error.hostFailed": "The host request failed (HTTP {status}). Check the DSH logs.",
         "usage.reset": "{label} resets: {date}",
+        "usage.checkedAt": "Queried at: {date}",
         "folder.openAria": "Open {label} folder",
         "usage.seconds": "Every {seconds} seconds",
         "archives.total": "Total profile size: {size}",
@@ -429,7 +395,7 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
       .kujira-settings{display:grid;gap:15px;min-width:0;padding:2px 0 16px}.kujira-card{min-width:0}
       .kujira-card h3{font-size:16px;margin:0}.kujira-card h4{font-size:14px;margin:0}
       .kujira-settings .kujira-row{flex-wrap:wrap;gap:8px}.kujira-settings .kujira-row select{max-width:100%}
-      .kujira-account-fields{display:grid;gap:10px;margin-top:12px;min-width:0}.kujira-price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.kujira-account-route{overflow-wrap:anywhere}.kujira-account summary{cursor:pointer}.kujira-account a{color:inherit}
+      .kujira-account-fields{display:grid;gap:10px;margin-top:12px;min-width:0}.kujira-account-route{overflow-wrap:anywhere}.kujira-account summary{cursor:pointer}.kujira-account a{color:inherit}
       .kujira-folder{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #a2aab733}
       .kujira-folder:first-child{border-top:0}.kujira-folder-info{min-width:0;flex:1}.kujira-folder-info small{display:block;font-size:11px;opacity:.65;overflow-wrap:anywhere;margin-top:3px}
       .kujira-folder button{flex-shrink:0}.kujira-folder-list{max-height:270px;overflow-y:auto;border-radius:8px}
@@ -441,7 +407,12 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
       .kujira-diary-directory input:focus-visible{outline:2px solid var(--dsw-alias-label-primary,currentColor);outline-offset:2px}
     `
     const style=document.createElement('style');style.textContent=css;document.head.appendChild(style)
-    function Usage({value,detailed=false}){useLocale();if(value)value=uiRuntime.projectUiState({usage:value},locale.getSnapshot().active).usage;return value&&!value.hidden?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...(detailed?(value.details??value.lines):value.lines).map((t,i)=>h('div',{key:i},t)),...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},t('usage.reset',{label:w.label,date:new Date(w.resetAt).toLocaleString(ctx.locale.getSnapshot().active)})))):null}
+    function Usage({value,detailed=false}){useLocale();
+      if(value)value=uiRuntime.projectUiState({usage:value},locale.getSnapshot().active).usage
+      return value&&!value.hidden?h('div',{className:'kujira-usage','data-kujira-usage':value.kind},h('div',null,value.title),...(detailed?(value.details??value.lines):value.lines).map((line,i)=>h('div',{key:i},line)),
+        detailed&&Number.isFinite(value.checkedAt)?h('div',{className:'kujira-small'},t('usage.checkedAt',{date:new Date(value.checkedAt).toLocaleString(locale.getSnapshot().active)})):null,
+        ...(value.windows??[]).filter(w=>w.resetAt).map((w,i)=>h('div',{key:'r'+i},t('usage.reset',{label:w.label,date:new Date(w.resetAt).toLocaleString(locale.getSnapshot().active)})))):null
+    }
     function WorkStats({value}){useLocale();return value?h('div',{className:'kujira-usage','data-kujira-stats':'session','aria-label':t("stats.aria")},...value.lines.map((line,i)=>h('div',{key:i},line))):null}
     function DiarySettings(){useLocale();
       const [settings,setSettings]=useState(null),[directory,setDirectory]=useState(''),[busy,setBusy]=useState('load'),[error,setError]=useState(''),[notice,setNotice]=useState('')
@@ -488,17 +459,20 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
         settings?.sleepStatus?.phase==='error'?h('div',{role:'alert'},presentUi(settings.sleepStatus.ui,settings.sleepStatus.message)):null,
         error?h('div',{role:'alert'},errorText(error)):null)
     }
-    function AccountSettings({state,method,pricingOnly=false}){useLocale();
-      const provider=state.route.provider,model=state.route.model,routeKey=provider+'/'+model
+    function AccountSettings({state,method}){useLocale();
+      const provider=state.route.provider,model=state.route.model
       const [drafts,setDrafts]=useState({}),[credentialState,setCredentialState]=useState({}),[queryResult,setQueryResult]=useState(null)
-      const [info,setInfo]=useState(null),[profile,setProfile]=useState({adapter:'auto'}),[price,setPrice]=useState({currency:'USD'}),[busy,setBusy]=useState('load'),[error,setError]=useState(''),[notice,setNotice]=useState('')
-      const alive=useRef(true),pending=useRef(false),loadVersion=useRef(0),credentialVersion=useRef(0)
-      const load=async()=>{const version=++loadVersion.current;setBusy('load');setError('');try{const value=await call('usage-info',{provider,model});if(alive.current&&version===loadVersion.current&&value.provider===provider&&value.model===model){setInfo(value);setProfile(method&&method!==value.adapter?{adapter:method}:{...(value.profile??{}),adapter:method??value.profile?.adapter??'auto'});setPrice(value.price??{currency:'USD'})}}catch(e){if(alive.current&&version===loadVersion.current)setError(e)}finally{if(alive.current&&version===loadVersion.current)setBusy('')}}
-      useEffect(()=>{alive.current=true;void load();return()=>{alive.current=false;loadVersion.current++}},[])
+      const [info,setInfo]=useState(null),[profile,setProfile]=useState({adapter:'auto'}),[busy,setBusy]=useState('load'),[error,setError]=useState(''),[notice,setNotice]=useState('')
+      const alive=useRef(true),pending=useRef(null),operation=useRef(0),loadVersion=useRef(0),credentialVersion=useRef(0)
+      const load=async(preserveDraft=false)=>{const version=++loadVersion.current;if(!preserveDraft)setBusy('load');setError('');try{const value=await call('usage-info',{provider,model});if(alive.current&&version===loadVersion.current&&value.provider===provider&&value.model===model){setInfo(value);if(!preserveDraft)setProfile(method&&method!==value.adapter?{adapter:method}:{...(value.profile??{}),adapter:method??value.profile?.adapter??'auto'})}}catch(e){if(alive.current&&version===loadVersion.current)setError(e)}finally{if(alive.current&&version===loadVersion.current&&!preserveDraft)setBusy('')}}
+      useEffect(()=>{alive.current=true;return()=>{alive.current=false;loadVersion.current++;credentialVersion.current++;operation.current++;pending.current=null}},[])
+      // The parent keys this component by account + method. Changing only the
+      // foreground model refreshes metadata without discarding account drafts.
+      useEffect(()=>{pending.current=null;operation.current++;if(info)setBusy('');if(method==='minimax-token-plan')setQueryResult(null);void load(!!info);return()=>{loadVersion.current++}},[provider,model,method])
       const adapter=info?.adapters.find(item=>item.id===(profile.adapter==='auto'?(Object.hasOwn(info,'autoAdapter')?info.autoAdapter:info.adapter):profile.adapter))
       const refs=['credentialRef','secretRef','sessionTokenRef'],ids=['teamId','projectId','workspaceId','region','billingAccountId','site','currency']
       const fields=Array.from(new Set(['credentialRef',...(adapter?.requiredFields??[]),...(adapter?.optionalFields??[])])).filter(key=>refs.includes(key)||ids.includes(key))
-      const supportsSecrets=!pricingOnly&&!!adapter&&!info?.hostAccount
+      const supportsSecrets=!!adapter&&!info?.hostAccount
       const secretFields=supportsSecrets?fields.filter(f=>refs.includes(f)):[]
       const credentialScope=info?.profileKey??provider
       const ownedRefFor=field=>credentialUi.makeQueryCredentialRef(credentialScope,adapter?.id??'none',field)
@@ -511,78 +485,82 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
       useEffect(()=>{setDrafts({});setQueryResult(null)},[adapter?.id,credentialScope])
       const profileRefs=refs.map(field=>profile[field]??'').join('\0')
       useEffect(()=>{setCredentialState({});if(supportsSecrets)void refreshCredentialState();return()=>{credentialVersion.current++}},[adapter?.id,credentialScope,profileRefs])
-      const runQuery=async()=>{if(pending.current)return;pending.current=true;setBusy('query');setError('');try{const value=await call('account-query',{provider,model});if(alive.current)setQueryResult(value)}catch{if(alive.current)setError(uiError('account.queryFailed'))}finally{pending.current=false;if(alive.current)setBusy('')}}
-      const save=async(kind)=>{
-        if(pending.current)return
+      const runQuery=async()=>{if(pending.current!==null)return;const version=++operation.current;pending.current=version;setBusy('query');setError('');try{const value=await call('account-query',{provider,model});if(alive.current&&operation.current===version)setQueryResult(value)}catch{if(alive.current&&operation.current===version)setError(uiError('account.queryFailed'))}finally{if(pending.current===version){pending.current=null;if(alive.current&&operation.current===version)setBusy('')}}}
+      const save=async()=>{
+        if(pending.current!==null)return
         setError('');setNotice('')
-        const nextProfile={adapter:profile.adapter??'auto'},nextPrice={currency:price.currency,source:'manual'}
-        if(kind==='profile'){
-          for(const key of [...refs,...ids]){const value=String(profile[key]??'').trim();if(!value)continue;if(!(refs.includes(key)?/^[A-Za-z_][A-Za-z0-9_]*$/:key==='currency'?/^[A-Z]{3}$/:key==='site'?/^(china|international)$/:/^[^\x00-\x1f]+$/).test(value)){setError(uiError(refs.includes(key)?'account.invalidRef':'account.invalidId'));return}nextProfile[key]=value}
-        }else if(kind==='price'){
-          for(const key of ['input','output','cacheRead','cacheWrite']){const value=String(price[key]??'').trim();if(!value){if(key==='input'||key==='output'){setError(uiError('price.invalid'));return}continue}if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(value)||!Number.isFinite(Number(value))){setError(uiError('price.invalid'));return}nextPrice[key]=Number(value)}
-          if(!/^[A-Z]{3}$/.test(nextPrice.currency??'')){setError(uiError('price.invalid'));return}if(price.date)nextPrice.date=price.date
-        }
-        pending.current=true;setBusy(kind)
+        const nextProfile={adapter:profile.adapter??'auto'}
+        for(const key of [...refs,...ids]){const value=String(profile[key]??'').trim();if(!value)continue;if(!(refs.includes(key)?/^[A-Za-z_][A-Za-z0-9_]*$/:key==='currency'?/^[A-Z]{3}$/:key==='site'?/^(china|international)$/:/^[^\x00-\x1f]+$/).test(value)){setError(uiError(refs.includes(key)?'account.invalidRef':'account.invalidId'));return}nextProfile[key]=value}
+        const version=++operation.current,current=()=>alive.current&&operation.current===version
+        pending.current=version;setBusy('save')
         try{
-          if(kind==='profile')for(const field of secretFields){
+          for(const field of secretFields){
             if(!drafts[field])continue
             const result=await credentialUi.saveQueryCredential(queryCredentialService(),{provider:credentialScope,adapter:adapter.id,field,value:drafts[field],protectedRefs:[info.inferenceCredentialRef].filter(Boolean)})
             if(!result.ok)throw uiError('account.credentialSaveFailed')
             nextProfile[field]=result.ref
-            if(alive.current){setDrafts(old=>({...old,[field]:''}));setProfile(old=>({...old,[field]:result.ref}))}
+            if(current()){setDrafts(old=>({...old,[field]:''}));setProfile(old=>({...old,[field]:result.ref}))}
           }
-          const config=get()?.config??state.config;let patch;if(kind==='profile')patch={usageProfiles:{...config.usageProfiles,[info.profileKey??provider]:nextProfile}};else{const prices={...config.modelPrices};if(kind==='clear')delete prices[routeKey];else prices[routeKey]=nextPrice;patch={modelPrices:prices}}await call('config',patch);if(kind==='profile'){await refreshCredentialState(nextProfile);try{const fresh=await call('usage-info',{provider,model});if(alive.current&&fresh.provider===provider&&fresh.model===model)setInfo(fresh)}catch{}}if(alive.current){if(kind==='clear')setPrice({currency:'USD'});if(kind==='profile')setQueryResult(null);setNotice(kind==='profile'?'account.saved':kind==='clear'?'price.cleared':'price.saved')}}catch(e){if(alive.current)setError(e)}finally{pending.current=false;if(alive.current)setBusy('')}
+          const config=get()?.config??state.config
+          await call('config',{usageProfiles:{...config.usageProfiles,[info.profileKey??provider]:nextProfile}})
+          if(current()){
+            await refreshCredentialState(nextProfile)
+            try{const fresh=await call('usage-info',{provider,model});if(current()&&fresh.provider===provider&&fresh.model===model)setInfo(fresh)}catch{}
+            if(current()){setQueryResult(null);setNotice('account.saved')}
+          }
+        }catch(e){if(current())setError(e)}finally{if(pending.current===version){pending.current=null;if(current())setBusy('')}}
       }
       const input=(key,label,value,onChange,props={})=>h('label',{className:'kujira-diary-directory',key},h('span',null,label),h('input',{type:'text',value:value??'',disabled:!!busy,'aria-label':label,spellCheck:false,autoComplete:'off',onChange:e=>{onChange(e.target.value);setNotice('')},...props}))
-      const button=(kind,label)=>h('button',{type:'button',disabled:!!busy||!info,onClick:()=>void save(kind)},busy===kind?t('account.saving'):t(label))
-      const apiPrice=(queryResult??state.usage)?.prices?.find(item=>item.model===model)
-      return h('section',{className:'kujira-card kujira-account',...(pricingOnly?{'data-kujira-model-pricing':true}:{'data-kujira-account-settings':true})},
-        h('details',{open:!pricingOnly},h('summary',null,t(pricingOnly?'price.title':'account.title')),
+      return h('section',{className:'kujira-card kujira-account','data-kujira-account-settings':true},
+        h('details',{open:true},h('summary',null,t('account.title')),
           h('div',{className:'kujira-account-fields'},
-            h('div',{className:'kujira-small kujira-account-route'},t('account.route')+': '+provider+' / '+model),
+            h('div',{className:'kujira-small kujira-account-route'},t('account.connection')+': '+provider),
             !info?h('div',{role:'status'},busy==='load'?t('account.loading'):t('account.noCapabilities')):null,
             info?h(React.Fragment,null,
-              !pricingOnly?h(React.Fragment,null,
               h('div',{className:'kujira-small'},t('account.endpoint')+': '+(info.origin??t('account.hostEndpoint'))),
               h('div',{className:'kujira-small'},(adapter?.thirdParty?t('account.thirdParty')+' · ':'')+(adapter?.label??'')),
+              adapter?.capabilities.includes('spend')?h('div',{className:'kujira-small'},t('account.expenseScope')):null,
+              adapter?.id==='minimax-token-plan'?h('div',{className:'kujira-small'},t('account.planModel')+': '+model):null,
               adapter?h('p',{className:'kujira-small','data-kujira-setup-guide':adapter.id},t('account.guide.'+adapter.id)):null,
               h('div',{className:'kujira-small'},adapter?t('account.capabilities')+': '+adapter.capabilities.map(cap=>t('account.cap.'+cap)).join(' · '):t('account.noCapabilities')),
               adapter?.docsUrl&&/^https:\/\//.test(adapter.docsUrl)?h('a',{href:adapter.docsUrl,target:'_blank',rel:'noopener noreferrer'},t(adapter?.thirdParty?'account.compatReference':'account.reference')):null,
+              adapter?.id==='openai'?h('a',{href:'https://platform.openai.com/settings/organization/billing/overview',target:'_blank',rel:'noopener noreferrer'},t('account.openaiBalance')):null,
               profile.adapter!=='none'&&adapter&&!info.hostAccount?h(React.Fragment,null,...fields.map(key=>key==='site'?h('label',{className:'kujira-row',key},h('span',null,t('account.site')),h('select',{'aria-label':t('account.site'),value:profile.site??'',disabled:!!busy,onChange:e=>{setProfile({...profile,site:e.target.value});setNotice('')}},h('option',{value:''},t('account.choose')),...['china','international'].map(value=>h('option',{key:value,value},t('account.site.'+value))))):input(key,t('account.'+key),profile[key],value=>setProfile({...profile,[key]:value}),{placeholder:t(refs.includes(key)?'account.refPlaceholder':key==='currency'?'account.currencyPlaceholder':'account.idPlaceholder')})),h('div',{className:'kujira-small'},t(adapter?.auth==='inference'?'account.reuse':'account.independent')),
                 ...secretFields.map(field=>h('div',{key:'secret-'+field,className:'kujira-account-secret'},
                   h('label',{className:'kujira-diary-directory'},h('span',null,t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key')),h('input',{type:'password','aria-label':t(adapter?.auth==='signed'?'account.secretLabel.'+field:'account.secretLabel.key'),value:drafts[field]??'',autoComplete:'new-password',spellCheck:false,disabled:!!busy||!credentialState[ownedRefFor(field)]?.writable,onChange:e=>setDrafts({...drafts,[field]:e.target.value})})),
                   h('div',{className:'kujira-small',role:'status'},t(credentialState[refFor(field)]?.configured?'account.secretConfigured':credentialState[ownedRefFor(field)]?.writable?'account.secretEmpty':'account.secretUnavailable')))),
                 h('div',{className:'kujira-small'},t('account.secretHandling'))):null,
-              h('div',{className:'kujira-diary-actions'},button('profile','account.save'),h('button',{type:'button',disabled:!!busy||!adapter||profile.adapter==='none',onClick:()=>void runQuery()},t('account.queryNow'))),
+              h('div',{className:'kujira-diary-actions'},h('button',{type:'button',disabled:!!busy||!info,onClick:()=>void save()},t(busy==='save'?'account.saving':'account.save')),h('button',{type:'button',disabled:!!busy||!adapter||profile.adapter==='none',onClick:()=>void runQuery()},t('account.queryNow'))),
               queryResult?h(Usage,{value:queryResult,detailed:true}):null,
               state.usage?h('details',null,h('summary',null,t('account.details')),h(Usage,{value:state.usage,detailed:true})):null):null,
-              pricingOnly?h(React.Fragment,null,h('h4',null,t('price.title')),h('div',{className:'kujira-small'},t('price.manual')+' · '+t('price.unit')),
-              info.pricingReference?.kind==='reference-only'&&/^https:\/\//.test(info.pricingReference.url)?h('a',{href:info.pricingReference.url,target:'_blank',rel:'noopener noreferrer'},t('price.reference')):null,
-              apiPrice?h('div',{className:'kujira-small'},t('price.api')+': '+apiPrice.currency+' · '+t('price.input')+' '+apiPrice.input+' / '+t('price.output')+' '+apiPrice.output+' · '+t('price.unit')):null,
-              h('div',{className:'kujira-price-grid'},...['currency','input','output','cacheRead','cacheWrite','date'].map(key=>input(key,t('price.'+key),price[key],value=>setPrice({...price,[key]:value}),key==='date'?{type:'date'}:key==='currency'?{maxLength:3,placeholder:'USD'}:{inputMode:'decimal',placeholder:key==='input'||key==='output'?'0':t('price.optional')}))),
-              h('div',{className:'kujira-diary-actions'},button('price','price.save'),button('clear','price.clear'))):null):null,
             !info&&!busy?h('button',{type:'button',onClick:()=>void load()},t('account.retry')):null,
             error?h('div',{role:'alert'},errorText(error)):null,notice?h('div',{role:'status'},t(notice)):null)))
     }
     function AccountTargetSettings({state}){useLocale();
-      const [options,setOptions]=useState([]),[selected,setSelected]=useState(''),[loading,setLoading]=useState(true)
-      useEffect(()=>{let active=true,off=()=>{},version=0
-        const update=async groups=>{const current=++version;const routes=groups.flatMap(p=>(p.models??[]).map(m=>({provider:p.id,model:m.id})))
-          const infos=await Promise.all(routes.map(route=>call('usage-info',route).catch(()=>null)))
-          if(!active||current!==version)return
-          const next=accountOptions.accountConfigurationOptions(infos);setOptions(next);setSelected(old=>next.some(o=>o.key===old)?old:(next.find(o=>o.provider===state.route.provider)?.key??next[0]?.key??''));setLoading(false)
+      const [options,setOptions]=useState([]),[selected,setSelected]=useState(''),[loading,setLoading]=useState(true),[error,setError]=useState(''),[retry,setRetry]=useState(0)
+      const accountConfig=JSON.stringify(state.config.usageProfiles??{})
+      useEffect(()=>{let active=true,off=()=>{},version=0,lastGroups
+        const update=async groups=>{
+          const current=++version,seen=new Set(),routes=[state.route,...groups.flatMap(p=>(p.models??[]).map(m=>({provider:p.id,model:m.id})))].filter(route=>{if(!route.provider||!route.model)return false;const key=JSON.stringify([route.provider,route.model]);if(seen.has(key))return false;seen.add(key);return true})
+          setLoading(true);setError('')
+          try{
+            const infos=await call('usage-info',{routes})
+            if(!active||current!==version)return
+            const next=accountOptions.accountConfigurationOptions(infos,state.route);setOptions(next);setSelected(old=>next.some(o=>o.key===old)?old:(next.find(o=>o.provider===state.route.provider)?.key??next[0]?.key??''))
+          }catch(e){if(active&&current===version)setError(e)}finally{if(active&&current===version)setLoading(false)}
         }
         try{const service=ctx.get?.('modelDirectories');const directory=state.route.sessionId&&service?.directoryFor(state.route.sessionId)
-          if(directory){const refresh=()=>void update(directory.store.getSnapshot().groups??[]);off=directory.store.subscribe(refresh);void directory.load().then(refresh).catch(()=>update([{id:state.route.provider,models:[{id:state.route.model}]}]))}
-          else void update([{id:state.route.provider,models:[{id:state.route.model}]}])
-        }catch{void update([{id:state.route.provider,models:[{id:state.route.model}]}])}
+          if(directory){const refresh=()=>{const groups=directory.store.getSnapshot().groups??[];if(groups===lastGroups)return;lastGroups=groups;void update(groups)};off=directory.store.subscribe(refresh);refresh();void directory.load().then(refresh).catch(()=>{})}
+          else void update([])
+        }catch{void update([])}
         return()=>{active=false;version++;off()}
-      },[state.route.sessionId,state.route.provider,state.route.model])
+      },[state.route.sessionId,state.route.provider,state.route.model,accountConfig,retry])
       const target=options.find(o=>o.key===selected)
-      if(!loading&&!options.length)return null
+      if(!loading&&!options.length&&!error)return null
       return h('section',{'data-kujira-account-setup':true},h('div',{className:'kujira-card'},
         h('label',{className:'kujira-row'},h('span',null,t('account.setupMethod')),h('select',{'aria-label':t('account.setupMethod'),value:selected,disabled:loading,onChange:e=>setSelected(e.target.value)},...options.map(o=>h('option',{key:o.key,value:o.key},(o.thirdParty?t('account.thirdParty')+' · ':'')+o.label+' · '+t('account.auth.'+o.auth)+' · '+o.provider+(o.detail?' · '+o.detail:'')+(o.connectionNumber?' · '+t('account.connectionNumber',{number:o.connectionNumber}):''))))),
-        h('div',{className:'kujira-small'},t('account.targetHelp'))),
+        h('div',{className:'kujira-small'},t('account.targetHelp')),
+        error?h(React.Fragment,null,h('div',{role:'alert'},errorText(error)),h('button',{type:'button',disabled:loading,onClick:()=>setRetry(value=>value+1)},t('account.retry'))):null),
         target?h(AccountSettings,{key:target.key,method:target.adapter,state:{...state,route:{...state.route,provider:target.provider,model:target.model},usage:target.provider===state.route.provider&&target.model===state.route.model?state.usage:null}}):null)
     }
     function Settings(){useLocale();
@@ -619,7 +597,6 @@ window.__ModuleLoader__.load({id:'@tests4gptplay/dsh-kujira-persona',factory:(re
           s.config.enabled&&s.config.showUsage?h(React.Fragment,null,h(Usage,{value:s.usage}),h('button',{type:'button',disabled:busy,onClick:async()=>{setBusy(true);try{await call('refresh')}catch(e){setError(e)}finally{setBusy(false)}}},t("usage.refreshNow"))):null,
 
           error?h('div',{role:'alert'},errorText(error)):null):h('section',{className:'kujira-card'},t("settings.loading")),
-        s?.route.provider&&s?.route.model?h(AccountSettings,{key:'pricing-'+s.route.provider+'/'+s.route.model,state:s,pricingOnly:true}):null,
         h('section',{className:'kujira-card'},
           h('h3',null,t("archives.title")),
           h('div',{className:'kujira-small'},t("archives.description")),

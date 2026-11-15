@@ -53,3 +53,14 @@ test('known provider cannot invent a named model identity or query another model
   assert.deepEqual(accountConfigurationOptions([read.describe(route)]),[])
  }
 })
+
+test('shared account entries use the real foreground model and preserve distinct connections',()=>{
+ const route={provider:'openai',model:'gpt-6.1-sol'}
+ const current=read.describe(route),first=read.describe({provider:'openai',model:'gpt-4'})
+ const separate={...first,profileKey:'different-account',endpoint:'https://api.openai.com/v1/alternate'}
+ const options=accountConfigurationOptions([first,separate,current],route)
+ assert.equal(options.length,2)
+ assert.equal(options[0].model,route.model)
+ assert.equal(options[1].model,'gpt-4')
+ assert.notEqual(options[0].key,options[1].key)
+})

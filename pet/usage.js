@@ -38,9 +38,9 @@ const PRICE_REFERENCES={
   'https://open.bigmodel.cn':'https://docs.bigmodel.cn/cn/guide/start/pricing'
 }
 const originOf = base => {try{const u=new URL(base);return u.protocol==='https:'&&!u.username&&!u.password?u.origin:null}catch{return null}}
-function providerInfo(ctx,route){
-  const forms=service(ctx,'settings')?.describe?.()??[]
-  const declared=service(ctx,'llm')?.listConfigurableProviders?.().find(p=>p.provider===route.provider)
+function providerInfo(ctx,route,snapshot){
+  const forms=snapshot?.forms??service(ctx,'settings')?.describe?.()??[]
+  const declared=(snapshot?.providers??service(ctx,'llm')?.listConfigurableProviders?.())?.find(p=>p.provider===route.provider)
   let provider=declared?forms.find(f=>f.ns===declared.settingsNs)?.value:null
   for(const segment of declared?.settingsPath??[])provider=provider?.[segment]
   if(!provider)for(const f of forms){if(f.value?.providers?.[route.provider]){provider=f.value.providers[route.provider];break}}
@@ -81,10 +81,12 @@ function presented(data,adapter){
   if(!metrics.length&&noticeKey){const d=message(noticeKey);return {kind:'account',status:data.notice==='not-in-plan'?'unsupported':'ready',title:adapter.label,adapter:adapter.id,metrics:[],windows:[],lines:[zhUi(d)],linesUi:[d],details:[zhUi(d)],detailsUi:[d]}}
   if(!metrics.length)return failure('unavailable')
   const metricLabel=m=>({'Coding used':message('usage.quota.coding'),'MCP used':message('usage.quota.mcp'),interval:message('usage.quota.interval'),week:message('usage.quota.week'),day:message('usage.quota.day'),month:message('usage.quota.month'),'5h':message('usage.quota.fiveHours'),'rolling-day':message('usage.quota.rollingDay'),'rolling-week':message('usage.quota.rollingWeek'),'rolling-month':message('usage.quota.rollingMonth')})[m.label]??m.label??''
-  const descriptors=metrics.map(m=>message(m.kind==='tokens'&&m.category==='completions'?'usage.metric.completions':'usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
+  const descriptors=metrics.map(m=>message(adapter.id==='openai'&&m.kind==='spend'?'usage.metric.recordedSpend':m.kind==='tokens'&&m.category==='completions'?'usage.metric.completions':'usage.metric.'+m.kind,{value:Number(m.value.toFixed(6)).toLocaleString('en-US'),currency:m.currency??'',scope:message('usage.scope.'+(m.scope??'account')),period:message('usage.period.'+(typeof m.period==='string'?m.period:m.period?.kind??'current')),label:metricLabel(m),unit:m.unit==='percent'?'%':m.unit??'',direction:message(m.remaining===false?'usage.used':'usage.left')}))
   const primary=metrics.map((m,i)=>({m,d:descriptors[i]})).slice(0,2).map(x=>x.d)
   const linesUi=primary.length?primary:descriptors.slice(0,1)
   if(noticeKey)descriptors.push(message(noticeKey))
+  const period=adapter.id==='openai'?metrics.find(m=>m.period?.start&&m.period?.end)?.period:null
+  if(period)descriptors.push(message('usage.query.period',{month:period.start.slice(0,7)}))
   if(data.issues?.length)linesUi.push(message('usage.query.partial'))
   return {kind:'account',status:'ready',title:adapter.label,titleUi:null,adapter:adapter.id,metrics,details:descriptors.map(zhUi),detailsUi:descriptors,lines:linesUi.map(zhUi),linesUi,windows:metrics.filter(m=>Number.isFinite(m.resetAt)).map(m=>({label:typeof metricLabel(m)==='string'?metricLabel(m):zhUi(metricLabel(m)),labelUi:typeof metricLabel(m)==='object'?metricLabel(m):null,resetAt:m.resetAt})),prices:data.prices??[],pricingUnavailable:!!data.pricingUnavailable,issues:data.issues??[]}
 }
@@ -168,14 +170,19 @@ export function createUsageReader(ctx,{fetch:transport=globalThis.fetch,now=Date
       }
       return response.json()
     }
-    try{const data=await adapter.read({request,profile,route,baseURL:info.baseURL,now:now(),resolveCredential});signal?.throwIfAborted();return presented(data,adapter)}
+    try{const data=await adapter.read({request,profile,route,baseURL:info.baseURL,now:now(),resolveCredential});signal?.throwIfAborted();return {...presented(data,adapter),checkedAt:now()}}
     catch(error){if(signal?.aborted)throw error;if(error.status===401||error.status===403||error.message==='credentials-required')return permissionFailure();if(error.status===404)return failure('unsupported');throw error}
   }
-  read.describe=(route,config={})=>{
-    const info=providerInfo(ctx,route),profile=profileFor(config,route,info),adapter=adapterFor(info,profile),origin=originOf(info.baseURL)
+  const describe=(route,config,snapshot)=>{
+    const info=providerInfo(ctx,route,snapshot),profile=profileFor(config,route,info),adapter=adapterFor(info,profile),origin=originOf(info.baseURL)
     const hostAccount=['deepseek-account','codex-local'].includes(route.provider)
     if(hostAccount)return {provider:route.provider,model:route.model,origin:null,hostAccount:true,adapter:profile.adapter==='none'?null:route.provider,autoAdapter:route.provider,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:[{id:route.provider,label:route.provider==='codex-local'?'Codex':'DeepSeek',auth:'host',capabilities:[route.provider==='codex-local'?'quota':'balance'],requiredFields:[],optionalFields:[],available:true}]}
     return {provider:route.provider,model:route.model,profileKey:profileKeyFor(route,info),origin,endpoint:origin?origin+new URL(info.baseURL).pathname:null,inferenceCredentialRef:info.credentialRef??null,pricingReference:PRICE_REFERENCES[origin]?{url:PRICE_REFERENCES[origin],checkedAt:'2026-10-29',kind:'reference-only'}:null,adapter:adapter?.id??null,autoAdapter:adapterFor(info,{adapter:'auto'})?.id??null,profile,priceKey:route.provider+'/'+route.model,price:config.modelPrices?.[route.provider+'/'+route.model]??null,adapters:Object.entries(USAGE_ADAPTERS).map(([id,a])=>({id,label:a.label,auth:a.auth,thirdParty:!!a.explicitOnly,configurationSupported:true,capabilities:a.capabilities,requiredFields:a.requiredFields??[],optionalFields:a.optionalFields??(a.auth==='signed'?['sessionTokenRef']:[]),docsUrl:a.docsUrl,available:matchesModel(id,info)&&(a.origins.includes(origin)||!!(a.explicitOnly&&origin))}))}
+  }
+  read.describe=(route,config={})=>describe(route,config)
+  read.describeMany=(routes,config={})=>{
+    const snapshot={forms:service(ctx,'settings')?.describe?.()??[],providers:service(ctx,'llm')?.listConfigurableProviders?.()??[]}
+    return routes.map(route=>describe(route,config,snapshot))
   }
   return read
 }

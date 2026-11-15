@@ -1,7 +1,8 @@
 import { desktopPlatform } from './companion/launch-spec.mjs'
 import { ui, uiError, projectUiState, uiLanguage } from './ui-messages.js'
 /** Optional companion. Persona editing and prompt assembly do not depend on it. */
-import { readFile,writeFile,mkdir,rename } from 'node:fs/promises'
+import { readFile,mkdir } from 'node:fs/promises'
+import { atomicJSON } from '../migration-state.js'
 import { dirname,join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { STATS_KEYS } from './stats.js'
@@ -45,7 +46,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         const selected=session??scope.sessions.get(id)
         return selected?scope.get('sessionProjections')?.snapshot(selected,STATS_KEYS).values:undefined
       },persist:async value=>{
-        await mkdir(home,{recursive:true});const temp=path+`.${process.pid}.tmp`;await writeFile(temp,JSON.stringify(value,null,2)+'\n');await rename(temp,path)
+        await mkdir(home,{recursive:true});await atomicJSON(path,value)
       }})
       function nativeStatus(renderer,error,errorUi){if(closed)return;if(controller.renderer!==renderer||controller.nativeError!==error){controller.renderer=renderer;controller.nativeError=error;controller.nativeErrorUi=errorUi??null;controller.publish()}}
       // A retired native child can exit after the page renderer is selected.
@@ -97,6 +98,10 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
         switch(endpoint){
           case 'state':value=c.snapshot();break
           case 'usage-info':case 'account-query':{
+            if(endpoint==='usage-info'&&Object.hasOwn(payload??{},'routes')){
+              if(!Array.isArray(payload.routes)||payload.routes.some(route=>!route||typeof route.provider!=='string'||typeof route.model!=='string'||!route.provider||!route.model||route.provider.length>512||route.model.length>512))throw new Error('invalid-route')
+              value=usageReader.describeMany(payload.routes,c.config);break
+            }
             const route={...c.route};if(payload?.provider&&payload?.model){if(typeof payload.provider!=='string'||typeof payload.model!=='string'||payload.provider.length>512||payload.model.length>512)throw new Error('invalid-route');route.provider=payload.provider;route.model=payload.model}
             value=endpoint==='usage-info'?usageReader.describe(route,c.config):await usageReader(route,AbortSignal.timeout(10000),c.config);break
           }
@@ -106,7 +111,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
             if(['background','foreground','border','hover','hoverForeground'].every(key=>/^#[0-9a-f]{6}$/i.test(payload?.[key]??''))){menuTheme=Object.fromEntries(['background','foreground','border','hover','hoverForeground'].map(key=>[key,payload[key]]));if(payload.geometry&&typeof payload.geometry==='object')menuTheme.geometry=Object.fromEntries(['surfaceShadow','surfaceRadius','surfacePadding','surfaceBorderWidth','surfaceMinWidth','itemRadius','itemPadding','itemMinHeight','fontFamily','fontSize','fontWeight','lineHeight'].map(key=>[key,payload.geometry[key]]));if(rendererChoice==='desktop')native.send({...projectUiState(c.snapshot(),desktopLocale),menuTheme})}
             value=c.snapshot();break
           case 'config':value=await c.configure(payload??{});break
-          case 'select':value=await c.select(payload??{});break
+          case 'select':value=await c.select(payload??{},{waitForPresentation:false});break
           case 'refresh':value=await c.refresh();break
           case 'folders':value=await folderBrowser.list();break
           case 'open-folder':value=await folderBrowser.open(payload?.id);break

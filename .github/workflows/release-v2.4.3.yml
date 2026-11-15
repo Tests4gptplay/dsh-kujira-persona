@@ -1,0 +1,92 @@
+name: Publish Kujira 2.4.3
+on:
+  push:
+    branches: ['main']
+    paths:
+      - '.github/workflows/release-v2.4.3.yml'
+      - 'scripts/release-v2.4.3/**'
+permissions:
+  contents: read
+concurrency:
+  group: kujira-release-v2.4.3
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install runtime and isolated UI test dependencies
+        run: |
+          npm install --ignore-scripts --no-package-lock
+          npm install --prefix "$RUNNER_TEMP/kujira-ui-qa" --ignore-scripts --no-package-lock react@18.3.1 react-dom@18.3.1 jsdom@26.1.0
+      - name: Verify account, foreground and file recovery regressions
+        env:
+          DSH_BROWSER_TEST_ROOT: ${{ runner.temp }}/kujira-ui-qa
+        run: >-
+          node --test
+          scripts/qa/account-query-contract.test.mjs
+          scripts/qa/account-ark-contract.test.mjs
+          scripts/qa/account-credentials.test.mjs
+          scripts/qa/account-options.test.mjs
+          scripts/qa/account-settings-route.test.mjs
+          scripts/qa/lifecycle-recovery.test.mjs
+          scripts/qa/selected-session-hydration-check.mjs
+          scripts/qa/multisession-bubble-check.mjs
+          scripts/qa/state-routing-check.mjs
+          scripts/qa/routing-check.mjs
+          scripts/qa/selected-session-adapter-check.mjs
+          scripts/qa/menu-errors-check.mjs
+          daily-diary.test.js
+      - name: Verify pet menu position with old and current public components
+        run: |
+          node --input-type=module <<'JS'
+          import {readFile,mkdir,writeFile} from 'node:fs/promises'
+          import {join} from 'node:path'
+          const template=JSON.parse(await readFile('scripts/qa/pet-menu-browser-deps.json','utf8'))
+          for(const [name,version] of [['old','0.2.1-rc.2'],['current','0.2.2-rc.3']]){
+            const manifest=structuredClone(template)
+            for(const dependency of Object.keys(manifest.dependencies))if(dependency.startsWith('@deepseek-ai/'))manifest.dependencies[dependency]=version
+            const directory=join(process.env.RUNNER_TEMP,'kujira-menu-'+name)
+            await mkdir(directory,{recursive:true})
+            await writeFile(join(directory,'package.json'),JSON.stringify(manifest,null,2)+'\n')
+          }
+          JS
+          npm install --prefix "$RUNNER_TEMP/kujira-menu-old" --ignore-scripts --no-package-lock
+          npm install --prefix "$RUNNER_TEMP/kujira-menu-current" --ignore-scripts --no-package-lock
+          "$RUNNER_TEMP/kujira-menu-old/node_modules/.bin/playwright" install --with-deps chromium
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-menu-old" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/menu-old-results" node scripts/qa/pet-menu-browser-check.mjs
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-menu-current" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/menu-current-results" node scripts/qa/pet-menu-browser-check.mjs
+      - name: Build and verify both channel packages
+        run: |
+          python scripts/release-v2.4.3/pack.py dist
+          for PACKAGE in dsh-kujira-persona-2.4.3 tests4gptplay-dsh-kujira-persona-2.4.3; do
+            mkdir "$RUNNER_TEMP/$PACKAGE"
+            tar -xzf "dist/$PACKAGE.tgz" -C "$RUNNER_TEMP/$PACKAGE"
+            KUJIRA_PACKAGE_ROOT="$RUNNER_TEMP/$PACKAGE/package" node --test scripts/qa/account-query-contract.test.mjs
+          done
+          cd dist
+          sha256sum -c SHA256SUMS.txt
+      - name: Publish 2.4.3
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Tests4gptplay/dsh-kujira-persona
+        run: |
+          set -euo pipefail
+          TAG='v2.4.3'
+          if gh api "repos/$GH_REPO/releases/tags/$TAG" > "$RUNNER_TEMP/existing-release.json" 2> "$RUNNER_TEMP/release-query.err"; then
+            echo 'Release already exists; refusing to overwrite its tag or assets.'
+            exit 1
+          fi
+          grep -q 'HTTP 404' "$RUNNER_TEMP/release-query.err" || { cat "$RUNNER_TEMP/release-query.err"; exit 1; }
+          gh release create "$TAG" --target '${{ github.sha }}' --title 'Kujira 2.4.3' --notes-file scripts/release-v2.4.3/NOTES.md --latest=true dist/dsh-kujira-persona-2.4.3.tgz dist/tests4gptplay-dsh-kujira-persona-2.4.3.tgz dist/SHA256SUMS.txt

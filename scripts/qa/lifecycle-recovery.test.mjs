@@ -4,6 +4,41 @@ import {PetController} from '../../pet/controller.js'
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}}
 const promptly=async promise=>{let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('blocked by unrelated pending dependency')),100)})])}finally{clearTimeout(timer)}}
 const observed={events:[],cursor:-1,inheritedEventCount:0,running:false,projections:{values:{}}}
+test('foreground selection and account lookup do not wait for optional persona or history reads',async()=>{
+ const history=deferred(),persona=deferred(),started=deferred();let queries=0
+ const c=new PetController({config:{enabled:true,showUsage:true,refreshSeconds:0},resolvePersona:()=>persona.promise,readSession:()=>history.promise,queryUsage:async()=>{queries++;started.resolve();return{status:'ready',title:'current account',lines:['current']}}})
+ try{
+  const selected=await promptly(c.select({provider:'fixture',model:'minimax',sessionId:'s'},{waitForPresentation:false}))
+  assert.equal(selected.route.sessionId,'s');assert.equal(c.sessionStates.get('s').hydrated,false)
+  await promptly(started.promise);await promptly(c.pending);assert.equal(c.usage.title,'current account');assert.equal(queries,1)
+  await promptly(c.select({provider:'fixture',model:'minimax',sessionId:'s'},{waitForPresentation:false}));assert.equal(queries,1)
+ }finally{c.dispose();history.resolve(observed);persona.resolve(null)}
+})
+test('default selection still awaits presentation while its account lookup runs independently',async()=>{
+ const history=deferred(),persona=deferred(),started=deferred();let selected=false
+ const c=new PetController({config:{enabled:true,showUsage:true,refreshSeconds:0},resolvePersona:()=>persona.promise,readSession:()=>history.promise,queryUsage:async()=>{started.resolve();return{status:'ready',lines:[]}}})
+ try{
+  const selection=c.select({provider:'fixture',model:'minimax',sessionId:'s'}).then(value=>{selected=true;return value})
+  await promptly(started.promise);assert.equal(selected,false)
+  history.resolve(observed);persona.resolve(null);await promptly(selection);assert.equal(selected,true)
+ }finally{c.dispose();history.resolve(observed);persona.resolve(null)}
+})
+test('new foreground clears prior account and statistics before late old reads settle',async()=>{
+ const history=deferred(),oldPersona=deferred(),oldQuery=deferred(),newQuery=deferred(),started=[deferred(),deferred(),deferred()];let queries=0
+ const oldStats={sessionStats:{turns:9,steps:87},tokenUsage:{uncachedInputTokens:12000,cacheReadTokens:0,cacheWriteTokens:0,outputTokens:1000}}
+ const c=new PetController({config:{enabled:true,showUsage:true,refreshSeconds:0},resolvePersona:route=>route.sessionId==='old'?oldPersona.promise:{id:'minimax'},readStats:id=>id==='old'?oldStats:undefined,readSession:id=>id==='old'?history.promise:{...observed,projections:{values:{sessionStats:{turns:1,steps:2},tokenUsage:{uncachedInputTokens:100,cacheReadTokens:0,cacheWriteTokens:0,outputTokens:10}}}},queryUsage:async()=>{const n=queries++;started[n].resolve();return n===0?{status:'ready',title:'old account',lines:['old']}:n===1?oldQuery.promise:newQuery.promise}})
+ try{
+  await c.select({provider:'fixture',model:'minimax',sessionId:'old'},{waitForPresentation:false});await promptly(started[0].promise);await promptly(c.pending)
+  assert.equal(c.stats.steps,87);assert.equal(c.usage.title,'old account')
+  const previous=c.refresh();await promptly(started[1].promise);const oldHydration=c.hydrate('old')
+  const next=await promptly(c.select({provider:'fixture',model:'minimax',sessionId:'new'},{waitForPresentation:false}))
+  assert.equal(next.route.sessionId,'new');assert.equal(next.stats,null);assert.equal(next.usage,null)
+  await promptly(started[2].promise);newQuery.resolve({status:'ready',title:'new account',lines:['new']});await promptly(c.pending);await c.hydrate('new')
+  assert.equal(c.stats.steps,2);assert.equal(c.stats.totalTokens,110)
+  oldQuery.resolve({status:'ready',title:'late old account',lines:['old']});oldPersona.resolve({id:'claude'});history.resolve({...observed,projections:{values:oldStats}})
+  await promptly(Promise.all([previous,oldHydration]));assert.equal(c.route.sessionId,'new');assert.equal(c.route.persona,'minimax');assert.equal(c.usage.title,'new account');assert.equal(c.stats.steps,2);assert.equal(c.stats.totalTokens,110)
+ }finally{c.dispose();history.resolve(observed);oldPersona.resolve(null);oldQuery.resolve({status:'ready',lines:[]});newQuery.resolve({status:'ready',lines:[]})}
+})
 test('a pending history read cannot hold the settings write queue or prevent disabling',async()=>{
  const history=deferred(),started=deferred(),saved=[];const c=new PetController({config:{enabled:false,showUsage:false},resolvePersona:()=>null,readSession:()=>{started.resolve();return history.promise},persist:async value=>saved.push(value)})
  try{await c.select({provider:'fixture',model:'minimax',sessionId:'s'});const enable=c.configure({enabled:true});await started.promise;const disable=c.configure({enabled:false});await promptly(Promise.all([enable,disable]));assert.equal(saved.length,2);assert.equal(c.config.enabled,false)}finally{history.resolve(observed);c.dispose()}

@@ -1,12 +1,21 @@
 # Kujira · AI 角色与世界
 
-**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.2` · [下载 2.4.2 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.2/dsh-kujira-persona-2.4.2.tgz) · [安装步骤](#安装与升级)
+**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.3` · [下载 2.4.3 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3/dsh-kujira-persona-2.4.3.tgz) · [安装步骤](#安装与升级)
 
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
 **账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**
 
 **Account-query validation: Codex and OpenAI API have been user-verified; other sources await user validation and feedback.**
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:END -->
+
+## 2.4.3：账户费用与桌宠菜单修复
+
+- 修复 OpenAI 本月费用遗漏当天记录的问题，按账户或项目汇总；查询详情显示统计月份和查询时间。
+- 设置页专注账户查询，移除模型价格编辑；同账户切换模型时保留未保存内容和折叠状态。OpenAI 官方余额与账单入口位于设置页。
+- 页面内右键菜单跟随点击位置和桌宠拖拽，靠近屏幕边缘时自动调整显示位置，保留原有样式与三项操作。
+- 提升前台切换和账户设置的响应速度，切换后迟到的查询结果不会覆盖当前账户。
+- 设置保存失败后自动清理临时文件，保留原配置；升级继续保留角色、记忆、日记与自定义目录。
+- GitHub 与无 scope npm 包使用同一插件标识，兼容旧版原地更新；保留带 scope 包名的升级路径。
 
 ## 2.4.2：独立更新任务与账户配置归并
 
@@ -154,35 +163,39 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装与升级
 
-当前版本：**2.4.2**。安装包与固定标签均已包含运行文件，无需编译。
+当前版本：**2.4.3**。安装包与固定标签均已包含运行文件，无需编译。
+
+**选择安装来源：** GitHub 标签、Release 安装包与无 scope npm 包使用同一插件标识 `dsh-kujira-persona`。旧 GitHub 用户可继续原来源，或在 npm 发布后用同名包原地更新。已安装 `@tests4gptplay/dsh-kujira-persona` 的用户继续使用原包名。只保留一个 Kujira 安装项，不要同时安装两种包名。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.4.2
+github:Tests4gptplay/dsh-kujira-persona#v2.4.3
 ```
 
-**npm 安装：** 也可在 **包名或地址** 中填入 `@tests4gptplay/dsh-kujira-persona@2.4.2`。
+**npm 安装：** 本版发布到 npm 后，可在 **包名或地址** 中填入 `dsh-kujira-persona@2.4.3`；已安装带 scope 包名的用户使用 `@tests4gptplay/dsh-kujira-persona@2.4.3`。两种包名选择一种，与已有安装保持一致。
 
-**升级已有插件：** 同样填写上面的新版来源，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载该插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
+**升级已有插件：** 使用与已有插件标识一致的新版地址或 npm 包名原地更新，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载对应插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
 
 升级前在桌宠右键菜单选择“全部关闭”，关闭桌宠和提示气泡。保留世界观、人物档案、记忆、日记与自定义目录；新版基础内容按通知增量合入。
+
+**从 GitHub 预发布版升级：** 若已安装名为 `@tests4gptplay/dsh-kujira-persona`、版本为 `2.4.3-rc.*` 的测试项，先在插件管理器中移除该测试条目，再更新原有的 `dsh-kujira-persona` GitHub 条目；原条目已移除时，按上面的 GitHub 来源重新添加。保留角色、记忆、日记及数据目录，不需要手工清理用户数据。通过 npm 安装正式版的用户继续沿用 npm 来源。
 
 **备用安装包：** 将下面的 `.tgz` 直链填入同一个 **包名或地址**；也可下载后填写文件的完整绝对路径，无需解压。该路径应属于运行 DSH 的电脑。
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.2/dsh-kujira-persona-2.4.2.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3/dsh-kujira-persona-2.4.3.tgz
 ```
 
 **Web：** 在运行服务的环境中执行。升级前停止对应 Web profile，成功后重新启动；Web 与 Desktop 分别安装。
 
 ```sh
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.2'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.3'
 ```
 
 备用时将命令中的来源换成上面的 `.tgz` 直链或下载文件的完整绝对路径。
 
-Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 macOS 原生窗口仍需目标系统实机验证；现有 Linux Web 测试不替代这些原生窗口验证。平台选择与启动实现见 [`launch-spec.mjs`](pet/companion/launch-spec.mjs)，已验范围见 [改动与依据](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CHANGES.md)。
+Linux/macOS 桌面显示使用 Electron 伴随窗口，需要可用的 Electron 运行时。平台选择与启动配置见 [`launch-spec.mjs`](pet/companion/launch-spec.mjs)。Linux 的 DSH 页面与 Electron 桌面显示已验证拖拽、菜单和显示切换；Windows 保留原生菜单在开始拖拽时关闭的系统交互。
 
 **保留 `.dsh/world`、`.dsh/persona`、`.dsh/personas` 中的设定与记忆（包括人物目录内 `.kujira-catalog.json`），以及DSH数据目录的 `kujira-pet.json`、`kujira-diary.json`、`kujira-diary-sleep.json` 与已配置日记库；自定义路径以实际设置为准。** 已编辑档案不会被新版预设覆盖。
 
@@ -194,7 +207,9 @@ Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 
 
 ## 测试与验证
 
-运行基线候选的 [Windows 增量摘要](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CANDIDATE13-WINDOWS.md) 记录 7/7 限定用例通过；[发布准备边界](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/RELEASE-READINESS.md) 区分已关闭事项、历史未验范围与历史覆盖边界。原云端针对性结果继续采用，不把工具调用次数当作测试用例数。
+2.4.3 覆盖账户查询、模型切换、设置保存恢复与页面菜单定位回归；菜单检查使用新旧 DSH 官方组件，包含真实角色和气泡的连续拖拽。Linux 的 DSH 与 Electron 桌宠已通过系统鼠标操作验证；macOS 的平台差异另做共享控制器契约检查。
+
+历史 [Windows 验证摘要](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/CANDIDATE13-WINDOWS.md) 记录 7/7 限定用例通过；[发布准备边界](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/testing/RELEASE-READINESS.md) 区分已关闭事项、历史未验范围与历史覆盖边界。原云端针对性结果继续采用，不把工具调用次数当作测试用例数。
 
 2.3.1 的显示位置切换回归见 [发布说明](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/2b25e9aa476411dca0244a733841c3ff4a1c3216/docs/releases/v2.3.1.md)。基础功能的测试方法、覆盖范围、结果与限制见 [2.3.0 公开测试报告](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/docs/testing/v2.3.0.md)。另见 [正式发布 CI](https://github.com/Tests4gptplay/dsh-kujira-persona/actions/runs/40626809571)。
 
@@ -204,17 +219,17 @@ Linux/macOS 的窗口适配已实现，但 Linux 原生 Desktop 整体挂接及 
 
 DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶丶。其余来源与署名见 [NOTICE.md](NOTICE.md) 和 [资料来源](world/_资料来源.md)，许可见 [LICENSE](LICENSE)。版本变化见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 余额、费用与单价 / Account queries and prices
+### 余额、费用与用量 / Account queries and usage
 
-设置最底部的「公司与接入方式」只列现有 AI 模型接入中需要额外配置的查询方案。按模型身份与实际服务端来源匹配，不按角色显示名或同公司关系套用其他账单。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
+设置最底部的「公司与接入方式」只列现有 AI 接入中需要额外配置的查询方案，按实际服务端来源与查询账户匹配。费用按组织、项目或接口支持的账户范围汇总，无需在 Kujira 单独选择对话模型；套餐额度按服务要求匹配适用模型。自动查询不重复列菜单；无对应方案时隐藏账户信息栏。
 
 DeepSeek、Moonshot 中国和 OpenRouter 普通 key 查询可以复用现有模型凭据。OpenAI/Anthropic 组织消费与用量、xAI 月消费、Mistral 企业预算、OpenRouter Management、GLM Coding、MiniMax 精确模型套餐与 Ark 个人 Agent Plan 按各自权限设置。选择方案后显示对应字段和指南。用户输入的独立查询凭据交给 DSH 现有凭据服务保存，Kujira 只保存引用，不覆盖模型推理密钥。
 
 通用云账单功能已移除。Claude Code 订阅不作为 Anthropic API 查询。第三方兼容项仅用于已有明确同源兼容配置，并标注「第三方」；不会把官方凭据自动发往异站。
 
-模型单价仍可保存每百万 token 的输入、输出及缓存参考费率；OpenRouter 可读取精确模型 ID 的价格目录。参考价不是实际账单，余额、消费、用量与套餐/预算额度分别标注，不用会话 token 猜账户余额。
+OpenAI 显示官方已记录的本月费用与 Completions 用量，按 UTC 月份统计；官方余额与账单页面入口位于设置页。提供余额接口的服务继续显示其可用余额。余额、费用、用量及套餐／预算额度分别标注，不使用会话 Token 推算账户余额。
 
-The bottom **Company and connection method** selector lists supported model-service queries needing extra setup. Automatic queries are not listed again, and unsupported account sections are hidden. Query credentials are stored by the existing DSH Host credential service under separate references, not in Kujira configuration or over model inference keys. Generic cloud billing is removed. Explicit same-origin third-party compatibility is labeled; credentials are never automatically sent to another site. Reference token prices remain separate from actual account spend.
+The bottom **Company and connection method** selector lists supported account queries needing extra setup. Costs cover the organization, project or account scope provided by the service, without a separate conversation-model selection; model-specific plans follow their supported models. Automatic queries are not listed again, and unsupported account sections are hidden. The DSH Host stores independent query credentials; Kujira keeps references and preserves model inference keys. OpenAI shows recorded monthly costs and Completions usage in UTC, with its official balance and billing link in Settings. Balance, costs, usage and plan allowances remain distinct. Generic cloud billing is removed, and explicit same-origin third-party compatibility stays labeled.
 
 
 基础更新由独立的一次性迁移任务处理共同世界观与当前角色；未调用角色继续待处理。任务逐文件比较、保存并回读，保留自定义冲突，已满足的项目可不修改正文。迁移会话由插件持续管理，普通会话结束或切换不会取消它；发起回复仍在运行时点击停止、停止迁移会话本身或卸载插件会取消本次任务。审批显示在独立迁移会话中，沿用发起会话的权限限制。迁移任务不阻塞普通回复；当前回复可能仍使用迁移前资料，后续请求读取已保存更新。权限不足或中断时保持待处理，后续调用会重新检查；也可用 `/persona migrate` 主动接续，`/persona migrate status` 查看当前任务进展。规则更新完成与旧备份清理分别记录，拒绝删除不撤销已完成的更新。旧插件备份会先列出确切范围，请求实际删除确认；默认比较依据与正式档案保留。

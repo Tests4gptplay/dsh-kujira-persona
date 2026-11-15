@@ -1,0 +1,131 @@
+name: Publish npm
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Official release version, for example 2.4.3'
+        required: true
+        default: '2.4.3'
+        type: string
+      packages:
+        description: 'Package identities to publish'
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - unscoped
+          - scoped
+permissions:
+  contents: read
+concurrency:
+  group: kujira-npm-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'Tests4gptplay/dsh-kujira-persona'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_PACKAGES: ${{ inputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Use npm with trusted publishing support
+        run: npm install -g npm@12.2.2 --ignore-scripts
+      - name: Verify the release source
+        run: |
+          node --input-type=module <<'JS'
+          import {readFileSync} from 'node:fs'
+          import {execFileSync} from 'node:child_process'
+          const version=process.env.RELEASE_VERSION
+          if(!/^\d+\.\d+\.\d+$/.test(version))throw Error('Use an official release version')
+          if(!['both','unscoped','scoped'].includes(process.env.RELEASE_PACKAGES))throw Error('Choose both, unscoped or scoped')
+          const metadata=JSON.parse(readFileSync('package.json','utf8'))
+          if(metadata.name!=='dsh-kujira-persona'||metadata.version!==version)throw Error('Package name or version does not match this checkout')
+          const tag=execFileSync('git',['rev-parse','refs/tags/v'+version+'^{commit}'],{encoding:'utf8'}).trim()
+          const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()
+          if(tag!==head||tag!==process.env.GITHUB_SHA)throw Error('Run this workflow from the release tag, or main while it still points at that release commit')
+          console.log('Verified release source:',version)
+          JS
+      - name: Download and verify both release packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "v$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" --pattern "dsh-kujira-persona-$RELEASE_VERSION.tgz" --pattern "tests4gptplay-dsh-kujira-persona-$RELEASE_VERSION.tgz" --pattern SHA256SUMS.txt --dir "$RUNNER_TEMP/kujira-npm-release"
+          python - <<'PY'
+          import hashlib,json,os,pathlib,re,tarfile
+          version=os.environ['RELEASE_VERSION']
+          directory=pathlib.Path(os.environ['RUNNER_TEMP'])/'kujira-npm-release'
+          targets={
+              'dsh-kujira-persona-'+version+'.tgz':'dsh-kujira-persona',
+              'tests4gptplay-dsh-kujira-persona-'+version+'.tgz':'@tests4gptplay/dsh-kujira-persona',
+          }
+          checksums={}
+          for line in (directory/'SHA256SUMS.txt').read_text().splitlines():
+              digest,name=line.split('  ',1)
+              assert re.fullmatch(r'[a-f0-9]{64}',digest) and name not in checksums, 'Invalid release checksum entry'
+              checksums[name]=digest
+          assert checksums.keys()==targets.keys(), 'Unexpected release checksum entries'
+          for filename,identity in targets.items():
+              path=directory/filename
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==checksums[filename], 'Release checksum mismatch: '+filename
+              with tarfile.open(path) as archive:
+                  package=json.loads(archive.extractfile('package/package.json').read())
+                  assert package['name']==identity and package['version']==version
+                  assert package.get('private') is not True
+                  assert package['repository']['url']=='git+https://github.com/Tests4gptplay/dsh-kujira-persona.git'
+                  patch=archive.extractfile('package/cordis.patch.yml').read().decode()
+                  assert re.search(r'(?m)^\s*name:\s*[\'\"]?'+re.escape(identity)+r'[\'\"]?\s*$',patch)
+                  client=archive.extractfile('package/pet/client.js').read().decode()
+                  assert re.search(r'''window\.__ModuleLoader__\.load\(\{id:(['"])'''+re.escape(identity)+r'\1',client)
+                  for member in archive.getmembers():
+                      assert member.name.startswith('package/') and '..' not in pathlib.PurePosixPath(member.name).parts
+                      assert member.isfile() or member.isdir()
+                      assert not member.name.startswith(('package/scripts/','package/node_modules/','package/work/','package/.git/'))
+              print('Verified official release package:',filename)
+          PY
+      - name: Check selected npm versions against the release bytes
+        id: npm_versions
+        run: |
+          node --input-type=module <<'JS'
+          import {appendFileSync,readFileSync} from 'node:fs'
+          import {createHash} from 'node:crypto'
+          import {join} from 'node:path'
+          const version=process.env.RELEASE_VERSION
+          for(const [key,name,prefix] of [['scoped','@tests4gptplay/dsh-kujira-persona','tests4gptplay-'],['unscoped','dsh-kujira-persona','']]){
+            let publish=false
+            if(process.env.RELEASE_PACKAGES==='both'||process.env.RELEASE_PACKAGES===key){
+              const file=prefix+'dsh-kujira-persona-'+version+'.tgz'
+              const bytes=readFileSync(join(process.env.RUNNER_TEMP,'kujira-npm-release',file))
+              const response=await fetch('https://registry.npmjs.org/'+encodeURIComponent(name)+'/'+version,{signal:AbortSignal.timeout(20000)})
+              if(response.status===404){publish=true;console.log('Ready to publish:',name,version)}
+              else if(response.status===200){
+                const metadata=await response.json()
+                if(metadata.name!==name||metadata.version!==version)throw Error('Unexpected npm metadata for '+name)
+                const integrity='sha512-'+createHash('sha512').update(bytes).digest('base64')
+                const shasum=createHash('sha1').update(bytes).digest('hex')
+                const dist=metadata.dist??{}
+                const same=typeof dist.integrity==='string'?dist.integrity.split(/\s+/).includes(integrity):dist.shasum===shasum
+                if(!same)throw Error('Published npm version differs from this release: '+name+'@'+version)
+                console.log('Already published with matching bytes; skipping:',name,version)
+              }else throw Error('npm version lookup failed for '+name+': '+response.status)
+            }
+            appendFileSync(process.env.GITHUB_OUTPUT,'publish_'+key+'='+publish+'\n')
+          }
+          JS
+      - name: Publish scoped package through npm OIDC
+        if: steps.npm_versions.outputs.publish_scoped == 'true'
+        run: npm publish "$RUNNER_TEMP/kujira-npm-release/tests4gptplay-dsh-kujira-persona-$RELEASE_VERSION.tgz" --ignore-scripts --access public --tag latest
+      - name: Publish original package through npm OIDC
+        if: steps.npm_versions.outputs.publish_unscoped == 'true'
+        run: npm publish "$RUNNER_TEMP/kujira-npm-release/dsh-kujira-persona-$RELEASE_VERSION.tgz" --ignore-scripts --access public --tag latest

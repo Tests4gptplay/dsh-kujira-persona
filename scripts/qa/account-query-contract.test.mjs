@@ -30,6 +30,54 @@ test('OpenAI official costs and completions remain separate visible account metr
  assert.equal(urls.length,2)
  const en=projectUiState({usage:result},'en').usage
  assert.match(en.lines.join(' '),/Completions usage/);assert.match(en.lines.join(' '),/month/)
+ assert.equal(result.checkedAt,now);assert.match(en.details.join(' '),/Reporting month: 2026-10 \(UTC\)/)
+})
+test('OpenAI Costs includes the current UTC day while Completions ends at query time',async()=>{
+ const at=Date.UTC(2025,6,12,9),today=Date.UTC(2025,6,12)/1000,tomorrow=today+86400
+ const requests=[]
+ const result=await westernAdapters.openai.read({now:at,profile:{projectId:'proj-fixture'},request:async u=>{
+  requests.push(u)
+  assert.equal(u.searchParams.get('project_ids'),'proj-fixture');assert.equal(u.searchParams.get('bucket_width'),'1d');assert.equal(u.searchParams.has('model'),false);assert.equal(u.searchParams.has('models'),false)
+  if(u.pathname.endsWith('/costs')){
+   // Synthetic charges: a partial-day end omits the current day's bucket.
+   const rows=[{amount:{value:1.125,currency:'usd'}}]
+   if(Number(u.searchParams.get('end_time'))>=tomorrow)rows.push({amount:{value:4.375,currency:'usd'}})
+   return envelope(rows)
+  }
+  assert.equal(u.searchParams.get('end_time'),String(at/1000));return envelope([{input_tokens:100,output_tokens:20}])
+ }})
+ assert.equal(result.metrics[0].value,5.5)
+ assert.equal(result.metrics[0].period.end,new Date(at).toISOString())
+ assert.equal(requests.find(u=>u.pathname.endsWith('/costs')).searchParams.get('end_time'),String(tomorrow))
+})
+test('OpenAI cost day boundary remains exclusive across month and year rollovers',async()=>{
+ for(const at of [Date.UTC(2026,9,31,23,59),Date.UTC(2026,11,31,23,59),Date.UTC(2028,1,29,12),Date.UTC(2026,10,1,0)]){
+  const date=new Date(at),expected=Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate()+1)/1000
+  await westernAdapters.openai.read({now:at,profile:{},request:async u=>{
+   if(u.pathname.endsWith('/costs'))assert.equal(Number(u.searchParams.get('end_time')),expected)
+   return envelope([])
+  }})
+ }
+})
+test('OpenAI day-aligned pagination retains project filters and totals every page',async()=>{
+ const calls=[]
+ const result=await westernAdapters.openai.read({now,profile:{projectId:'proj-fixture'},request:async u=>{
+  calls.push(u);assert.equal(u.searchParams.get('project_ids'),'proj-fixture')
+  const cost=u.pathname.endsWith('/costs'),second=u.searchParams.has('page')
+  if(second)assert.equal(u.searchParams.get('page'),cost?'cost-next':'usage-next')
+  return {data:[{results:cost?[{amount:{value:second?2.5:1.25,currency:'usd'}}]:[{input_tokens:second?200:100,output_tokens:20}]}],has_more:!second,next_page:second?null:cost?'cost-next':'usage-next'}
+ }})
+ assert.equal(result.metrics[0].value,3.75);assert.equal(result.metrics[1].value,340);assert.equal(calls.length,4)
+})
+test('Account descriptions share one settings snapshot without mixing model overrides',()=>{
+ let settingsReads=0,providerReads=0
+ const routes=[{provider:'openai',model:'gpt-4'},{provider:'openai',model:'gpt-6.1-sol'},{provider:'openai',model:'gpt-6.1-terra'}]
+ const services={settings:{describe:()=>{settingsReads++;return [{ns:'llm-pi-ai',value:{providers:{openai:{baseURL:'https://api.openai.com/v1',apiKeyEnv:'MAIN',modelOverrides:{'gpt-6.1-terra':{baseURL:'https://api.openai.com/v1',apiKeyEnv:'OTHER'}}}}}}]}},llm:{listConfigurableProviders:()=>{providerReads++;return [{provider:'openai',settingsNs:'llm-pi-ai',settingsPath:['providers','openai']}]}}}
+ const read=createUsageReader({get:k=>services[k]})
+ const descriptions=read.describeMany(routes)
+ assert.equal(settingsReads,1);assert.equal(providerReads,1);assert.equal(descriptions.length,3)
+ assert.equal(descriptions[0].profileKey,descriptions[1].profileKey);assert.notEqual(descriptions[0].profileKey,descriptions[2].profileKey)
+ assert.deepEqual(descriptions.map(x=>x.model),routes.map(x=>x.model))
 })
 test('OpenAI zero is a successful official response; failed cost keeps only tokens with partial marker',async()=>{
  const read=reader('openai','https://api.openai.com',async u=>u.pathname.endsWith('/costs')?new Response('{}',{status:403}):Response.json(envelope([{input_tokens:0,output_tokens:0}])),{ADMIN:'synthetic'})

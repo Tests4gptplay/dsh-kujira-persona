@@ -83,20 +83,23 @@ export class PetController {
     const changed=JSON.stringify(next)!==JSON.stringify(this.stats)
     this.stats=next;return changed
   }
-  async select(input){
+  async select(input,{waitForPresentation=true}={}){
     const provider=typeof input.provider==='string'?input.provider:'';const model=typeof input.model==='string'?input.model:'';const sessionId=typeof input.sessionId==='string'?input.sessionId:''
-    if(provider===this.route.provider&&model===this.route.model&&sessionId===this.route.sessionId){await this.hydrate(sessionId);return this.updateStats()?this.publish():this.snapshot()}
+    if(provider===this.route.provider&&model===this.route.model&&sessionId===this.route.sessionId){const history=this.hydrate(sessionId);if(waitForPresentation)await history;return this.updateStats()?this.publish():this.snapshot()}
     const sameSession=!!sessionId&&sessionId===this.route.sessionId
-    const id=++this.routeVersion
+    this.routeVersion++
     this.cancelQuery()
     const family=modelFamily({provider,model})
     const art=Object.hasOwn(NAMES,family)?family:'stella'
     this.route={provider,model,sessionId,family,persona:art,art,name:NAMES[art]}
     if(!sameSession){this.presentation=this.sessionStates.get(sessionId)??presentation();if(sessionId)this.sessionStates.set(sessionId,this.presentation)}
     this.updateStats();this.usage={...unknownUsage(provider==='codex-local'?'codex':family==='deepseek'?'balance':'usage','正在读取当前接入',ui('usage.reading')),hidden:true};this.publish()
-    await Promise.all([this.refreshPersona(),this.hydrate(sessionId)])
-    if(id!==this.routeVersion||this.closed)return this.snapshot()
+    // Account reads do not depend on persona lookup or session history. The
+    // foreground can acknowledge selection while those guarded updates settle.
+    const presentationReady=Promise.all([this.refreshPersona(),this.hydrate(sessionId)])
     if(this.config.enabled&&this.config.showUsage)void this.refresh()
+    if(waitForPresentation)await presentationReady
+    else void presentationReady.catch(()=>{})
     return this.snapshot()
   }
   hydrate(sessionId){

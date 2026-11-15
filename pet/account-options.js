@@ -1,9 +1,12 @@
 /** Configuration menu: only existing endpoint profiles with extra setup.
  * Ordinary inference-key queries and Host account integrations stay automatic.
  */
-export function accountConfigurationOptions(infos=[]) {
+export function accountConfigurationOptions(infos=[],currentRoute) {
   const result=[],seen=new Set()
-  for(const info of infos){
+  // A shared account keeps one menu entry; model-sensitive plans use the
+  // foreground model when that account contains the selected route.
+  const ordered=currentRoute?[...infos.filter(info=>info?.provider===currentRoute.provider&&info.model===currentRoute.model),...infos.filter(info=>info?.provider!==currentRoute.provider||info.model!==currentRoute.model)]:infos
+  for(const info of ordered){
     if(!info||info.hostAccount||!info.provider||!info.model)continue
     for(const adapter of info.adapters??[]){
       if(!adapter.available||adapter.auth==='host'||adapter.configurationSupported===false)continue

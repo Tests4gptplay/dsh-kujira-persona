@@ -109,17 +109,14 @@ jobs:
               const file=prefix+'dsh-kujira-persona-'+version+'.tgz'
               const bytes=readFileSync(join(process.env.RUNNER_TEMP,'kujira-npm-release',file))
               const registry='https://registry.npmjs.org/'+encodeURIComponent(name)
-              const response=await fetch(registry+'/'+version,{signal:AbortSignal.timeout(20000)})
-              if(response.status===404){
-                const existing=await fetch(registry,{signal:AbortSignal.timeout(20000)})
-                if(existing.status===404)throw Error(name+' does not exist on npm. OIDC cannot create a new package: first publish this release tarball using an account authenticated with npm login, then configure that package\'s own Trusted Publisher. Select scoped to publish only the existing scoped package.')
-                if(existing.status!==200)throw Error('npm package lookup failed for '+name+': '+existing.status)
-                if((await existing.json()).name!==name)throw Error('Unexpected npm package metadata for '+name)
-                publish=true
-                console.log('Ready to publish existing package:',name,version)
-              }
-              else if(response.status===200){
-                const metadata=await response.json()
+              const response=await fetch(registry+'?publish-check='+Date.now(),{headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(20000)})
+              if(response.status===404)throw Error(name+' does not exist on npm. OIDC cannot create a new package: first publish this release tarball using an account authenticated with npm login, then configure that package\'s own Trusted Publisher. Select scoped to publish only the existing scoped package.')
+              if(response.status!==200)throw Error('npm package lookup failed for '+name+': '+response.status)
+              const packument=await response.json()
+              if(packument.name!==name)throw Error('Unexpected npm package metadata for '+name)
+              if(!packument.versions||typeof packument.versions!=='object'||Array.isArray(packument.versions))throw Error('Incomplete npm package metadata for '+name)
+              const metadata=packument.versions?.[version]
+              if(metadata){
                 if(metadata.name!==name||metadata.version!==version)throw Error('Unexpected npm metadata for '+name)
                 const integrity='sha512-'+createHash('sha512').update(bytes).digest('base64')
                 const shasum=createHash('sha1').update(bytes).digest('hex')
@@ -127,7 +124,10 @@ jobs:
                 const same=typeof dist.integrity==='string'?dist.integrity.split(/\s+/).includes(integrity):dist.shasum===shasum
                 if(!same)throw Error('Published npm version differs from this release: '+name+'@'+version)
                 console.log('Already published with matching bytes; skipping:',name,version)
-              }else throw Error('npm version lookup failed for '+name+': '+response.status)
+              }else{
+                publish=true
+                console.log('Ready to publish existing package:',name,version)
+              }
             }
             appendFileSync(process.env.GITHUB_OUTPUT,'publish_'+key+'='+publish+'\n')
           }

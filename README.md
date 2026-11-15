@@ -1,8 +1,8 @@
 # Kujira · AI 角色与世界
 
-**测试候选：2.4.3-rc.1** · [下载测试安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3-rc.1/dsh-kujira-persona-2.4.3-rc.1.tgz) · [预发布说明](scripts/release-v2.4.3/NOTES.md)
+**测试候选：2.4.3-rc.2** · [下载测试安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3-rc.2/dsh-kujira-persona-2.4.3-rc.2.tgz) · [预发布说明](scripts/release-v2.4.3/NOTES.md)
 
-本候选来自 `test/v2.4.3`，用于验证 OpenAI 当天费用、账户设置、模型切换响应与临时文件清理。将安装包直链填入 DSH 的“安装第三方插件 → 包名或地址”即可测试；角色、记忆及日记沿用现有数据。验证通过后再转正式版。
+本候选来自 `test/v2.4.3`。rc.2 在 rc.1 基础上修复页面内桌宠右键菜单的锚点，使其跟随桌宠移动；其他产品代码沿用 rc.1。将安装包直链填入 DSH 的“安装第三方插件 → 包名或地址”即可测试；角色、记忆及日记沿用现有数据。验证通过后再转正式版。
 
 **当前正式版：2.4.2** · [正式版安装步骤](#安装与升级)
 

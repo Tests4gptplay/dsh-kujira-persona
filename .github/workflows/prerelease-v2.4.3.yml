@@ -48,11 +48,30 @@ jobs:
           scripts/qa/selected-session-adapter-check.mjs
           scripts/qa/menu-errors-check.mjs
           daily-diary.test.js
+      - name: Verify pet menu position with old and current public components
+        run: |
+          node --input-type=module <<'JS'
+          import {readFile,mkdir,writeFile} from 'node:fs/promises'
+          import {join} from 'node:path'
+          const template=JSON.parse(await readFile('scripts/qa/pet-menu-browser-deps.json','utf8'))
+          for(const [name,version] of [['old','0.2.1-rc.2'],['current','0.2.2-rc.3']]){
+            const manifest=structuredClone(template)
+            for(const dependency of Object.keys(manifest.dependencies))if(dependency.startsWith('@deepseek-ai/'))manifest.dependencies[dependency]=version
+            const directory=join(process.env.RUNNER_TEMP,'kujira-menu-'+name)
+            await mkdir(directory,{recursive:true})
+            await writeFile(join(directory,'package.json'),JSON.stringify(manifest,null,2)+'\n')
+          }
+          JS
+          npm install --prefix "$RUNNER_TEMP/kujira-menu-old" --ignore-scripts --no-package-lock
+          npm install --prefix "$RUNNER_TEMP/kujira-menu-current" --ignore-scripts --no-package-lock
+          "$RUNNER_TEMP/kujira-menu-old/node_modules/.bin/playwright" install --with-deps chromium
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-menu-old" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/menu-old-results" node scripts/qa/pet-menu-browser-check.mjs
+          DSH_BROWSER_TEST_ROOT="$RUNNER_TEMP/kujira-menu-current" DSH_BROWSER_TEST_OUTPUT="$RUNNER_TEMP/menu-current-results" node scripts/qa/pet-menu-browser-check.mjs
       - name: Build and verify the exact install package
         run: |
           python scripts/release-v2.4.3/pack.py dist
           mkdir "$RUNNER_TEMP/kujira-package"
-          tar -xzf dist/dsh-kujira-persona-2.4.3-rc.1.tgz -C "$RUNNER_TEMP/kujira-package"
+          tar -xzf dist/dsh-kujira-persona-2.4.3-rc.2.tgz -C "$RUNNER_TEMP/kujira-package"
           KUJIRA_PACKAGE_ROOT="$RUNNER_TEMP/kujira-package/package" node --test scripts/qa/account-query-contract.test.mjs
           cd dist
           sha256sum -c SHA256SUMS.txt
@@ -62,10 +81,10 @@ jobs:
           GH_REPO: Tests4gptplay/dsh-kujira-persona
         run: |
           set -euo pipefail
-          TAG='v2.4.3-rc.1'
+          TAG='v2.4.3-rc.2'
           if gh api "repos/$GH_REPO/releases/tags/$TAG" > "$RUNNER_TEMP/existing-release.json" 2> "$RUNNER_TEMP/release-query.err"; then
             echo 'Candidate already exists; refusing to overwrite its tag or assets.'
             exit 1
           fi
           grep -q 'HTTP 404' "$RUNNER_TEMP/release-query.err" || { cat "$RUNNER_TEMP/release-query.err"; exit 1; }
-          gh release create "$TAG" --target '${{ github.sha }}' --title 'Kujira 2.4.3-rc.1 测试候选' --notes-file scripts/release-v2.4.3/NOTES.md --prerelease --latest=false dist/dsh-kujira-persona-2.4.3-rc.1.tgz dist/SHA256SUMS.txt
+          gh release create "$TAG" --target '${{ github.sha }}' --title 'Kujira 2.4.3-rc.2 测试候选' --notes-file scripts/release-v2.4.3/NOTES.md --prerelease --latest=false dist/dsh-kujira-persona-2.4.3-rc.2.tgz dist/SHA256SUMS.txt

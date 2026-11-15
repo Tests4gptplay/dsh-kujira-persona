@@ -11,7 +11,7 @@ root = pathlib.Path(__file__).resolve().parents[2]
 out = pathlib.Path(sys.argv[1]).resolve()
 out.mkdir(parents=True, exist_ok=True)
 version = json.loads((root / 'package.json').read_text())['version']
-assert version == '2.4.3-rc.1', version
+assert version == '2.4.3-rc.2', version
 readme = root / 'README.md'
 original = readme.read_text()
 clean, count = re.subn(

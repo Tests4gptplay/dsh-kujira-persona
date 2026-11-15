@@ -165,7 +165,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 当前版本：**2.4.3**。安装包与固定标签均已包含运行文件，无需编译。
 
-**选择安装来源：** GitHub 标签、Release 安装包与无 scope npm 包使用同一插件标识 `dsh-kujira-persona`。旧 GitHub 用户可继续原来源，或在 npm 发布后用同名包原地更新。已安装 `@tests4gptplay/dsh-kujira-persona` 的用户继续使用原包名。只保留一个 Kujira 安装项，不要同时安装两种包名。
+**选择安装来源：** GitHub 标签、Release 安装包与无 scope npm 包使用同一插件标识 `dsh-kujira-persona`。旧 GitHub 用户可继续原来源，或用同名 npm 包原地更新。已安装 `@tests4gptplay/dsh-kujira-persona` 的用户继续使用原包名。只保留一个 Kujira 安装项，不要同时安装两种包名。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
@@ -173,7 +173,7 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 github:Tests4gptplay/dsh-kujira-persona#v2.4.3
 ```
 
-**npm 安装：** 本版发布到 npm 后，可在 **包名或地址** 中填入 `dsh-kujira-persona@2.4.3`；已安装带 scope 包名的用户使用 `@tests4gptplay/dsh-kujira-persona@2.4.3`。两种包名选择一种，与已有安装保持一致。
+**npm 安装：** 可在 **包名或地址** 中填入 `dsh-kujira-persona@2.4.3`；已安装带 scope 包名的用户使用 `@tests4gptplay/dsh-kujira-persona@2.4.3`。两种包名选择一种，与已有安装保持一致。
 
 **升级已有插件：** 使用与已有插件标识一致的新版地址或 npm 包名原地更新，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载对应插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
 

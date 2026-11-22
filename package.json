@@ -1,6 +1,6 @@
 {
   "name": "dsh-kujira-persona",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "Kujira 是集 AI 桌宠、模型联动、用量与计费监控、角色扮演（RP）和个性化记忆于一体的 DSH 插件。支持多家模型服务的账户信息查询、模型切换、Windows/Linux/macOS 三平台适配，以及共享世界观、用户习惯捕捉、独立人设、个性整理、AI 日记与睡眠整理。",
   "type": "module",
   "license": "CC-BY-NC-SA-4.0",
@@ -54,7 +54,6 @@
     "LICENSE",
     "NOTICE.md",
     "README.md",
-    "CHANGELOG.md",
     "pet/*.js",
     "pet/assets/claude-core-work-v2.png",
     "pet/assets/claude-status-v2.png",
@@ -203,8 +202,7 @@
     "pet/assets/qwen-searching-compare-return-v5-17.png",
     "pet/assets/qwen-searching-compare-return-v5-18.png",
     "pet/assets/qwen-searching-compare-return-v5-19.png",
-    "pet/companion/*",
-    "docs/releases/v2.4.0.md"
+    "pet/companion/*"
   ],
   "dsh": {
     "bundle": {

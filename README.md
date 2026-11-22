@@ -1,12 +1,18 @@
 # Kujira · AI 角色与世界
 
-**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.3` · [下载 2.4.3 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3/dsh-kujira-persona-2.4.3.tgz) · [安装步骤](#安装与升级)
+**安装 / 升级：** `github:Tests4gptplay/dsh-kujira-persona#v2.4.4` · [下载 2.4.4 安装包](https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.4/dsh-kujira-persona-2.4.4.tgz) · [安装步骤](#安装与升级)
 
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:START -->
 **账户查询验证范围：Codex 与 OpenAI API 已获用户验证；其他来源待用户验证反馈。**
 
 **Account-query validation: Codex and OpenAI API have been user-verified; other sources await user validation and feedback.**
 <!-- ACCOUNT-VALIDATION-WEB-ONLY:END -->
+
+## 2.4.4：更小的桌宠安装包 / Smaller desktop pet package
+
+桌宠动画图集改用 256 色 PNG，安装包约 41 MB，比 2.4.3 小约 79%。保留原有动作、帧数、尺寸与透明背景。
+
+Desktop pet sprites now use indexed PNG palettes with up to 256 colors. The package is about 41 MB, approximately 79% smaller than 2.4.3, with the original animations, frame counts, dimensions and transparent backgrounds.
 
 ## 2.4.3：账户费用与桌宠菜单修复
 
@@ -163,17 +169,17 @@ GPT、DeepSeek 等角色提供独立的工作与互动动作，其他角色也�
 
 ## 安装与升级
 
-当前版本：**2.4.3**。安装包与固定标签均已包含运行文件，无需编译。
+当前版本：**2.4.4**。安装包与固定标签均已包含运行文件，无需编译。
 
 **选择安装来源：** GitHub 标签、Release 安装包与无 scope npm 包使用同一插件标识 `dsh-kujira-persona`。旧 GitHub 用户可继续原来源，或用同名 npm 包原地更新。已安装 `@tests4gptplay/dsh-kujira-persona` 的用户继续使用原包名。只保留一个 Kujira 安装项，不要同时安装两种包名。
 
 **首次安装（Desktop）：** 打开侧栏 **插件 → 添加插件**（箭头菜单的 **安装第三方插件** 也可进入），把下面一整行填入 **包名或地址**，点击 **安装**，核对版本后点击 **立即启用**。
 
 ```text
-github:Tests4gptplay/dsh-kujira-persona#v2.4.3
+github:Tests4gptplay/dsh-kujira-persona#v2.4.4
 ```
 
-**npm 安装：** 可在 **包名或地址** 中填入 `dsh-kujira-persona@2.4.3`；已安装带 scope 包名的用户使用 `@tests4gptplay/dsh-kujira-persona@2.4.3`。两种包名选择一种，与已有安装保持一致。
+**npm 安装：** 可在 **包名或地址** 中填入 `dsh-kujira-persona@2.4.4`；已安装带 scope 包名的用户使用 `@tests4gptplay/dsh-kujira-persona@2.4.4`。两种包名选择一种，与已有安装保持一致。
 
 **升级已有插件：** 使用与已有插件标识一致的新版地址或 npm 包名原地更新，成功后核对版本并启用；已有设置与用户文件保留。若宿主提示已安装或要求先卸载，再按提示仅卸载对应插件条目并安装新版，不清除 DSH 数据或手工删除插件目录。是否需要重启以 DSH 提示为准；需要时完全退出并重新打开（Desktop 包括托盘）。
 
@@ -184,13 +190,13 @@ github:Tests4gptplay/dsh-kujira-persona#v2.4.3
 **备用安装包：** 将下面的 `.tgz` 直链填入同一个 **包名或地址**；也可下载后填写文件的完整绝对路径，无需解压。该路径应属于运行 DSH 的电脑。
 
 ```text
-https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.3/dsh-kujira-persona-2.4.3.tgz
+https://github.com/Tests4gptplay/dsh-kujira-persona/releases/download/v2.4.4/dsh-kujira-persona-2.4.4.tgz
 ```
 
 **Web：** 在运行服务的环境中执行。升级前停止对应 Web profile，成功后重新启动；Web 与 Desktop 分别安装。
 
 ```sh
-dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.3'
+dsh plugin --profile web add 'github:Tests4gptplay/dsh-kujira-persona#v2.4.4'
 ```
 
 备用时将命令中的来源换成上面的 `.tgz` 直链或下载文件的完整绝对路径。
@@ -217,7 +223,7 @@ Linux/macOS 桌面显示使用 Electron 伴随窗口，需要可用的 Electron 
 
 本插件是非官方同人项目。基础资料来自 [AI-gijinka 资料库](https://github.com/Tests4gptplay/ai-gijinka-art-world) 与社区作品的共性整理，人物和世界观都可以继续改写。
 
-DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶丶。其余来源与署名见 [NOTICE.md](NOTICE.md) 和 [资料来源](world/_资料来源.md)，许可见 [LICENSE](LICENSE)。版本变化见 [CHANGELOG.md](CHANGELOG.md)。
+DeepSeek 形象署名链：上善无形 → ZipZipPipe；MiMo 形象作者：甶丶。其余来源与署名见 [NOTICE.md](NOTICE.md) 和 [资料来源](world/_资料来源.md)，许可见 [LICENSE](LICENSE)。版本变化见 [更新记录](https://github.com/Tests4gptplay/dsh-kujira-persona/blob/main/CHANGELOG.md)。
 
 ### 余额、费用与用量 / Account queries and usage
 

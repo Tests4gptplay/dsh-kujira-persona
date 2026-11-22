@@ -139,7 +139,7 @@ export function applyPet(ctx,{catalog,home,folders={worldDir:join(home,'world'),
     scope.connection.fetch.register({path:'/api/kujira-pet/art',methods:['GET'],requestBody:'buffered',fetch:async request=>{
       const id=new URL(request.url).searchParams.get('id'),manifest=artFor(id)
       if(!manifest)return new Response('not found',{status:404})
-      const urls=Object.fromEntries(Object.keys(manifest.sheets).map(sheet=>[sheet,'/api/kujira-pet/sprite?id='+encodeURIComponent(id)+'&sheet='+encodeURIComponent(sheet)+'&v='+manifest.revision]))
+      const urls=Object.fromEntries(Object.keys(manifest.sheets).map(sheet=>[sheet,'/api/kujira-pet/sprite?id='+encodeURIComponent(id)+'&sheet='+encodeURIComponent(sheet)+'&v='+manifest.revision+'-palette256']))
       return Response.json({manifest,urls})
     }})
     scope.connection.fetch.register({path:'/api/kujira-pet/sprite',methods:['GET'],requestBody:'buffered',fetch:async request=>{
